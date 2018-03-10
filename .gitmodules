@@ -1,0 +1,6 @@
+[submodule "lib/modulekit/PDOext"]
+	path = lib/modulekit/PDOext
+	url = https://github.com/plepe/PDOext.git
+[submodule "modulekit"]
+	path = modulekit
+	url = https://github.com/plepe/modulekit.git
