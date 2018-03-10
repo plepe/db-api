@@ -1,69 +1,61 @@
 <?php
 class DBApi {
-  function __construct ($spec) {
+  function __construct ($db, $spec) {
+    $this->db = $db;
+    $this->spec = $spec;
   }
 
-  function load_entry ($id, $anonym=true) {
-    global $db;
+  function _build_load_query ($id) {
+    $select = array();
+    foreach ($this->spec['fields'] as $key => $field) {
+      if (!array_key_exists('read', $field) || $field['read']) {
+        if (array_key_exists('column', $field)) {
+          $select[] = $this->db->quoteIdent($field['column']) . ' as ' . $this->db->quoteIdent($key);
+        } else {
+          $select[] = $this->db->quoteIdent($key);
+        }
+      }
+    }
+
+    $where = $this->db->quoteIdent($this->spec['id_field'] ?? 'id') . '=' . $this->db->quote($id);
+
+    return 'select ' . implode(', ', $select) .
+      ' from ' . $this->db->quoteIdent($this->spec['id']) .
+      ' where ' . $where;
+
+  }
+
+  function load ($id) {
     $result = array();
 
+    // build query
     // base data
-    $res = $db->query('select *, comments as commentsCount from map_markers where id=' . $db->quote($id));
+    $res = $this->db->query($this->_build_load_query($id));
     $result = $res->fetch();
 
     if (!$result) {
       return null;
     }
 
-    $result['visible'] = (boolean)$result['visible'];
-    $result['lat'] = (float)$result['lat'];
-    $result['lng'] = (float)$result['lng'];
-    $result['likes'] = (float)$result['likes'];
-    $result['mail_verified'] = (int)$result['mail_verified'];
-
-    if ($anonym) {
-      unset($result['email']);
-      unset($result['phone']);
-      unset($result['website']);
-      unset($result['ip']);
-    }
-
-    // attachments
-    $res = $db->query('select images.* from map_comments right join images on map_comments.id=images.context where marker=' . $db->quote($id));
-    $images = $res->fetchAll();
-
-    // comments
-    $res = $db->query('select * from map_comments where marker=' . $db->quote($id));
-    $result['comments'] = array();
-    while ($elem = $res->fetch()) {
-      $elem['visible'] = (boolean)$elem['visible'];
-      $elem['newsletter'] = (boolean)$elem['newsletter'];
-      $elem['main'] = (boolean)$elem['main'];
-      $elem['likes'] = (float)$elem['likes'];
-      $elem['notify'] = (int)$elem['notify'];
-      $elem['mail_verified'] = (int)$elem['mail_verified'];
-      $elem['attachments'] = array();
-
-      if ($anonym) {
-        unset($elem['email']);
-        unset($elem['phone']);
-        unset($elem['website']);
-        unset($elem['gender']);
-        unset($elem['ip']);
-        $elem['name'] = mb_substr($elem['name'], 0, 1) . '.';
+    foreach ($this->spec['fields'] as $key => $field) {
+      if (array_key_exists('read', $field) && is_callable($field['read'], false, $callable_name)) {
+        $result[$key] = call_user_func($callable_name, $result[$key], $this);
       }
 
-      foreach ($images as $image) {
-        if ($elem['id'] === $image['context']) {
-          $image['type'] = (int)$image['type'];
-          $image['width'] = (int)$image['width'];
-          $image['height'] = (int)$image['height'];
-
-          $elem['attachments'][] = $image;
-        }
+      switch ($field['type'] ?? 'string') {
+        case 'string':
+          break;
+        case 'boolean':
+          $result[$key] = (boolean)$result[$key];
+          break;
+        case 'float':
+          $result[$key] = (float)$result[$key];
+          break;
+        case 'int':
+          $result[$key] = (int)$result[$key];
+          break;
+        default:
       }
-
-      $result['comments'][] = $elem;
     }
 
     return $result;

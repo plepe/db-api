@@ -6,5 +6,7 @@ $depend = array(
 );
 
 $include = array(
-  'src/db.php',
+  'php' => array(
+    'src/db.php',
+  ),
 );
