@@ -5,9 +5,17 @@ class DBApi {
     $this->spec = $spec;
   }
 
-  function _build_load_query ($query) {
+  function _build_load_query ($query, $spec=null) {
+    if ($spec === null) {
+      $spec = $this->spec;
+    }
+
     $select = array();
-    foreach ($this->spec['fields'] as $key => $field) {
+    foreach ($spec['fields'] as $key => $field) {
+      if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
+        continue;
+      }
+
       if (!array_key_exists('read', $field) || $field['read']) {
         if (array_key_exists('column', $field)) {
           $select[] = $this->db->quoteIdent($field['column']) . ' as ' . $this->db->quoteIdent($key);
@@ -28,7 +36,7 @@ class DBApi {
       }
     }
     else {
-      $where[] = $this->db->quoteIdent($this->spec['id_field'] ?? 'id') . '=' . $this->db->quote($query);
+      $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($query);
     }
 
     return 'select ' . implode(', ', $select) .
@@ -37,18 +45,27 @@ class DBApi {
 
   }
 
-  function load ($query) {
+  function load ($query, $spec=null) {
     $ret = array();
+
+    if ($spec === null) {
+      $spec = $this->spec;
+    }
 
     // build query
     // base data
-    $res = $this->db->query($this->_build_load_query($query));
+    $q = $this->_build_load_query($query, $spec);
+    $res = $this->db->query($q);
     while ($result = $res->fetch()) {
       if (!$result) {
         return null;
       }
 
-      foreach ($this->spec['fields'] as $key => $field) {
+      foreach ($spec['fields'] as $key => $field) {
+        if (array_key_exists('read', $field) && $field['read'] === false) {
+          continue;
+        }
+
         if (array_key_exists('read', $field) && is_callable($field['read'], false, $callable_name)) {
           $result[$key] = call_user_func($callable_name, $result[$key], $this);
         }
@@ -65,11 +82,14 @@ class DBApi {
           case 'int':
             $result[$key] = (int)$result[$key];
             break;
+          case 'sub_table':
+            $id = $result[$spec['id_field'] ?? 'id'];
+            $result[$key] = $this->load(array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)), $field);
           default:
         }
       }
 
-      $id = $result[$this->spec['id_field'] ?? 'id'];
+      $id = $result[$spec['id_field'] ?? 'id'];
       $ret[$id] = $result;
     }
 
