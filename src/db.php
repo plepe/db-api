@@ -137,9 +137,15 @@ class DBApi {
   function _update_data ($data, $spec) {
     global $db;
     $queries = array();
+    $id_field = $spec['id_field'] ?? 'id';
 
     foreach ($data as $id => $elem) {
       $set = array();
+      $insert = false;
+
+      if (array_key_exists($id_field, $elem) && $elem['id_field'] === '__new') {
+        $insert = true;
+      }
 
       foreach ($elem as $key => $d) {
         $field = $spec['fields'][$key];
@@ -166,11 +172,23 @@ class DBApi {
         $set[] = $db->quoteIdent($field['column'] ?? $key) . '=' . $db->quote($d);
       }
 
-      if (sizeof($set)) {
+      if ($insert) {
+        if (sizeof($set)) {
+          $queries[] = 'insert into ' .
+            $this->db->quoteIdent($spec['id']) .
+            ' set ' . implode(', ', $set);
+        }
+        else {
+          $queries[] = 'insert into ' .
+            $this->db->quoteIdent($spec['id']) .
+            '() values ()';
+        }
+      }
+      else if (sizeof($set)) {
         $queries[] = 'update ' .
           $this->db->quoteIdent($spec['id']) .
           ' set ' . implode(', ', $set) .
-          ' where ' . ($spec['id_field'] ?? 'id') . '=' . $db->quote($id);
+          ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id);
       }
     }
 
