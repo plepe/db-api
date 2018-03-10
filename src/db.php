@@ -60,10 +60,18 @@ class DBApi {
       $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($options['query']);
     }
 
+    $limit_offset = '';
+    if (array_key_exists('limit', $options) && is_int($options['limit'])) {
+      $limit_offset .= " limit {$options['limit']}";
+    }
+    if (array_key_exists('offset', $options) && is_int($options['offset'])) {
+      $limit_offset .= " offset {$options['offset']}";
+    }
+
     return 'select ' . implode(', ', $select) .
       ' from ' . $this->db->quoteIdent($spec['id']) .
-      ' where ' . implode(' and ', $where);
-
+      ' where ' . implode(' and ', $where) .
+      $limit_offset;
   }
 
   function load ($options=array(), $spec=null) {
