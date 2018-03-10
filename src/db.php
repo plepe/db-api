@@ -35,7 +35,10 @@ class DBApi {
       }
 
       if (!array_key_exists('read', $field) || $field['read']) {
-        if (array_key_exists('column', $field)) {
+        if (array_key_exists('select', $field)) {
+          $select[] = "({$field['select']}) as " . $this->db->quoteIdent($key);
+        }
+        else if (array_key_exists('column', $field)) {
           $select[] = $this->db->quoteIdent($field['column']) . ' as ' . $this->db->quoteIdent($key);
         } else {
           $select[] = $this->db->quoteIdent($key);

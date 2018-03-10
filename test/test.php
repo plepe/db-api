@@ -37,6 +37,10 @@ $spec2 = array(
       'write' => true,
       'type' => 'int',
     ),
+    'commentsCount' => array(
+      'type' => 'int',
+      'select' => 'select count(*) from test2_comments where test2_id=test2.id',
+    ),
     'comments' => array(
       'type' => 'sub_table',
       'id' => 'test2_comments',
@@ -152,7 +156,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery2 () {
     global $table2;
 
-    $this->assertEquals("select `id` from `test2` where `id`='1'", $table2->_build_load_query(array('query' => 1)));
+    $this->assertEquals("select `id`, (select count(*) from test2_comments where test2_id=test2.id) as `commentsCount` from `test2` where `id`='1'", $table2->_build_load_query(array('query' => 1)));
   }
 
   public function testBuildLoad2 () {
@@ -162,6 +166,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $expected = array (
       1 => array (
 	'id' => 1,
+        'commentsCount' => 2,
 	'comments' => array (
 	  1 => array (
 	    'test2_id' => 1,
