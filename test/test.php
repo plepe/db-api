@@ -156,9 +156,11 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_update () {
     global $table1;
 
-    $table1->save(array(
+    $ids = $table1->save(array(
       '1' => array('b' => 'bla', 'd' => 'bla'),
     ));
+
+    $this->assertEquals(array(1), $ids);
 
     $actual = $table1->load(array('query' => 1));
     $expected = array(1 => array('a' => 1, 'b' => 'bla', 'd' => 'b'));
@@ -213,15 +215,16 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad2_update () {
     global $table2;
 
-    $table2->save(array(
-      '1' => array('comments' => array(2 => array('text' => 'foobar'))),
+    $ids = $table2->save(array(
+      '1' => array('comments' => array(2 => array('text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
     ));
+    $this->assertEquals(array(1), $ids);
 
     $actual = $table2->load(array('query' => 1));
     $expected = array (
       1 => array (
 	'id' => 1,
-        'commentsCount' => 2,
+        'commentsCount' => 3,
 	'comments' => array (
 	  1 => array (
 	    'test2_id' => 1,
@@ -232,6 +235,42 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	    'test2_id' => 1,
 	    'id' => 2,
 	    'text' => 'foobar',
+	  ),
+          4 => array(
+	    'test2_id' => 1,
+	    'id' => 4,
+	    'text' => 'foobar2',
+          ),
+	),
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad2_create () {
+    global $table2;
+
+    $ids = $table2->save(array(
+      array('id' => '__new', 'comments' => array(array('id' => '__new', 'text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
+    ));
+    $this->assertEquals(array(3), $ids);
+
+    $actual = $table2->load(array('query' => $ids[0]));
+    $expected = array (
+      3 => array (
+	'id' => 3,
+        'commentsCount' => 2,
+	'comments' => array (
+	  5 => array (
+	    'test2_id' => 3,
+	    'id' => 5,
+	    'text' => 'foobar',
+	  ),
+	  6 => array (
+	    'test2_id' => 3,
+	    'id' => 6,
+	    'text' => 'foobar2',
 	  ),
 	),
       ),

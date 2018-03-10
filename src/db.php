@@ -160,13 +160,6 @@ class DBApi {
         }
 
         if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-          $q = $this->_update_data($d, $field);
-
-          if (!is_array($q)) {
-            return $q;
-          }
-
-          $queries = array_merge($queries, $q);
           continue;
         }
 
@@ -175,42 +168,56 @@ class DBApi {
 
       if ($insert) {
         if (sizeof($set)) {
-          $queries[] = 'insert into ' .
+          $this->db->query('insert into ' .
             $this->db->quoteIdent($spec['id']) .
-            ' set ' . implode(', ', $set);
+            ' set ' . implode(', ', $set));
+          $id = $this->db->lastInsertId();
         }
         else {
-          $queries[] = 'insert into ' .
+          $this->db->query('insert into ' .
             $this->db->quoteIdent($spec['id']) .
-            '() values ()';
+            '() values ()');
+          $id = $this->db->lastInsertId();
         }
       }
-      else if (sizeof($set)) {
-        $queries[] = 'update ' .
-          $this->db->quoteIdent($spec['id']) .
-          ' set ' . implode(', ', $set) .
-          ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id);
+      else {
+        if (sizeof($set)) {
+          $this->db->query('update ' .
+            $this->db->quoteIdent($spec['id']) .
+            ' set ' . implode(', ', $set) .
+            ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
+        }
+        $id = array_key_exists($id_field, $elem) ? $elem[$id_field] : $id;
       }
+
+      foreach ($elem as $key => $d) {
+        $field = $spec['fields'][$key];
+
+        if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
+          foreach ($d as $i1 => $d1) {
+            $d[$i1][$field['parent_field']] = $id;
+          }
+          $q = $this->_update_data($d, $field);
+
+          if (!is_array($q)) {
+            return $q;
+          }
+        }
+      }
+
+      $ret[] = $id;
     }
 
-    return $queries;
+    return $ret;
   }
 
   function save ($data) {
     global $db;
-    $ret = array();
-
-    $queries = $this->_update_data ($data, $this->spec);
-
-    if (!is_array($queries)) {
-      return $queries;
-    }
 
     $db->beginTransaction();
-    foreach ($queries as $query) {
-      $db->query($query);
-      $ret[] = $db->lastInsertId();
-    }
+
+    $ret = $this->_update_data ($data, $this->spec);
+
     $db->commit();
 
     return $ret;
