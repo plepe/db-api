@@ -5,21 +5,21 @@ class DBApi {
     $this->spec = $spec;
   }
 
-  function _build_load_query ($query, $fields=null, $spec=null) {
+  function _build_load_query ($options=array(), $spec=null) {
     if ($spec === null) {
       $spec = $this->spec;
     }
 
-    if ($fields === null) {
-      $fields = array_keys($spec['fields']);
+    if (!array_key_exists('fields', $options)) {
+      $options['fields'] = array_keys($spec['fields']);
     }
 
-    if (!in_array($spec['id_field'] ?? 'id', $fields)) {
-      $fields[] = $spec['id_field'] ?? 'id';
+    if (!in_array($spec['id_field'] ?? 'id', $options['fields'])) {
+      $options['fields'][] = $spec['id_field'] ?? 'id';
     }
 
     $select = array();
-    foreach ($fields as $key) {
+    foreach ($options['fields'] as $key) {
       $field = $spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
@@ -36,8 +36,8 @@ class DBApi {
     }
 
     $where = array();
-    if (is_array($query)) {
-      foreach ($query as $q) {
+    if (is_array($options['query'])) {
+      foreach ($options['query'] as $q) {
         switch ($q['op'] ?? '=') {
           case '=':
           default:
@@ -46,7 +46,7 @@ class DBApi {
       }
     }
     else {
-      $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($query);
+      $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($options['query']);
     }
 
     return 'select ' . implode(', ', $select) .
@@ -55,31 +55,31 @@ class DBApi {
 
   }
 
-  function load ($query, $fields=null, $spec=null) {
+  function load ($options=array(), $spec=null) {
     $ret = array();
 
     if ($spec === null) {
       $spec = $this->spec;
     }
 
-    if ($fields === null) {
-      $fields = array_keys($spec['fields']);
+    if (!array_key_exists('fields', $options)) {
+      $options['fields'] = array_keys($spec['fields']);
     }
 
-    if (!in_array($spec['id_field'] ?? 'id', $fields)) {
-      $fields[] = $spec['id_field'] ?? 'id';
+    if (!in_array($spec['id_field'] ?? 'id', $options['fields'])) {
+      $options['fields'][] = $spec['id_field'] ?? 'id';
     }
 
     // build query
     // base data
-    $q = $this->_build_load_query($query, $fields, $spec);
+    $q = $this->_build_load_query($options, $spec);
     $res = $this->db->query($q);
     while ($result = $res->fetch()) {
       if (!$result) {
         return null;
       }
 
-      foreach ($fields as $key) {
+      foreach ($options['fields'] as $key) {
         $field = $spec['fields'][$key];
 
         if (array_key_exists('read', $field) && $field['read'] === false) {
@@ -104,7 +104,7 @@ class DBApi {
             break;
           case 'sub_table':
             $id = $result[$spec['id_field'] ?? 'id'];
-            $result[$key] = $this->load(array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)), null, $field);
+            $result[$key] = $this->load(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id))), $field);
           default:
         }
       }

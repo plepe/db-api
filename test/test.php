@@ -79,13 +79,13 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery1 () {
     global $table1;
 
-    $this->assertEquals("select `a`, `b`, `d1` as `d` from `test1` where `a`='1'", $table1->_build_load_query(1));
+    $this->assertEquals("select `a`, `b`, `d1` as `d` from `test1` where `a`='1'", $table1->_build_load_query(array('query' => 1)));
   }
 
   public function testBuildLoad1 () {
     global $table1;
 
-    $actual = $table1->load(1);
+    $actual = $table1->load(array('query' => 1));
     $expected = array('1' => array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
@@ -93,7 +93,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_fields () {
     global $table1;
 
-    $actual = $table1->load(1, array('b', 'c'));
+    $actual = $table1->load(array('query' => 1, 'fields' => array('b', 'c')));
     $expected = array('1' => array('a' => 1, 'b' => 'foo'));
     $this->assertEquals($expected, $actual);
   }
@@ -101,9 +101,9 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery1_customQuery () {
     global $table1;
 
-    $actual = $table1->_build_load_query(array(
+    $actual = $table1->_build_load_query(array('query' => array(
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
-    ));
+    )));
     $expected = "select `a`, `b`, `d1` as `d` from `test1` where `b`='foo'";
     $this->assertEquals($expected, $actual);
   }
@@ -111,9 +111,9 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_customQuery () {
     global $table1;
 
-    $actual = $table1->load(array(
+    $actual = $table1->load(array('query' => array(
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
-    ));
+    )));
     $expected = array(1 => array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
@@ -121,13 +121,13 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery2 () {
     global $table2;
 
-    $this->assertEquals("select `id` from `test2` where `id`='1'", $table2->_build_load_query(1));
+    $this->assertEquals("select `id` from `test2` where `id`='1'", $table2->_build_load_query(array('query' => 1)));
   }
 
   public function testBuildLoad2 () {
     global $table2;
 
-    $actual = $table2->load(1);
+    $actual = $table2->load(array('query' => 1));
     $expected = array (
       1 => array (
 	'id' => 1,
