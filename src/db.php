@@ -5,13 +5,23 @@ class DBApi {
     $this->spec = $spec;
   }
 
-  function _build_load_query ($query, $spec=null) {
+  function _build_load_query ($query, $fields=null, $spec=null) {
     if ($spec === null) {
       $spec = $this->spec;
     }
 
+    if ($fields === null) {
+      $fields = array_keys($spec['fields']);
+    }
+
+    if (!in_array($spec['id_field'] ?? 'id', $fields)) {
+      $fields[] = $spec['id_field'] ?? 'id';
+    }
+
     $select = array();
-    foreach ($spec['fields'] as $key => $field) {
+    foreach ($fields as $key) {
+      $field = $spec['fields'][$key];
+
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
         continue;
       }
@@ -45,23 +55,33 @@ class DBApi {
 
   }
 
-  function load ($query, $spec=null) {
+  function load ($query, $fields=null, $spec=null) {
     $ret = array();
 
     if ($spec === null) {
       $spec = $this->spec;
     }
 
+    if ($fields === null) {
+      $fields = array_keys($spec['fields']);
+    }
+
+    if (!in_array($spec['id_field'] ?? 'id', $fields)) {
+      $fields[] = $spec['id_field'] ?? 'id';
+    }
+
     // build query
     // base data
-    $q = $this->_build_load_query($query, $spec);
+    $q = $this->_build_load_query($query, $fields, $spec);
     $res = $this->db->query($q);
     while ($result = $res->fetch()) {
       if (!$result) {
         return null;
       }
 
-      foreach ($spec['fields'] as $key => $field) {
+      foreach ($fields as $key) {
+        $field = $spec['fields'][$key];
+
         if (array_key_exists('read', $field) && $field['read'] === false) {
           continue;
         }
@@ -84,7 +104,7 @@ class DBApi {
             break;
           case 'sub_table':
             $id = $result[$spec['id_field'] ?? 'id'];
-            $result[$key] = $this->load(array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)), $field);
+            $result[$key] = $this->load(array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)), null, $field);
           default:
         }
       }
