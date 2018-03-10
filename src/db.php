@@ -5,7 +5,7 @@ class DBApi {
     $this->spec = $spec;
   }
 
-  function _build_load_query ($options=array(), $spec=null) {
+  function _prepare_options (&$options, $spec=null) {
     if ($spec === null) {
       $spec = $this->spec;
     }
@@ -17,6 +17,14 @@ class DBApi {
     if (!in_array($spec['id_field'] ?? 'id', $options['fields'])) {
       $options['fields'][] = $spec['id_field'] ?? 'id';
     }
+  }
+
+  function _build_load_query ($options=array(), $spec=null) {
+    if ($spec === null) {
+      $spec = $this->spec;
+    }
+
+    $this->_prepare_options($options, $spec);
 
     $select = array();
     foreach ($options['fields'] as $key) {
@@ -62,13 +70,7 @@ class DBApi {
       $spec = $this->spec;
     }
 
-    if (!array_key_exists('fields', $options)) {
-      $options['fields'] = array_keys($spec['fields']);
-    }
-
-    if (!in_array($spec['id_field'] ?? 'id', $options['fields'])) {
-      $options['fields'][] = $spec['id_field'] ?? 'id';
-    }
+    $this->_prepare_options($options, $spec);
 
     // build query
     // base data
