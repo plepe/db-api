@@ -11,7 +11,7 @@ $spec1 = array(
     'a' => array(
       'type' => 'int',
       'read' => true,
-      'write' => false,
+      'write' => true,
     ),
     'b' => array(
       'type' => 'string',
@@ -68,8 +68,8 @@ $db = new PDOext($dbconf);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-$db->query("drop table if exists test1; create table test1 ( a int not null, b tinytext, c tinytext, d1 text, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
-$db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null, primary key(id)); insert into test2 values (1), (2); create table test2_comments ( test2_id int not null, id int not null, text mediumtext, primary key(test2_id, id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
+$db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext, c tinytext, d1 text, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
+$db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, primary key(id)); insert into test2 values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
 
 global $table1;
 global $table2;
@@ -162,6 +162,19 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $actual = $table1->load(array('query' => 1));
     $expected = array(1 => array('a' => 1, 'b' => 'bla', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad1_create () {
+    global $table1;
+
+    $ids = $table1->save(array(
+      array('a' => '__new', 'b' => 'bla', 'd' => 'bla'),
+    ));
+    $this->assertEquals(array(3), $ids);
+
+    $actual = $table1->load(array('query' => $ids[0]));
+    $expected = array(3 => array('a' => 3, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
   }
 

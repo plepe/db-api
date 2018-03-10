@@ -143,7 +143,8 @@ class DBApi {
       $set = array();
       $insert = false;
 
-      if (array_key_exists($id_field, $elem) && $elem['id_field'] === '__new') {
+      if (array_key_exists($id_field, $elem) && $elem[$id_field] === '__new') {
+        unset($elem[$id_field]);
         $insert = true;
       }
 
@@ -197,6 +198,7 @@ class DBApi {
 
   function save ($data) {
     global $db;
+    $ret = array();
 
     $queries = $this->_update_data ($data, $this->spec);
 
@@ -207,9 +209,10 @@ class DBApi {
     $db->beginTransaction();
     foreach ($queries as $query) {
       $db->query($query);
+      $ret[] = $db->lastInsertId();
     }
     $db->commit();
 
-    return $queries;
+    return $ret;
   }
 }
