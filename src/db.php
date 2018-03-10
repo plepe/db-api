@@ -44,7 +44,10 @@ class DBApi {
     }
 
     $where = array();
-    if (is_array($options['query'])) {
+    if (!array_key_exists('query', $options) || ($options['query'] === null)) {
+      $where[] = 'true';
+    }
+    elseif (is_array($options['query'])) {
       foreach ($options['query'] as $q) {
         switch ($q['op'] ?? '=') {
           case '=':
