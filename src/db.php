@@ -5,7 +5,7 @@ class DBApi {
     $this->spec = $spec;
   }
 
-  function _build_load_query ($id) {
+  function _build_load_query ($query) {
     $select = array();
     foreach ($this->spec['fields'] as $key => $field) {
       if (!array_key_exists('read', $field) || $field['read']) {
@@ -17,7 +17,7 @@ class DBApi {
       }
     }
 
-    $where = $this->db->quoteIdent($this->spec['id_field'] ?? 'id') . '=' . $this->db->quote($id);
+    $where = $this->db->quoteIdent($this->spec['id_field'] ?? 'id') . '=' . $this->db->quote($query);
 
     return 'select ' . implode(', ', $select) .
       ' from ' . $this->db->quoteIdent($this->spec['id']) .
@@ -25,40 +25,43 @@ class DBApi {
 
   }
 
-  function load ($id) {
-    $result = array();
+  function load ($query) {
+    $ret = array();
 
     // build query
     // base data
-    $res = $this->db->query($this->_build_load_query($id));
-    $result = $res->fetch();
-
-    if (!$result) {
-      return null;
-    }
-
-    foreach ($this->spec['fields'] as $key => $field) {
-      if (array_key_exists('read', $field) && is_callable($field['read'], false, $callable_name)) {
-        $result[$key] = call_user_func($callable_name, $result[$key], $this);
+    $res = $this->db->query($this->_build_load_query($query));
+    while ($result = $res->fetch()) {
+      if (!$result) {
+        return null;
       }
 
-      switch ($field['type'] ?? 'string') {
-        case 'string':
-          break;
-        case 'boolean':
-          $result[$key] = (boolean)$result[$key];
-          break;
-        case 'float':
-          $result[$key] = (float)$result[$key];
-          break;
-        case 'int':
-          $result[$key] = (int)$result[$key];
-          break;
-        default:
+      foreach ($this->spec['fields'] as $key => $field) {
+        if (array_key_exists('read', $field) && is_callable($field['read'], false, $callable_name)) {
+          $result[$key] = call_user_func($callable_name, $result[$key], $this);
+        }
+
+        switch ($field['type'] ?? 'string') {
+          case 'string':
+            break;
+          case 'boolean':
+            $result[$key] = (boolean)$result[$key];
+            break;
+          case 'float':
+            $result[$key] = (float)$result[$key];
+            break;
+          case 'int':
+            $result[$key] = (int)$result[$key];
+            break;
+          default:
+        }
       }
+
+      $id = $result[$this->spec['id_field'] ?? 'id'];
+      $ret[$id] = $result;
     }
 
-    return $result;
+    return $ret;
   }
 
   function load_overview ($options, $anonym=true) {

@@ -53,7 +53,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(1);
-    $expected = array('a' => 1, 'b' => 'foo', 'd' => 'f');
+    $expected = array('1' => array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
 }
