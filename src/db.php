@@ -17,11 +17,23 @@ class DBApi {
       }
     }
 
-    $where = $this->db->quoteIdent($this->spec['id_field'] ?? 'id') . '=' . $this->db->quote($query);
+    $where = array();
+    if (is_array($query)) {
+      foreach ($query as $q) {
+        switch ($q['op'] ?? '=') {
+          case '=':
+          default:
+            $where[] = $this->db->quoteIdent($q['key']) . '=' . $this->db->quote($q['value']);
+        }
+      }
+    }
+    else {
+      $where[] = $this->db->quoteIdent($this->spec['id_field'] ?? 'id') . '=' . $this->db->quote($query);
+    }
 
     return 'select ' . implode(', ', $select) .
-      ' from ' . $this->db->quoteIdent($this->spec['id']) .
-      ' where ' . $where;
+      ' from ' . $this->db->quoteIdent($spec['id']) .
+      ' where ' . implode(' and ', $where);
 
   }
 

@@ -56,4 +56,24 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $expected = array('1' => array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
+
+  public function testBuildLoadQuery1_customQuery () {
+    global $table1;
+
+    $actual = $table1->_build_load_query(array(
+      array('key' => 'b', 'op' => '=', 'value' => 'foo'),
+    ));
+    $expected = "select `a`, `b`, `d1` as `d` from `test1` where `b`='foo'";
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad1_customQuery () {
+    global $table1;
+
+    $actual = $table1->load(array(
+      array('key' => 'b', 'op' => '=', 'value' => 'foo'),
+    ));
+    $expected = array(1 => array('a' => 1, 'b' => 'foo', 'd' => 'f'));
+    $this->assertEquals($expected, $actual);
+  }
 }
