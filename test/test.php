@@ -153,6 +153,18 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1_update () {
+    global $table1;
+
+    $table1->save(array(
+      '1' => array('b' => 'bla', 'd' => 'bla'),
+    ));
+
+    $actual = $table1->load(array('query' => 1));
+    $expected = array(1 => array('a' => 1, 'b' => 'bla', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoadQuery2 () {
     global $table2;
 
@@ -177,6 +189,36 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	    'test2_id' => 1,
 	    'id' => 2,
 	    'text' => 'bar',
+	  ),
+	),
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad2_update () {
+    global $table2;
+
+    $table2->save(array(
+      '1' => array('comments' => array(2 => array('text' => 'foobar'))),
+    ));
+
+    $actual = $table2->load(array('query' => 1));
+    $expected = array (
+      1 => array (
+	'id' => 1,
+        'commentsCount' => 2,
+	'comments' => array (
+	  1 => array (
+	    'test2_id' => 1,
+	    'id' => 1,
+	    'text' => 'foo',
+	  ),
+	  2 => array (
+	    'test2_id' => 1,
+	    'id' => 2,
+	    'text' => 'foobar',
 	  ),
 	),
       ),
