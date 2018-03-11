@@ -1,5 +1,5 @@
 <?php
-class DBApi {
+class DBApiTable {
   function __construct ($db, $spec) {
     $this->db = $db;
     $this->spec = $spec;

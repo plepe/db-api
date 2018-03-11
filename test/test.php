@@ -73,8 +73,10 @@ $db->query("drop table if exists test2_comments; drop table if exists test2; cre
 
 global $table1;
 global $table2;
-$table1 = new DBApi($db, $spec1);
-$table2 = new DBApi($db, $spec2);
+
+$api = new DBApi($db);
+$table1 = $api->addTable($spec1);
+$table2 = $api->addTable($spec2);
 
 /**
  * @backupGlobals disabled

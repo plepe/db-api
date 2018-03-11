@@ -8,6 +8,7 @@ $depend = array(
 
 $include = array(
   'php' => array(
-    'src/db.php',
+    'src/DBApi.php',
+    'src/DBApiTable.php',
   ),
 );
