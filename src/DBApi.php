@@ -12,4 +12,10 @@ class DBApi {
 
     return $table;
   }
+
+  function load ($options=array()) {
+    foreach ($options as $table => $tableOptions) {
+      yield $table => $this->tables[$table]->load($tableOptions);
+    }
+  }
 }

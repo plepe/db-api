@@ -15,12 +15,18 @@ Header("Content-type: text/plain; charset=utf8");
 
 switch ($_SERVER['REQUEST_METHOD']) {
   case 'GET':
-    print "[\n";
-    foreach ($table->load($param) as $i => $elem) {
+    print "{\n";
+    $i = 0;
+    foreach ($api->load($param) as $table => $tableResult) {
       print $i === 0 ? '' : ",\n";
-      print json_readable_encode($elem);
+      print json_encode($table) . ": ";
+      foreach ($tableResult as $j => $elem) {
+        print $j === 0 ? '' : ",\n";
+        print json_readable_encode($elem);
+      }
+      $i++;
     }
-    print "\n]\n";
+    print "\n}\n";
     break;
   case 'POST':
     $data = json_decode(file_get_contents('php://input'),true);

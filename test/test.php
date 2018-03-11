@@ -317,4 +317,25 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testApiLoad() {
+    global $api;
+
+    $expected = array(
+      'test1' => array (
+	0 => array ( 'a' => 1,),
+	1 => array ( 'a' => 2,),
+	2 => array ( 'a' => 3,),
+      ),
+      'test2' => array (
+	0 => array ( 'commentsCount' => 3, 'id' => 1,),
+      ),
+    );
+    $actual = iterator_to_array_deep($api->load(array(
+      'test1' => array('fields' => array('a')),
+      'test2' => array('query' => 1, 'fields' => array('commentsCount')),
+    )));
+
+    $this->assertEquals($expected, $actual);
+  }
+
 }
