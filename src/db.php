@@ -125,8 +125,7 @@ class DBApi {
         }
       }
 
-      $id = $result[$spec['id_field'] ?? 'id'];
-      $ret[$id] = $result;
+      $ret[] = $result;
     }
 
     return $ret;
@@ -143,9 +142,13 @@ class DBApi {
       $set = array();
       $insert = false;
 
-      if (array_key_exists($id_field, $elem) && $elem[$id_field] === '__new') {
+      if ($elem[$id_field] === '__new') {
         unset($elem[$id_field]);
         $insert = true;
+      }
+      else {
+        $id = $elem[$id_field];
+        unset($elem[$id_field]);
       }
 
       foreach ($elem as $key => $d) {

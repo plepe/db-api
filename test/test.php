@@ -90,7 +90,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(array('query' => 1));
-    $expected = array('1' => array('a' => 1, 'b' => 'foo', 'd' => 'f'));
+    $expected = array(array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
 
@@ -98,7 +98,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(array('query' => 1, 'fields' => array('b', 'c')));
-    $expected = array('1' => array('a' => 1, 'b' => 'foo'));
+    $expected = array(array('a' => 1, 'b' => 'foo'));
     $this->assertEquals($expected, $actual);
   }
 
@@ -107,8 +107,8 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $actual = $table1->load(array('fields' => array('b', 'c')));
     $expected = array(
-      '1' => array('a' => 1, 'b' => 'foo'),
-      '2' => array('a' => 2, 'b' => 'bar'),
+      array('a' => 1, 'b' => 'foo'),
+      array('a' => 2, 'b' => 'bar'),
     );
     $this->assertEquals($expected, $actual);
   }
@@ -118,7 +118,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $actual = $table1->load(array('fields' => array('b', 'c'), 'limit' => 1));
     $expected = array(
-      '1' => array('a' => 1, 'b' => 'foo'),
+      array('a' => 1, 'b' => 'foo'),
     );
     $this->assertEquals($expected, $actual);
   }
@@ -128,7 +128,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $actual = $table1->load(array('fields' => array('b', 'c'), 'offset' => 1, 'limit' => 1));
     $expected = array(
-      '2' => array('a' => 2, 'b' => 'bar'),
+      array('a' => 2, 'b' => 'bar'),
     );
     $this->assertEquals($expected, $actual);
   }
@@ -149,7 +149,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $actual = $table1->load(array('query' => array(
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
     )));
-    $expected = array(1 => array('a' => 1, 'b' => 'foo', 'd' => 'f'));
+    $expected = array(array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
 
@@ -157,13 +157,13 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $ids = $table1->save(array(
-      '1' => array('b' => 'bla', 'd' => 'bla'),
+      array('a' => 1, 'b' => 'bla', 'd' => 'bla'),
     ));
 
     $this->assertEquals(array(1), $ids);
 
     $actual = $table1->load(array('query' => 1));
-    $expected = array(1 => array('a' => 1, 'b' => 'bla', 'd' => 'b'));
+    $expected = array(array('a' => 1, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
   }
 
@@ -176,7 +176,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array(3), $ids);
 
     $actual = $table1->load(array('query' => $ids[0]));
-    $expected = array(3 => array('a' => 3, 'b' => 'bla', 'd' => 'b'));
+    $expected = array(array('a' => 3, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
   }
 
@@ -191,16 +191,16 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $actual = $table2->load(array('query' => 1));
     $expected = array (
-      1 => array (
+      array (
 	'id' => 1,
         'commentsCount' => 2,
 	'comments' => array (
-	  1 => array (
+	  array (
 	    'test2_id' => 1,
 	    'id' => 1,
 	    'text' => 'foo',
 	  ),
-	  2 => array (
+	  array (
 	    'test2_id' => 1,
 	    'id' => 2,
 	    'text' => 'bar',
@@ -216,27 +216,27 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table2;
 
     $ids = $table2->save(array(
-      '1' => array('comments' => array(2 => array('text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
+      array('id' => 1, 'comments' => array(array('id' => 2, 'text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
     ));
     $this->assertEquals(array(1), $ids);
 
     $actual = $table2->load(array('query' => 1));
     $expected = array (
-      1 => array (
+      array (
 	'id' => 1,
         'commentsCount' => 3,
 	'comments' => array (
-	  1 => array (
+	  array (
 	    'test2_id' => 1,
 	    'id' => 1,
 	    'text' => 'foo',
 	  ),
-	  2 => array (
+	  array (
 	    'test2_id' => 1,
 	    'id' => 2,
 	    'text' => 'foobar',
 	  ),
-          4 => array(
+          array(
 	    'test2_id' => 1,
 	    'id' => 4,
 	    'text' => 'foobar2',
@@ -258,16 +258,16 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $actual = $table2->load(array('query' => $ids[0]));
     $expected = array (
-      3 => array (
+      array (
 	'id' => 3,
         'commentsCount' => 2,
 	'comments' => array (
-	  5 => array (
+	  array (
 	    'test2_id' => 3,
 	    'id' => 5,
 	    'text' => 'foobar',
 	  ),
-	  6 => array (
+	  array (
 	    'test2_id' => 3,
 	    'id' => 6,
 	    'text' => 'foobar2',
