@@ -90,6 +90,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
@@ -98,6 +99,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(array('query' => 1, 'fields' => array('b', 'c')));
+    $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo'));
     $this->assertEquals($expected, $actual);
   }
@@ -106,6 +108,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(array('fields' => array('b', 'c')));
+    $actual = iterator_to_array($actual);
     $expected = array(
       array('a' => 1, 'b' => 'foo'),
       array('a' => 2, 'b' => 'bar'),
@@ -117,6 +120,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(array('fields' => array('b', 'c'), 'limit' => 1));
+    $actual = iterator_to_array($actual);
     $expected = array(
       array('a' => 1, 'b' => 'foo'),
     );
@@ -127,6 +131,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->load(array('fields' => array('b', 'c'), 'offset' => 1, 'limit' => 1));
+    $actual = iterator_to_array($actual);
     $expected = array(
       array('a' => 2, 'b' => 'bar'),
     );
@@ -149,6 +154,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $actual = $table1->load(array('query' => array(
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
     )));
+    $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
   }
@@ -163,6 +169,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array(1), $ids);
 
     $actual = $table1->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
   }
@@ -176,6 +183,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array(3), $ids);
 
     $actual = $table1->load(array('query' => $ids[0]));
+    $actual = iterator_to_array($actual);
     $expected = array(array('a' => 3, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
   }
@@ -190,6 +198,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table2;
 
     $actual = $table2->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
     $expected = array (
       array (
 	'id' => 1,
@@ -221,6 +230,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array(1), $ids);
 
     $actual = $table2->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
     $expected = array (
       array (
 	'id' => 1,
@@ -257,6 +267,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array(3), $ids);
 
     $actual = $table2->load(array('query' => $ids[0]));
+    $actual = iterator_to_array($actual);
     $expected = array (
       array (
 	'id' => 3,

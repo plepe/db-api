@@ -120,15 +120,13 @@ class DBApi {
             break;
           case 'sub_table':
             $id = $result[$spec['id_field'] ?? 'id'];
-            $result[$key] = $this->load(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id))), $field);
+            $result[$key] = iterator_to_array($this->load(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id))), $field));
           default:
         }
       }
 
-      $ret[] = $result;
+      yield $result;
     }
-
-    return $ret;
   }
   /*
    * @return [string] queries
