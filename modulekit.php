@@ -10,5 +10,6 @@ $include = array(
   'php' => array(
     'src/DBApi.php',
     'src/DBApiTable.php',
+    'src/iterator_to_array_deep.php',
   ),
 );
