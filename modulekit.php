@@ -3,6 +3,7 @@ $id = 'db-api';
 
 $depend = array(
   'PDOext',
+  'json_readable_encode',
 );
 
 $include = array(
