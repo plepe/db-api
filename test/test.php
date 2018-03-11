@@ -71,6 +71,7 @@ $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 $db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext, c tinytext, d1 text, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
 $db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, primary key(id)); insert into test2 values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
 
+global $api;
 global $table1;
 global $table2;
 
@@ -291,4 +292,14 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals($expected, $actual);
   }
+
+  public function testApiTables() {
+    global $api;
+
+    $expected = array('test1', 'test2');
+    $actual = array_keys($api->tables);
+
+    $this->assertEquals($expected, $actual);
+  }
+
 }

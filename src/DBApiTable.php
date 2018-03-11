@@ -3,6 +3,7 @@ class DBApiTable {
   function __construct ($db, $spec) {
     $this->db = $db;
     $this->spec = $spec;
+    $this->id = $this->spec['id'];
   }
 
   function _prepare_options (&$options, $spec=null) {
