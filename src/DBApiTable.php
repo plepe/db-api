@@ -103,10 +103,6 @@ class DBApiTable {
           continue;
         }
 
-        if (array_key_exists('read', $field) && is_callable($field['read'], false, $callable_name)) {
-          $result[$key] = call_user_func($callable_name, $result[$key], $this);
-        }
-
         switch ($field['type'] ?? 'string') {
           case 'string':
             break;
@@ -155,10 +151,6 @@ class DBApiTable {
 
         if (array_key_exists('write', $field) && $field['write'] === false) {
           return 'permission denied';
-        }
-
-        if (array_key_exists('select', $field)) {
-          return 'can\'t update "select" field';
         }
 
         if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {

@@ -1,10 +1,6 @@
 <?php include "conf.php"; /* load a local configuration */ ?>
 <?php include "modulekit/loader.php"; /* loads all php-includes */ ?>
 <?php
-function first_char ($value, $DBApi) {
-  return substr($value, 0, 1);
-}
-
 $spec1 = array(
   'id' => 'test1',
   'fields' => array(
@@ -23,7 +19,8 @@ $spec1 = array(
     ),
     'd' => array(
       'column' => 'd1',
-      'read' => 'first_char',
+      'read' => true,
+      'select' => 'select substr(`d1`, 1, 1)'
     ),
   ),
   'id_field' => 'a',
@@ -86,7 +83,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery1 () {
     global $table1;
 
-    $this->assertEquals("select `a`, `b`, `d1` as `d` from `test1` where `a`='1'", $table1->_build_load_query(array('query' => 1)));
+    $this->assertEquals("select `a`, `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `a`='1'", $table1->_build_load_query(array('query' => 1)));
   }
 
   public function testBuildLoad1 () {
@@ -147,7 +144,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $actual = $table1->_build_load_query(array('query' => array(
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
     )));
-    $expected = "select `a`, `b`, `d1` as `d` from `test1` where `b`='foo'";
+    $expected = "select `a`, `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `b`='foo'";
     $this->assertEquals($expected, $actual);
   }
 
