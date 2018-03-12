@@ -20,6 +20,7 @@ $spec1 = array(
     'd' => array(
       'column' => 'd1',
       'read' => true,
+      'write' => true,
       'select' => 'select substr(`d1`, 1, 1)'
     ),
   ),
@@ -53,6 +54,7 @@ $spec2 = array(
           'type' => 'int',
         ),
         'text' => array(
+          'write' => true,
         ),
       ),
       'parent_field' => 'test2_id',

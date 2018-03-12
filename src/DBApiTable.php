@@ -149,12 +149,12 @@ class DBApiTable {
       foreach ($elem as $key => $d) {
         $field = $spec['fields'][$key];
 
-        if (array_key_exists('write', $field) && $field['write'] === false) {
-          return 'permission denied';
-        }
-
         if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
           continue;
+        }
+
+        if (!array_key_exists('write', $field) || $field['write'] === false) {
+          return 'permission denied';
         }
 
         $set[] = $db->quoteIdent($field['column'] ?? $key) . '=' . $db->quote($d);
