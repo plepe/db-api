@@ -9,31 +9,22 @@ $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 $api = new DBApi($db);
 include 'src/example.php';
 
-$param = $_REQUEST;
-
-Header("Content-type: text/plain; charset=utf8");
-
-switch ($_SERVER['REQUEST_METHOD']) {
-  case 'GET':
-    print "{\n";
-    $i = 0;
-    foreach ($api->load($param) as $table => $tableResult) {
-      print $i === 0 ? '' : ",\n";
-      print json_encode($table) . ": ";
-      foreach ($tableResult as $j => $elem) {
-        print $j === 0 ? '' : ",\n";
-        print json_readable_encode($elem);
-      }
-      $i++;
-    }
-    print "\n}\n";
-    break;
-  case 'POST':
-    $data = json_decode(file_get_contents('php://input'),true);
-
-    $result = $table->save($data);
-
-    print json_readable_encode($result);
-
-    break;
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $actions = json_decode(file_get_contents('php://input'),true);
+} else {
+  $actions = $_GET;
+  if (!sizeof($_GET)) {
+    $actions = json_decode(urldecode($_SERVER['QUERY_STRING']), true);
+  }
 }
+
+Header("Content-type: application/json; charset=utf8");
+
+foreach ($api->do($actions) as $i => $result) {
+  print $i === 0 ? "[[\n" : "\n] ,[\n";
+  foreach ($result as $j => $elem) {
+    print $j === 0 ? '' : ",\n";
+    print json_readable_encode($elem);
+  }
+}
+print "\n]]\n";

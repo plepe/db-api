@@ -13,9 +13,20 @@ class DBApi {
     return $table;
   }
 
-  function load ($options=array()) {
-    foreach ($options as $table => $tableOptions) {
-      yield $table => $this->tables[$table]->load($tableOptions);
+  function do ($actions) {
+    foreach ($actions as $action) {
+      if (!array_key_exists($action['table'], $this->tables)) {
+        // ERROR!
+      }
+
+      switch ($action['type'] ?? 'select') {
+        case 'update':
+          yield $this->tables[$action['table']]->save($action);
+          break;
+        case 'select':
+          yield $this->tables[$action['table']]->load($action);
+          break;
+      }
     }
   }
 }
