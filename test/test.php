@@ -29,6 +29,7 @@ $spec1 = array(
 
 $spec2 = array(
   'id' => 'test2',
+  'table' => 'test2',
   'fields' => array(
     'id' => array(
       'read' => true,
