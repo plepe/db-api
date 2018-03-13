@@ -20,6 +20,41 @@ class DBApiTable {
     }
   }
 
+  function _build_where ($options=array(), $spec=null) {
+    if ($spec === null) {
+      $spec = $this->spec;
+    }
+
+    $this->_prepare_options($options, $spec);
+
+    $where = array();
+    if (!array_key_exists('query', $options) || ($options['query'] === null)) {
+      $where[] = 'true';
+    }
+    elseif (is_array($options['query'])) {
+      foreach ($options['query'] as $q) {
+        switch ($q['op'] ?? '=') {
+          case '=':
+          default:
+            $where[] = $this->db->quoteIdent($q['key']) . '=' . $this->db->quote($q['value']);
+        }
+      }
+    }
+    else {
+      $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($options['query']);
+    }
+
+    $limit_offset = '';
+    if (array_key_exists('limit', $options) && is_int($options['limit'])) {
+      $limit_offset .= " limit {$options['limit']}";
+    }
+    if (array_key_exists('offset', $options) && is_int($options['offset'])) {
+      $limit_offset .= " offset {$options['offset']}";
+    }
+
+    return ' where ' . implode(' and ', $where) . $limit_offset;
+  }
+
   function _build_load_query ($options=array(), $spec=null) {
     if ($spec === null) {
       $spec = $this->spec;
@@ -47,35 +82,9 @@ class DBApiTable {
       }
     }
 
-    $where = array();
-    if (!array_key_exists('query', $options) || ($options['query'] === null)) {
-      $where[] = 'true';
-    }
-    elseif (is_array($options['query'])) {
-      foreach ($options['query'] as $q) {
-        switch ($q['op'] ?? '=') {
-          case '=':
-          default:
-            $where[] = $this->db->quoteIdent($q['key']) . '=' . $this->db->quote($q['value']);
-        }
-      }
-    }
-    else {
-      $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($options['query']);
-    }
-
-    $limit_offset = '';
-    if (array_key_exists('limit', $options) && is_int($options['limit'])) {
-      $limit_offset .= " limit {$options['limit']}";
-    }
-    if (array_key_exists('offset', $options) && is_int($options['offset'])) {
-      $limit_offset .= " offset {$options['offset']}";
-    }
-
     return 'select ' . implode(', ', $select) .
       ' from ' . $this->db->quoteIdent($spec['id']) .
-      ' where ' . implode(' and ', $where) .
-      $limit_offset;
+      $this->_build_where($options, $spec);
   }
 
   function load ($options=array(), $spec=null) {
