@@ -21,7 +21,10 @@ class DBApi {
 
       switch ($action['type'] ?? 'select') {
         case 'update':
-          yield $this->tables[$action['table']]->save($action);
+          yield $this->tables[$action['table']]->update($action);
+          break;
+        case 'insert_update':
+          yield $this->tables[$action['table']]->insert_update($action);
           break;
         case 'select':
           yield $this->tables[$action['table']]->load($action);

@@ -134,12 +134,82 @@ class DBApiTable {
       yield $result;
     }
   }
+
   /*
    * @return [string] queries
    */
   function _update_data ($data, $spec) {
     global $db;
     $queries = array();
+    $id_field = $spec['id_field'] ?? 'id';
+
+    $set = array();
+    $update_sub_table = false;
+
+    foreach ($data['update'] as $key => $d) {
+      $field = $spec['fields'][$key];
+
+      if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
+        $update_sub_table = false;
+        continue;
+      }
+
+      if (!array_key_exists('write', $field) || $field['write'] === false) {
+        return 'permission denied';
+      }
+
+      $set[] = $db->quoteIdent($field['column'] ?? $key) . '=' . $db->quote($d);
+    }
+
+    //if ($update_sub_table) {
+      $ids = array();
+      $qry = 'select ' . $this->db->quoteIdent($id_field) . ' as `id` from ' .
+        $this->db->quoteIdent($spec['id']) . $this->_build_where($data, $spec);
+      $res = $this->db->query($qry);
+      while ($elem = $res->fetch()) {
+        $ids[] = $elem['id'];
+      }
+    //}
+
+    if (sizeof($set)) {
+      $qry = 'update ' .
+        $this->db->quoteIdent($spec['id']) .
+        ' set ' . implode(', ', $set) .
+        $this->_build_where($data, $spec);
+      $this->db->query($qry);
+    }
+
+    foreach ($data['update'] as $key => $d) {
+      $field = $spec['fields'][$key];
+
+      if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
+        foreach ($ids as $id) {
+          foreach ($d as $i1 => $d1) {
+            $d[$i1][$field['parent_field']] = $id;
+          }
+          $q = $this->insert_update($d, $field);
+
+          if (!is_array($q)) {
+            return $q;
+          }
+        }
+      }
+    }
+
+    return isset($ids) ? $ids : true;
+  }
+
+  /*
+   * @return [string] queries
+   */
+  function insert_update ($data, $spec=null) {
+    global $db;
+    $queries = array();
+
+    if ($spec === null) {
+      $spec = $this->spec;
+    }
+
     $id_field = $spec['id_field'] ?? 'id';
 
     foreach ($data as $id => $elem) {
@@ -200,7 +270,7 @@ class DBApiTable {
           foreach ($d as $i1 => $d1) {
             $d[$i1][$field['parent_field']] = $id;
           }
-          $q = $this->_update_data($d, $field);
+          $q = $this->insert_update($d, $field);
 
           if (!is_array($q)) {
             return $q;
@@ -214,7 +284,7 @@ class DBApiTable {
     return $ret;
   }
 
-  function save ($data) {
+  function update ($data) {
     global $db;
 
     $db->beginTransaction();

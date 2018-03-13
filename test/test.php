@@ -164,8 +164,9 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_update () {
     global $table1;
 
-    $ids = $table1->save(array(
-      array('a' => 1, 'b' => 'bla', 'd' => 'bla'),
+    $ids = $table1->update(array(
+      'update' => array('b' => 'bla', 'd' => 'bla'),
+      'query' => '1',
     ));
 
     $this->assertEquals(array(1), $ids);
@@ -179,7 +180,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_create () {
     global $table1;
 
-    $ids = $table1->save(array(
+    $ids = $table1->insert_update(array(
       array('a' => '__new', 'b' => 'bla', 'd' => 'bla'),
     ));
     $this->assertEquals(array(3), $ids);
@@ -241,8 +242,9 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad2_update () {
     global $table2;
 
-    $ids = $table2->save(array(
-      array('id' => 1, 'comments' => array(array('id' => 2, 'text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
+    $ids = $table2->update(array(
+      'update' => array('comments' => array(array('id' => 2, 'text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
+      'query' => 1,
     ));
     $this->assertEquals(array(1), $ids);
 
@@ -278,7 +280,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad2_create () {
     global $table2;
 
-    $ids = $table2->save(array(
+    $ids = $table2->insert_update(array(
       array('id' => '__new', 'comments' => array(array('id' => '__new', 'text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
     ));
     $this->assertEquals(array(3), $ids);
