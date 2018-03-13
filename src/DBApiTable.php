@@ -34,6 +34,9 @@ class DBApiTable {
     elseif (is_array($options['query'])) {
       foreach ($options['query'] as $q) {
         switch ($q['op'] ?? '=') {
+          case 'in':
+            $where[] = $this->db->quoteIdent($q['key']) . ' in (' . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $q['value'])) . ')';
+            break;
           case '=':
           default:
             $where[] = $this->db->quoteIdent($q['key']) . '=' . $this->db->quote($q['value']);
