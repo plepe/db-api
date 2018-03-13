@@ -33,6 +33,10 @@ class DBApiTable {
     }
     elseif (is_array($options['query'])) {
       foreach ($options['query'] as $q) {
+        if (is_array($q) && !array_key_exists('key', $q) && array_key_exists(0, $q)) {
+          $q = array('key' => $q[0], 'op' => $q[1], 'value' => sizeof($q) > 2 ? $q[2] : null);
+        }
+
         switch ($q['op'] ?? '=') {
           case 'in':
             $where[] = $this->db->quoteIdent($q['key']) . ' in (' . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $q['value'])) . ')';
