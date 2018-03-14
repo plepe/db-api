@@ -20,11 +20,18 @@ class DBApiTable {
     }
   }
 
+  function _prepare_spec (&$spec) {
+    if (!array_key_exists('table', $spec)) {
+      $spec['table'] = $spec['id'];
+    }
+  }
+
   function _build_where ($options=array(), $spec=null) {
     if ($spec === null) {
       $spec = $this->spec;
     }
 
+    $this->_prepare_spec($spec);
     $this->_prepare_options($options, $spec);
 
     $where = array();
@@ -67,6 +74,7 @@ class DBApiTable {
       $spec = $this->spec;
     }
 
+    $this->_prepare_spec($spec);
     $this->_prepare_options($options, $spec);
 
     $select = array();
@@ -90,7 +98,7 @@ class DBApiTable {
     }
 
     return 'select ' . implode(', ', $select) .
-      ' from ' . $this->db->quoteIdent($spec['table'] ?? $spec['id']) .
+      ' from ' . $this->db->quoteIdent($spec['table']) .
       $this->_build_where($options, $spec);
   }
 
@@ -101,6 +109,7 @@ class DBApiTable {
       $spec = $this->spec;
     }
 
+    $this->_prepare_spec($spec);
     $this->_prepare_options($options, $spec);
 
     // build query
@@ -148,6 +157,8 @@ class DBApiTable {
   function _update_data ($data, $spec) {
     global $db;
     $queries = array();
+    $this->_prepare_spec($spec);
+
     $id_field = $spec['id_field'] ?? 'id';
 
     $set = array();
@@ -171,7 +182,7 @@ class DBApiTable {
     //if ($update_sub_table) {
       $ids = array();
       $qry = 'select ' . $this->db->quoteIdent($id_field) . ' as `id` from ' .
-        $this->db->quoteIdent($spec['table'] ?? $spec['id']) . $this->_build_where($data, $spec);
+        $this->db->quoteIdent($spec['table']) . $this->_build_where($data, $spec);
       $res = $this->db->query($qry);
       while ($elem = $res->fetch()) {
         $ids[] = $elem['id'];
@@ -180,7 +191,7 @@ class DBApiTable {
 
     if (sizeof($set)) {
       $qry = 'update ' .
-        $this->db->quoteIdent($spec['table'] ?? $spec['id']) .
+        $this->db->quoteIdent($spec['table']) .
         ' set ' . implode(', ', $set) .
         $this->_build_where($data, $spec);
       $this->db->query($qry);
@@ -216,6 +227,7 @@ class DBApiTable {
     if ($spec === null) {
       $spec = $this->spec;
     }
+    $this->_prepare_spec($spec);
 
     $id_field = $spec['id_field'] ?? 'id';
 
@@ -249,13 +261,13 @@ class DBApiTable {
       if ($insert) {
         if (sizeof($set)) {
           $this->db->query('insert into ' .
-            $this->db->quoteIdent($spec['table'] ?? $spec['id']) .
+            $this->db->quoteIdent($spec['table']) .
             ' set ' . implode(', ', $set));
           $id = $this->db->lastInsertId();
         }
         else {
           $this->db->query('insert into ' .
-            $this->db->quoteIdent($spec['table'] ?? $spec['id']) .
+            $this->db->quoteIdent($spec['table']) .
             '() values ()');
           $id = $this->db->lastInsertId();
         }
@@ -263,7 +275,7 @@ class DBApiTable {
       else {
         if (sizeof($set)) {
           $this->db->query('update ' .
-            $this->db->quoteIdent($spec['id']) .
+            $this->db->quoteIdent($spec['table']) .
             ' set ' . implode(', ', $set) .
             ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
         }
