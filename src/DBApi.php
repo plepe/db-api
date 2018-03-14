@@ -23,8 +23,8 @@ class DBApi {
         case 'update':
           yield $this->tables[$action['table']]->update($action);
           break;
-        case 'insert_update':
-          yield $this->tables[$action['table']]->insert_update($action);
+        case 'insert-update':
+          yield $this->tables[$action['table']]->insert_update($action['data']);
           break;
         case 'select':
           yield $this->tables[$action['table']]->load($action);
