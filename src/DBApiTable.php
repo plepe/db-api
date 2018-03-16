@@ -58,6 +58,10 @@ class DBApiTable {
       $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($options['query']);
     }
 
+    if (array_key_exists('query-visible', $spec)) {
+      $where[] = $spec['query-visible'];
+    }
+
     $limit_offset = '';
     if (array_key_exists('limit', $options) && is_int($options['limit'])) {
       $limit_offset .= " limit {$options['limit']}";

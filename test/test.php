@@ -36,6 +36,11 @@ $spec2 = array(
       'write' => true,
       'type' => 'int',
     ),
+    'visible' => array(
+      'read' => false,
+      'write' => true,
+      'type' => 'boolean',
+    ),
     'commentsCount' => array(
       'type' => 'int',
       'select' => 'select count(*) from test2_comments where test2_id=test2.id',
@@ -63,21 +68,27 @@ $spec2 = array(
   ),
 );
 
+$spec2a = $spec2;
+$spec2a['id'] = 'test2a';
+$spec2a['query-visible'] = 'visible=true';
+
 $dbconf[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES utf8";
 $db = new PDOext($dbconf);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 $db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext, c tinytext, d1 text, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
-$db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, primary key(id)); insert into test2 values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
+$db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, visible boolean not null default true, primary key(id)); insert into test2 (id) values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
 
 global $api;
 global $table1;
 global $table2;
+global $table2a;
 
 $api = new DBApi($db);
 $table1 = $api->addTable($spec1);
 $table2 = $api->addTable($spec2);
+$table2a = $api->addTable($spec2a);
 
 /**
  * @backupGlobals disabled
@@ -336,10 +347,68 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad2_update_visible () {
+    global $table2;
+
+    $ids = $table2->update(array(
+      'update' => array('visible' => false),
+      'query' => 1,
+    ));
+    $this->assertEquals(array(1), $ids);
+
+    $actual = $table2->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'id' => 1,
+        'commentsCount' => 3,
+	'comments' => array (
+	  array (
+	    'test2_id' => 1,
+	    'id' => 1,
+	    'text' => 'foo',
+	  ),
+	  array (
+	    'test2_id' => 1,
+	    'id' => 2,
+	    'text' => 'foobar',
+	  ),
+          array(
+	    'test2_id' => 1,
+	    'id' => 4,
+	    'text' => 'foobar2',
+          ),
+	),
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad2a () {
+    global $table2a;
+
+    $actual = $table2a->load(array('fields' => array('id', 'commentsCount')));
+    $actual = iterator_to_array($actual);
+    print_r($actual);
+    $expected = array (
+      array (
+	'id' => 2,
+        'commentsCount' => 1,
+      ),
+      array (
+	'id' => 3,
+        'commentsCount' => 2,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testApiTables() {
     global $api;
 
-    $expected = array('test1', 'test2');
+    $expected = array('test1', 'test2', 'test2a');
     $actual = array_keys($api->tables);
 
     $this->assertEquals($expected, $actual);
