@@ -278,10 +278,17 @@ class DBApiTable {
       }
       else {
         if (sizeof($set)) {
-          $this->db->query('update ' .
-            $this->db->quoteIdent($spec['table']) .
-            ' set ' . implode(', ', $set) .
-            ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
+          $this->db->query(
+            'insert into ' . $this->db->quoteIdent($spec['table']) .
+            ' set ' . $db->quoteIdent($id_field) . '=' . $db->quote($id) .
+            ' , ' . implode(', ', $set) .
+            ' on duplicate key update ' .
+            implode(', ', $set));
+        }
+        else {
+          $this->db->query(
+            'insert ignore into ' . $this->db->quoteIdent($spec['table']) .
+            ' set ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
         }
         $id = array_key_exists($id_field, $elem) ? $elem[$id_field] : $id;
       }

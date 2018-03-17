@@ -347,6 +347,38 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad2_create_with_id () {
+    global $table2;
+
+    $ids = $table2->insert_update(array(
+      array('id' => 4, 'comments' => array(array('text' => 'foobar'), array('text' => 'foobar2'))),
+    ));
+    $this->assertEquals(array(4), $ids);
+
+    $actual = $table2->load(array('query' => $ids[0]));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'id' => 4,
+        'commentsCount' => 2,
+	'comments' => array (
+	  array (
+	    'test2_id' => 4,
+	    'id' => 7,
+	    'text' => 'foobar',
+	  ),
+	  array (
+	    'test2_id' => 4,
+	    'id' => 8,
+	    'text' => 'foobar2',
+	  ),
+	),
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad2_update_visible () {
     global $table2;
 
@@ -398,6 +430,10 @@ class db_api_test extends PHPUnit_Framework_TestCase {
       ),
       array (
 	'id' => 3,
+        'commentsCount' => 2,
+      ),
+      array (
+	'id' => 4,
         'commentsCount' => 2,
       ),
     );
