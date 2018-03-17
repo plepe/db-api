@@ -239,7 +239,7 @@ class DBApiTable {
       $set = array();
       $insert = false;
 
-      if ($elem[$id_field] === '__new') {
+      if (!array_key_exists($id_field, $elem)) {
         unset($elem[$id_field]);
         $insert = true;
       }

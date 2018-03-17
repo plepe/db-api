@@ -219,7 +219,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $ids = $table1->insert_update(array(
-      array('a' => '__new', 'b' => 'bla', 'd' => 'bla'),
+      array('b' => 'bla', 'd' => 'bla'),
     ));
     $this->assertEquals(array(3), $ids);
 
@@ -281,7 +281,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table2;
 
     $ids = $table2->update(array(
-      'update' => array('comments' => array(array('id' => 2, 'text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
+      'update' => array('comments' => array(array('id' => 2, 'text' => 'foobar'), array('text' => 'foobar2'))),
       'query' => 1,
     ));
     $this->assertEquals(array(1), $ids);
@@ -319,7 +319,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table2;
 
     $ids = $table2->insert_update(array(
-      array('id' => '__new', 'comments' => array(array('id' => '__new', 'text' => 'foobar'), array('id' => '__new', 'text' => 'foobar2'))),
+      array('comments' => array(array('text' => 'foobar'), array('text' => 'foobar2'))),
     ));
     $this->assertEquals(array(3), $ids);
 
