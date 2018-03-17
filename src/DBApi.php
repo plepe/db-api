@@ -19,7 +19,7 @@ class DBApi {
         // ERROR!
       }
 
-      switch ($action['type'] ?? 'select') {
+      switch ($action['action'] ?? 'select') {
         case 'update':
           yield $this->tables[$action['table']]->update($action);
           break;
