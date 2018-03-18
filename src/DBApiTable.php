@@ -240,12 +240,16 @@ class DBApiTable {
       $insert = false;
 
       if (!array_key_exists($id_field, $elem)) {
-        unset($elem[$id_field]);
         $insert = true;
       }
       else {
         $id = $elem[$id_field];
-        unset($elem[$id_field]);
+
+        $res = $db->query('select 1 from ' . $db->quoteIdent($spec['table']) . ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($elem[$id_field]));
+        if (!$res->rowCount()) {
+          $insert = true;
+        }
+        $res->closeCursor();
       }
 
       foreach ($elem as $key => $d) {
@@ -277,19 +281,10 @@ class DBApiTable {
         }
       }
       else {
-        if (sizeof($set)) {
-          $this->db->query(
-            'insert into ' . $this->db->quoteIdent($spec['table']) .
-            ' set ' . $db->quoteIdent($id_field) . '=' . $db->quote($id) .
-            ' , ' . implode(', ', $set) .
-            ' on duplicate key update ' .
-            implode(', ', $set));
-        }
-        else {
-          $this->db->query(
-            'insert ignore into ' . $this->db->quoteIdent($spec['table']) .
-            ' set ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
-        }
+        $this->db->query(
+          'update ' .  $this->db->quoteIdent($spec['table']) .
+          ' set ' . implode(', ', $set) .
+          ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
         $id = array_key_exists($id_field, $elem) ? $elem[$id_field] : $id;
       }
 
