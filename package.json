@@ -1,5 +1,15 @@
 {
   "scripts": {
-    "test": "phpunit --stop-on-failure test/test.php"
+    "test": "phpunit --stop-on-failure test/test.php && mocha --bail",
+    "lint": "standard src/*.js"
+  },
+  "devDependencies": {
+    "browserify": "^16.1.1",
+    "mocha": "^5.0.4",
+    "standard": "^11.0.1",
+    "watchify": "^3.11.0"
+  },
+  "dependencies": {
+    "w3c-xmlhttprequest": "^2.1.2"
   }
 }
