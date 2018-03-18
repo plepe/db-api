@@ -1,5 +1,5 @@
 {
   "scripts": {
-    "test": "phpunit test/test.php"
+    "test": "phpunit --stop-on-failure test/test.php"
   }
 }
