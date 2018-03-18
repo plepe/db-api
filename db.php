@@ -20,11 +20,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 Header("Content-type: application/json; charset=utf8");
 
-foreach ($api->do($actions) as $i => $result) {
-  print $i === 0 ? "[[\n" : "\n] ,[\n";
-  foreach ($result as $j => $elem) {
-    print $j === 0 ? '' : ",\n";
-    print json_readable_encode($elem);
+$output = '';
+$error = false;
+
+try {
+  foreach ($api->do($actions) as $i => $result) {
+    $output .= $i === 0 ? "[[\n" : "\n] ,[\n";
+    foreach ($result as $j => $elem) {
+      $output .= $j === 0 ? '' : ",\n";
+      $output .= json_readable_encode($elem);
+    }
   }
+  $output .= "\n]]\n";
 }
-print "\n]]\n";
+catch (Exception $e) {
+  print json_readable_encode(array('error' => $e->getMessage()));
+  $error = true;
+}
+
+if (!$error) {
+  print $output;
+}
