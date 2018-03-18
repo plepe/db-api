@@ -29,6 +29,8 @@ class DBApi {
         case 'select':
           yield $this->tables[$action['table']]->load($action);
           break;
+        default:
+          return array('error' => "No such action '{$action['action']}'");
       }
     }
   }
