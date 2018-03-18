@@ -245,6 +245,29 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1_insert_update_perm_denied () {
+    global $table1;
+    $got_exception = false;
+
+    try {
+      $ids = $table1->insert_update(array(
+        array('a' => 1, 'c' => 'foo'),
+      ));
+    } catch (Exception $e) {
+      if ($e->getMessage() !== 'permission denied') {
+        throw $e;
+      }
+      $got_exception = true;
+    }
+
+    $this->assertEquals(true, $got_exception, 'Didn\'t get a "permission denied" exception!');
+
+    $actual = $table1->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
+    $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad1_create () {
     global $table1;
 

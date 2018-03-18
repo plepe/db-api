@@ -85,7 +85,7 @@ class DBApiTable {
       }
 
       if (!array_key_exists('write', $field) || $field['write'] === false) {
-        return 'permission denied';
+        throw new Exception('permission denied');
       }
 
       $set[] = $this->db->quoteIdent($field['column'] ?? $key) . '=' . $this->db->quote($d);
