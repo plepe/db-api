@@ -73,6 +73,30 @@ class DBApiTable {
     return ' where ' . implode(' and ', $where) . $limit_offset;
   }
 
+  function _build_set ($data, $spec=null) {
+    $set = array();
+
+    foreach ($data as $key => $d) {
+      $field = $spec['fields'][$key];
+
+      if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
+        $update_sub_table = false;
+        continue;
+      }
+
+      if (!array_key_exists('write', $field) || $field['write'] === false) {
+        return 'permission denied';
+      }
+
+      $set[] = $this->db->quoteIdent($field['column'] ?? $key) . '=' . $this->db->quote($d);
+    }
+
+    if (sizeof($set)) {
+      return implode(', ', $set);
+    }
+    return '';
+  }
+
   function _build_load_query ($options=array(), $spec=null) {
     if ($spec === null) {
       $spec = $this->spec;
@@ -165,23 +189,9 @@ class DBApiTable {
 
     $id_field = $spec['id_field'] ?? 'id';
 
-    $set = array();
     $update_sub_table = false;
 
-    foreach ($data['update'] as $key => $d) {
-      $field = $spec['fields'][$key];
-
-      if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-        $update_sub_table = false;
-        continue;
-      }
-
-      if (!array_key_exists('write', $field) || $field['write'] === false) {
-        return 'permission denied';
-      }
-
-      $set[] = $db->quoteIdent($field['column'] ?? $key) . '=' . $db->quote($d);
-    }
+    $set = $this->_build_set($data['update'], $spec);
 
     //if ($update_sub_table) {
       $ids = array();
@@ -193,10 +203,10 @@ class DBApiTable {
       }
     //}
 
-    if (sizeof($set)) {
+    if ($set !== '') {
       $qry = 'update ' .
         $this->db->quoteIdent($spec['table']) .
-        ' set ' . implode(', ', $set) .
+        ' set ' . $set .
         $this->_build_where($data, $spec);
       $this->db->query($qry);
     }
@@ -236,7 +246,6 @@ class DBApiTable {
     $id_field = $spec['id_field'] ?? 'id';
 
     foreach ($data as $id => $elem) {
-      $set = array();
       $insert = false;
 
       if (!array_key_exists($id_field, $elem)) {
@@ -252,25 +261,13 @@ class DBApiTable {
         $res->closeCursor();
       }
 
-      foreach ($elem as $key => $d) {
-        $field = $spec['fields'][$key];
-
-        if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-          continue;
-        }
-
-        if (!array_key_exists('write', $field) || $field['write'] === false) {
-          return 'permission denied';
-        }
-
-        $set[] = $db->quoteIdent($field['column'] ?? $key) . '=' . $db->quote($d);
-      }
+      $set = $this->_build_set($elem, $spec);
 
       if ($insert) {
-        if (sizeof($set)) {
+        if ($set !== '') {
           $this->db->query('insert into ' .
             $this->db->quoteIdent($spec['table']) .
-            ' set ' . implode(', ', $set));
+            ' set ' . $set);
           $id = $this->db->lastInsertId();
         }
         else {
@@ -283,7 +280,7 @@ class DBApiTable {
       else {
         $this->db->query(
           'update ' .  $this->db->quoteIdent($spec['table']) .
-          ' set ' . implode(', ', $set) .
+          ' set ' . $set .
           ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
         $id = array_key_exists($id_field, $elem) ? $elem[$id_field] : $id;
       }
