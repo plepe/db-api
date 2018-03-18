@@ -14,9 +14,9 @@ class DBApi {
   }
 
   function do ($actions) {
-    foreach ($actions as $action) {
+    foreach ($actions as $i => $action) {
       if (!array_key_exists($action['table'], $this->tables)) {
-        // ERROR!
+        throw new Exception("No such table '{$action['table']}'");
       }
 
       switch ($action['action'] ?? 'select') {
@@ -30,7 +30,7 @@ class DBApi {
           yield $this->tables[$action['table']]->load($action);
           break;
         default:
-          return array('error' => "No such action '{$action['action']}'");
+          throw new Exception("No such action '{$action['action']}'");
       }
     }
   }

@@ -534,4 +534,29 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testApiUpdate_perm_denied() {
+    global $api;
+
+    $expected = "permission denied";
+    try {
+      iterator_to_array_deep($api->do(
+        array(
+          array(
+            'table' => 'test1',
+            'action' => 'update',
+            'update' => array('c' => 'foo'),
+          ),
+          array(
+            'table' => 'test1',
+            'action' => 'select',
+          ),
+        )
+      ));
+    } catch (Exception $e) {
+      $actual = $e->getMessage();
+    }
+
+    $this->assertEquals($expected, $actual);
+  }
+
 }
