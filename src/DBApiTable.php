@@ -215,20 +215,24 @@ class DBApiTable {
       $field = $spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-        foreach ($ids as $id) {
-          foreach ($d as $i1 => $d1) {
-            $d[$i1][$field['parent_field']] = $id;
-          }
-          $q = $this->insert_update($d, $field);
-
-          if (!is_array($q)) {
-            return $q;
-          }
-        }
+        $this->_update_sub_table($ids, $d, $field);
       }
     }
 
     return isset($ids) ? $ids : true;
+  }
+
+  function _update_sub_table($ids, $data, $field) {
+    foreach ($ids as $id) {
+      foreach ($data as $i1 => $d1) {
+        $data[$i1][$field['parent_field']] = $id;
+      }
+      $q = $this->insert_update($data, $field);
+
+      if (!is_array($q)) {
+        return $q;
+      }
+    }
   }
 
   /*
@@ -289,14 +293,7 @@ class DBApiTable {
         $field = $spec['fields'][$key];
 
         if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-          foreach ($d as $i1 => $d1) {
-            $d[$i1][$field['parent_field']] = $id;
-          }
-          $q = $this->insert_update($d, $field);
-
-          if (!is_array($q)) {
-            return $q;
-          }
+          $this->_update_sub_table(array($id), $d, $field);
         }
       }
 
