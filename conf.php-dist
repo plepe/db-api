@@ -1,0 +1,8 @@
+<?php
+$dbconf = array(
+  'type' => 'mysql',
+  'dbname' => 'database',
+  'username' => 'USERNAME',
+  'password' => 'PASSWORD',
+  'debug' => 0,
+);
