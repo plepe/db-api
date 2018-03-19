@@ -71,6 +71,12 @@ $spec2 = array(
 $spec2a = $spec2;
 $spec2a['id'] = 'test2a';
 $spec2a['query-visible'] = 'visible=true';
+$spec2a['fields']['comments']['query-visible'] = 'visible=true';
+$spec2a['fields']['comments']['fields']['visible'] = array(
+  'read' => true,
+  'write' => true,
+  'type' => 'boolean',
+);
 
 $spec1a = $spec1;
 $spec1a['id'] = 'test1a';
@@ -83,7 +89,7 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 $db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext not null, c tinytext null, d1 text not null, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
-$db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, visible boolean not null default true, primary key(id)); insert into test2 (id) values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
+$db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, visible boolean not null default true, primary key(id)); insert into test2 (id) values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, visible boolean not null default true, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo', false), (1, 2, 'bar', true), (2, 3, 'foobar', false);");
 
 global $api;
 global $table1;
@@ -541,13 +547,13 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad2a () {
     global $table2a;
 
-    $actual = $table2a->select(array('fields' => array('id', 'commentsCount')));
+    $actual = $table2a->select(array('fields' => array('id', 'commentsCount', 'comments')));
     $actual = iterator_to_array($actual);
     print_r($actual);
     $expected = array (
       array (
 	'id' => 2,
-        'commentsCount' => 1,
+        'commentsCount' => 0,
       ),
       array (
 	'id' => 3,
