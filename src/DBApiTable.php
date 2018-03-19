@@ -46,13 +46,15 @@ class DBApiTable {
           $q = array('key' => $q[0], 'op' => $q[1], 'value' => sizeof($q) > 2 ? $q[2] : null);
         }
 
+        $key_quoted = $this->_build_column($q['key']);
+
         switch ($q['op'] ?? '=') {
           case 'in':
-            $where[] = $this->db->quoteIdent($q['key']) . ' in (' . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $q['value'])) . ')';
+            $where[] = "{$key_quoted} in (" . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $q['value'])) . ')';
             break;
           case '=':
           default:
-            $where[] = $this->db->quoteIdent($q['key']) . '=' . $this->db->quote($q['value']);
+            $where[] = "{$key_quoted}=" . $this->db->quote($q['value']);
         }
       }
     }

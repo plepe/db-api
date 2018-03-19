@@ -404,6 +404,24 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad2_select_field () {
+    global $table2;
+
+    $actual = $table2->select(array(
+      'query' => array(array('commentsCount', '=', 1)),
+      'fields' => array('id', 'commentsCount'),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'id' => 2,
+        'commentsCount' => 1,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad2_update () {
     global $table2;
 
