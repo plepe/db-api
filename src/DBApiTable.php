@@ -163,7 +163,6 @@ class DBApiTable {
    * @return [string] queries
    */
   function update ($action) {
-    global $db;
     $queries = array();
 
     $update_sub_table = false;
@@ -258,7 +257,6 @@ class DBApiTable {
    * @return [string] queries
    */
   function insert_update ($action) {
-    global $db;
     $queries = array();
 
     foreach ($action as $elem) {
@@ -270,7 +268,7 @@ class DBApiTable {
       else {
         $id = $elem[$this->id_field];
 
-        $res = $db->query('select 1 from ' . $db->quoteIdent($this->spec['table']) . ' where ' . $db->quoteIdent($this->id_field) . '=' . $db->quote($elem[$this->id_field]));
+        $res = $this->db->query('select 1 from ' . $this->db->quoteIdent($this->spec['table']) . ' where ' . $this->db->quoteIdent($this->id_field) . '=' . $this->db->quote($elem[$this->id_field]));
         if (!$res->rowCount()) {
           $insert = true;
         }
@@ -297,7 +295,7 @@ class DBApiTable {
         $this->db->query(
           'update ' .  $this->db->quoteIdent($this->spec['table']) .
           ' set ' . $set .
-          ' where ' . $db->quoteIdent($this->id_field) . '=' . $db->quote($id));
+          ' where ' . $this->db->quoteIdent($this->id_field) . '=' . $this->db->quote($id));
         $id = array_key_exists($this->id_field, $elem) ? $elem[$this->id_field] : $id;
       }
 
