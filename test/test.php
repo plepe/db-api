@@ -97,13 +97,14 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery1 () {
     global $table1;
 
-    $this->assertEquals("select `a`, `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `a`='1'", $table1->_build_load_query(array('query' => 1)));
+    $query = array('query' => 1);
+    $this->assertEquals("select `a`, `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `a`='1'", $table1->_build_select_query($query));
   }
 
   public function testBuildLoad1 () {
     global $table1;
 
-    $actual = $table1->load(array('query' => 1));
+    $actual = $table1->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
@@ -112,7 +113,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_op_in() {
     global $table1;
 
-    $actual = $table1->load(array('query' => array(array('key' => 'a', 'op' => 'in', 'value' => array(1, 2)))));
+    $actual = $table1->select(array('query' => array(array('key' => 'a', 'op' => 'in', 'value' => array(1, 2)))));
     $actual = iterator_to_array($actual);
     print_r($actual);
     $expected = array(
@@ -125,7 +126,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_op_in_simple() {
     global $table1;
 
-    $actual = $table1->load(array('query' => array(array('a', 'in', array(1, 2)))));
+    $actual = $table1->select(array('query' => array(array('a', 'in', array(1, 2)))));
     $actual = iterator_to_array($actual);
     print_r($actual);
     $expected = array(
@@ -138,7 +139,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_fields () {
     global $table1;
 
-    $actual = $table1->load(array('query' => 1, 'fields' => array('b', 'c')));
+    $actual = $table1->select(array('query' => 1, 'fields' => array('b', 'c')));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo'));
     $this->assertEquals($expected, $actual);
@@ -147,7 +148,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_all_fields () {
     global $table1;
 
-    $actual = $table1->load(array('fields' => array('b', 'c')));
+    $actual = $table1->select(array('fields' => array('b', 'c')));
     $actual = iterator_to_array($actual);
     $expected = array(
       array('a' => 1, 'b' => 'foo'),
@@ -159,7 +160,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_all_fields_limit () {
     global $table1;
 
-    $actual = $table1->load(array('fields' => array('b', 'c'), 'limit' => 1));
+    $actual = $table1->select(array('fields' => array('b', 'c'), 'limit' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(
       array('a' => 1, 'b' => 'foo'),
@@ -170,7 +171,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_all_offset_limit () {
     global $table1;
 
-    $actual = $table1->load(array('fields' => array('b', 'c'), 'offset' => 1, 'limit' => 1));
+    $actual = $table1->select(array('fields' => array('b', 'c'), 'offset' => 1, 'limit' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(
       array('a' => 2, 'b' => 'bar'),
@@ -181,9 +182,10 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery1_customQuery () {
     global $table1;
 
-    $actual = $table1->_build_load_query(array('query' => array(
+    $query = array('query' => array(
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
-    )));
+    ));
+    $actual = $table1->_build_select_query($query);
     $expected = "select `a`, `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `b`='foo'";
     $this->assertEquals($expected, $actual);
   }
@@ -191,7 +193,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_customQuery () {
     global $table1;
 
-    $actual = $table1->load(array('query' => array(
+    $actual = $table1->select(array('query' => array(
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
     )));
     $actual = iterator_to_array($actual);
@@ -209,7 +211,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1->load(array('query' => 1));
+    $actual = $table1->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -224,7 +226,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1->load(array('query' => 1));
+    $actual = $table1->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -239,7 +241,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1->load(array('query' => 1));
+    $actual = $table1->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -262,7 +264,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(true, $got_exception, 'Didn\'t get a "permission denied" exception!');
 
-    $actual = $table1->load(array('query' => 1));
+    $actual = $table1->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -276,7 +278,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(3), $ids);
 
-    $actual = $table1->load(array('query' => $ids[0]));
+    $actual = $table1->select(array('query' => $ids[0]));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 3, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -290,7 +292,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array('count' => 1), $result);
 
-    $actual = $table1->load(array('query' => 1));
+    $actual = $table1->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array();
     $this->assertEquals($expected, $actual);
@@ -299,13 +301,14 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery2 () {
     global $table2;
 
-    $this->assertEquals("select `id`, (select count(*) from test2_comments where test2_id=test2.id) as `commentsCount` from `test2` where `id`='1'", $table2->_build_load_query(array('query' => 1)));
+    $query = array('query' => 1);
+    $this->assertEquals("select `id`, (select count(*) from test2_comments where test2_id=test2.id) as `commentsCount` from `test2` where `id`='1'", $table2->_build_select_query($query));
   }
 
   public function testBuildLoad2 () {
     global $table2;
 
-    $actual = $table2->load(array('query' => 1));
+    $actual = $table2->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -332,7 +335,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad2_fields () {
     global $table2;
 
-    $actual = $table2->load(array('query' => 1, 'fields' => array('commentsCount')));
+    $actual = $table2->select(array('query' => 1, 'fields' => array('commentsCount')));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -353,7 +356,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table2->load(array('query' => 1));
+    $actual = $table2->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -391,7 +394,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table2->load(array('query' => 1));
+    $actual = $table2->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     print_r($actual);
     $expected = array (
@@ -424,7 +427,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(3), $ids);
 
-    $actual = $table2->load(array('query' => $ids[0]));
+    $actual = $table2->select(array('query' => $ids[0]));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -456,7 +459,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(4), $ids);
 
-    $actual = $table2->load(array('query' => $ids[0]));
+    $actual = $table2->select(array('query' => $ids[0]));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -489,7 +492,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table2->load(array('query' => 1));
+    $actual = $table2->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -516,7 +519,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad2a () {
     global $table2a;
 
-    $actual = $table2a->load(array('fields' => array('id', 'commentsCount')));
+    $actual = $table2a->select(array('fields' => array('id', 'commentsCount')));
     $actual = iterator_to_array($actual);
     print_r($actual);
     $expected = array (

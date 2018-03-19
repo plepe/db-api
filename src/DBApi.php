@@ -27,7 +27,7 @@ class DBApi {
           yield $this->tables[$action['table']]->insert_update($action['data']);
           break;
         case 'select':
-          yield $this->tables[$action['table']]->load($action);
+          yield $this->tables[$action['table']]->select($action);
           break;
         case 'delete':
           yield $this->tables[$action['table']]->delete($action);

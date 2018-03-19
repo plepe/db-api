@@ -19,20 +19,7 @@ class DBApiTable {
     $this->id_field = $this->spec['id_field'] ?? 'id';
   }
 
-
-  function _prepare_options (&$options) {
-    if (!array_key_exists('fields', $options)) {
-      $options['fields'] = array_keys($this->spec['fields']);
-    }
-
-    if (!in_array($this->id_field, $options['fields'])) {
-      $options['fields'][] = $this->id_field;
-    }
-  }
-
   function _build_where ($options=array()) {
-    $this->_prepare_options($options);
-
     $where = array();
     if (!array_key_exists('query', $options) || ($options['query'] === null)) {
       $where[] = 'true';
@@ -96,11 +83,17 @@ class DBApiTable {
     return '';
   }
 
-  function _build_load_query ($options=array()) {
-    $this->_prepare_options($options);
+  function _build_select_query (&$action) {
+    if (!array_key_exists('fields', $action)) {
+      $action['fields'] = array_keys($this->spec['fields']);
+    }
+
+    if (!in_array($this->id_field, $action['fields'])) {
+      $action['fields'][] = $this->id_field;
+    }
 
     $select = array();
-    foreach ($options['fields'] as $key) {
+    foreach ($action['fields'] as $key) {
       $field = $this->spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
@@ -121,24 +114,22 @@ class DBApiTable {
 
     return 'select ' . implode(', ', $select) .
       ' from ' . $this->db->quoteIdent($this->spec['table']) .
-      $this->_build_where($options, $this->spec);
+      $this->_build_where($action);
   }
 
-  function load ($options=array()) {
+  function select ($action=array()) {
     $ret = array();
-
-    $this->_prepare_options($options);
 
     // build query
     // base data
-    $q = $this->_build_load_query($options);
+    $q = $this->_build_select_query($action);
     $res = $this->db->query($q);
     while ($result = $res->fetch()) {
       if (!$result) {
         return null;
       }
 
-      foreach ($options['fields'] as $key) {
+      foreach ($action['fields'] as $key) {
         $field = $this->spec['fields'][$key];
 
         if (array_key_exists('read', $field) && $field['read'] === false) {
@@ -159,7 +150,7 @@ class DBApiTable {
             break;
           case 'sub_table':
             $id = $result[$this->id_field];
-            $result[$key] = iterator_to_array($this->sub_tables[$key]->load(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)))));
+            $result[$key] = iterator_to_array($this->sub_tables[$key]->select(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)))));
           default:
         }
       }
@@ -171,18 +162,18 @@ class DBApiTable {
   /*
    * @return [string] queries
    */
-  function _update_data ($data) {
+  function update ($action) {
     global $db;
     $queries = array();
 
     $update_sub_table = false;
 
-    $set = $this->_build_set($data['update']);
+    $set = $this->_build_set($action['update']);
 
     //if ($update_sub_table) {
       $ids = array();
       $qry = 'select ' . $this->db->quoteIdent($this->id_field) . ' as `id` from ' .
-        $this->db->quoteIdent($this->spec['table']) . $this->_build_where($data);
+        $this->db->quoteIdent($this->spec['table']) . $this->_build_where($action);
       $res = $this->db->query($qry);
       while ($elem = $res->fetch()) {
         $ids[] = $elem['id'];
@@ -193,11 +184,11 @@ class DBApiTable {
       $qry = 'update ' .
         $this->db->quoteIdent($this->spec['table']) .
         ' set ' . $set .
-        $this->_build_where($data);
+        $this->_build_where($action);
       $this->db->query($qry);
     }
 
-    foreach ($data['update'] as $key => $d) {
+    foreach ($action['update'] as $key => $d) {
       $field = $this->spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
@@ -218,7 +209,7 @@ class DBApiTable {
         function ($el) use ($sub_id_field) {
           return $el[$sub_id_field];
         },
-        iterator_to_array($this->sub_tables[$key]->load(array(
+        iterator_to_array($this->sub_tables[$key]->select(array(
           'query' => array(array($field['parent_field'], '=', $id)),
           'fields' => array($sub_id_field),
         ), $field))
@@ -266,11 +257,11 @@ class DBApiTable {
   /*
    * @return [string] queries
    */
-  function insert_update ($data) {
+  function insert_update ($action) {
     global $db;
     $queries = array();
 
-    foreach ($data as $id => $elem) {
+    foreach ($action as $elem) {
       $insert = false;
 
       if (!array_key_exists($this->id_field, $elem)) {
@@ -320,18 +311,6 @@ class DBApiTable {
 
       $ret[] = $id;
     }
-
-    return $ret;
-  }
-
-  function update ($data) {
-    global $db;
-
-    $db->beginTransaction();
-
-    $ret = $this->_update_data ($data);
-
-    $db->commit();
 
     return $ret;
   }
