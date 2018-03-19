@@ -4,35 +4,32 @@ class DBApiTable {
     $this->db = $db;
     $this->spec = $spec;
     $this->id = $this->spec['id'];
-  }
+    $this->sub_tables = array();
 
-  function _prepare_options (&$options, $spec=null) {
-    if ($spec === null) {
-      $spec = $this->spec;
+    foreach ($this->spec['fields'] as $key => $field) {
+      if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
+        $this->sub_tables[$key] = new DBApiTable($this->db, $field);
+      }
     }
 
+    if (!array_key_exists('table', $this->spec)) {
+      $this->spec['table'] = $this->spec['id'];
+    }
+  }
+
+
+  function _prepare_options (&$options) {
     if (!array_key_exists('fields', $options)) {
-      $options['fields'] = array_keys($spec['fields']);
+      $options['fields'] = array_keys($this->spec['fields']);
     }
 
-    if (!in_array($spec['id_field'] ?? 'id', $options['fields'])) {
-      $options['fields'][] = $spec['id_field'] ?? 'id';
-    }
-  }
-
-  function _prepare_spec (&$spec) {
-    if (!array_key_exists('table', $spec)) {
-      $spec['table'] = $spec['id'];
+    if (!in_array($this->spec['id_field'] ?? 'id', $options['fields'])) {
+      $options['fields'][] = $this->spec['id_field'] ?? 'id';
     }
   }
 
-  function _build_where ($options=array(), $spec=null) {
-    if ($spec === null) {
-      $spec = $this->spec;
-    }
-
-    $this->_prepare_spec($spec);
-    $this->_prepare_options($options, $spec);
+  function _build_where ($options=array()) {
+    $this->_prepare_options($options);
 
     $where = array();
     if (!array_key_exists('query', $options) || ($options['query'] === null)) {
@@ -55,11 +52,11 @@ class DBApiTable {
       }
     }
     else {
-      $where[] = $this->db->quoteIdent($spec['id_field'] ?? 'id') . '=' . $this->db->quote($options['query']);
+      $where[] = $this->db->quoteIdent($this->spec['id_field'] ?? 'id') . '=' . $this->db->quote($options['query']);
     }
 
-    if (array_key_exists('query-visible', $spec)) {
-      $where[] = $spec['query-visible'];
+    if (array_key_exists('query-visible', $this->spec)) {
+      $where[] = $this->spec['query-visible'];
     }
 
     $limit_offset = '';
@@ -73,11 +70,11 @@ class DBApiTable {
     return ' where ' . implode(' and ', $where) . $limit_offset;
   }
 
-  function _build_set ($data, $spec=null) {
+  function _build_set ($data) {
     $set = array();
 
     foreach ($data as $key => $d) {
-      $field = $spec['fields'][$key];
+      $field = $this->spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
         $update_sub_table = false;
@@ -97,17 +94,12 @@ class DBApiTable {
     return '';
   }
 
-  function _build_load_query ($options=array(), $spec=null) {
-    if ($spec === null) {
-      $spec = $this->spec;
-    }
-
-    $this->_prepare_spec($spec);
-    $this->_prepare_options($options, $spec);
+  function _build_load_query ($options=array()) {
+    $this->_prepare_options($options);
 
     $select = array();
     foreach ($options['fields'] as $key) {
-      $field = $spec['fields'][$key];
+      $field = $this->spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
         continue;
@@ -126,23 +118,18 @@ class DBApiTable {
     }
 
     return 'select ' . implode(', ', $select) .
-      ' from ' . $this->db->quoteIdent($spec['table']) .
-      $this->_build_where($options, $spec);
+      ' from ' . $this->db->quoteIdent($this->spec['table']) .
+      $this->_build_where($options, $this->spec);
   }
 
-  function load ($options=array(), $spec=null) {
+  function load ($options=array()) {
     $ret = array();
 
-    if ($spec === null) {
-      $spec = $this->spec;
-    }
-
-    $this->_prepare_spec($spec);
-    $this->_prepare_options($options, $spec);
+    $this->_prepare_options($options);
 
     // build query
     // base data
-    $q = $this->_build_load_query($options, $spec);
+    $q = $this->_build_load_query($options);
     $res = $this->db->query($q);
     while ($result = $res->fetch()) {
       if (!$result) {
@@ -150,7 +137,7 @@ class DBApiTable {
       }
 
       foreach ($options['fields'] as $key) {
-        $field = $spec['fields'][$key];
+        $field = $this->spec['fields'][$key];
 
         if (array_key_exists('read', $field) && $field['read'] === false) {
           continue;
@@ -169,8 +156,8 @@ class DBApiTable {
             $result[$key] = (int)$result[$key];
             break;
           case 'sub_table':
-            $id = $result[$spec['id_field'] ?? 'id'];
-            $result[$key] = iterator_to_array($this->load(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id))), $field));
+            $id = $result[$this->spec['id_field'] ?? 'id'];
+            $result[$key] = iterator_to_array($this->sub_tables[$key]->load(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)))));
           default:
         }
       }
@@ -182,21 +169,20 @@ class DBApiTable {
   /*
    * @return [string] queries
    */
-  function _update_data ($data, $spec) {
+  function _update_data ($data) {
     global $db;
     $queries = array();
-    $this->_prepare_spec($spec);
 
-    $id_field = $spec['id_field'] ?? 'id';
+    $id_field = $this->spec['id_field'] ?? 'id';
 
     $update_sub_table = false;
 
-    $set = $this->_build_set($data['update'], $spec);
+    $set = $this->_build_set($data['update']);
 
     //if ($update_sub_table) {
       $ids = array();
       $qry = 'select ' . $this->db->quoteIdent($id_field) . ' as `id` from ' .
-        $this->db->quoteIdent($spec['table']) . $this->_build_where($data, $spec);
+        $this->db->quoteIdent($this->spec['table']) . $this->_build_where($data);
       $res = $this->db->query($qry);
       while ($elem = $res->fetch()) {
         $ids[] = $elem['id'];
@@ -205,24 +191,24 @@ class DBApiTable {
 
     if ($set !== '') {
       $qry = 'update ' .
-        $this->db->quoteIdent($spec['table']) .
+        $this->db->quoteIdent($this->spec['table']) .
         ' set ' . $set .
-        $this->_build_where($data, $spec);
+        $this->_build_where($data);
       $this->db->query($qry);
     }
 
     foreach ($data['update'] as $key => $d) {
-      $field = $spec['fields'][$key];
+      $field = $this->spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-        $this->_update_sub_table($ids, $d, $field);
+        $this->_update_sub_table($ids, $d, $key, $field);
       }
     }
 
     return isset($ids) ? $ids : true;
   }
 
-  function _update_sub_table($ids, $data, $field) {
+  function _update_sub_table($ids, $data, $key, $field) {
     foreach ($ids as $id) {
       $sub_id_field = $field['id_field'] ?? 'id';
 
@@ -230,7 +216,7 @@ class DBApiTable {
         function ($el) use ($sub_id_field) {
           return $el[$sub_id_field];
         },
-        iterator_to_array($this->load(array(
+        iterator_to_array($this->sub_tables[$key]->load(array(
           'query' => array(array($field['parent_field'], '=', $id)),
           'fields' => array($sub_id_field),
         ), $field))
@@ -253,13 +239,13 @@ class DBApiTable {
           $data[$i1][$field['parent_field']] = $id;
         }
       }
-      $q = $this->insert_update($data, $field);
+      $q = $this->sub_tables[$key]->insert_update($data);
 
       // delete sub fields which are no longer part of parent field
       foreach ($current_sub_ids as $sub_id) {
-        $this->delete(array(
+        $this->sub_tables[$key]->delete(array(
           'query' => $sub_id
-        ), $field);
+        ));
       }
 
       if (!is_array($q)) {
@@ -268,16 +254,11 @@ class DBApiTable {
     }
   }
 
-  function delete ($action, $spec=null) {
-    if ($spec === null) {
-      $spec = $this->spec;
-    }
-    $this->_prepare_spec($spec);
+  function delete ($action) {
+    $id_field = $this->spec['id_field'] ?? 'id';
 
-    $id_field = $spec['id_field'] ?? 'id';
-
-    $res = $this->db->query('delete from ' . $this->db->quoteIdent($spec['table']) .
-      $this->_build_where($action, $spec));
+    $res = $this->db->query('delete from ' . $this->db->quoteIdent($this->spec['table']) .
+      $this->_build_where($action));
 
     return array('count' => $res->rowCount());
   }
@@ -285,16 +266,11 @@ class DBApiTable {
   /*
    * @return [string] queries
    */
-  function insert_update ($data, $spec=null) {
+  function insert_update ($data) {
     global $db;
     $queries = array();
 
-    if ($spec === null) {
-      $spec = $this->spec;
-    }
-    $this->_prepare_spec($spec);
-
-    $id_field = $spec['id_field'] ?? 'id';
+    $id_field = $this->spec['id_field'] ?? 'id';
 
     foreach ($data as $id => $elem) {
       $insert = false;
@@ -305,42 +281,42 @@ class DBApiTable {
       else {
         $id = $elem[$id_field];
 
-        $res = $db->query('select 1 from ' . $db->quoteIdent($spec['table']) . ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($elem[$id_field]));
+        $res = $db->query('select 1 from ' . $db->quoteIdent($this->spec['table']) . ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($elem[$id_field]));
         if (!$res->rowCount()) {
           $insert = true;
         }
         $res->closeCursor();
       }
 
-      $set = $this->_build_set($elem, $spec);
+      $set = $this->_build_set($elem);
 
       if ($insert) {
         if ($set !== '') {
           $this->db->query('insert into ' .
-            $this->db->quoteIdent($spec['table']) .
+            $this->db->quoteIdent($this->spec['table']) .
             ' set ' . $set);
           $id = $this->db->lastInsertId();
         }
         else {
           $this->db->query('insert into ' .
-            $this->db->quoteIdent($spec['table']) .
+            $this->db->quoteIdent($this->spec['table']) .
             '() values ()');
           $id = $this->db->lastInsertId();
         }
       }
       else {
         $this->db->query(
-          'update ' .  $this->db->quoteIdent($spec['table']) .
+          'update ' .  $this->db->quoteIdent($this->spec['table']) .
           ' set ' . $set .
           ' where ' . $db->quoteIdent($id_field) . '=' . $db->quote($id));
         $id = array_key_exists($id_field, $elem) ? $elem[$id_field] : $id;
       }
 
       foreach ($elem as $key => $d) {
-        $field = $spec['fields'][$key];
+        $field = $this->spec['fields'][$key];
 
         if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-          $this->_update_sub_table(array($id), $d, $field);
+          $this->_update_sub_table(array($id), $d, $key, $field);
         }
       }
 
@@ -355,7 +331,7 @@ class DBApiTable {
 
     $db->beginTransaction();
 
-    $ret = $this->_update_data ($data, $this->spec);
+    $ret = $this->_update_data ($data);
 
     $db->commit();
 
