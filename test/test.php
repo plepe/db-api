@@ -68,6 +68,24 @@ $spec2 = array(
   ),
 );
 
+$spec3 = array(
+  'id' => 'test3',
+  'id_field' => 'name',
+  'fields' => array(
+    'name' => array(
+      'type' => 'string',
+    ),
+    'age' => array(
+      'type' => 'int',
+      // calculate age, see https://stackoverflow.com/a/7749665
+      'select' => "YEAR('2018-03-19') - YEAR(birthday) - (DATE_FORMAT('2018-03-19', '%m%d') < DATE_FORMAT(birthday, '%m%d'))",
+    ),
+    'weight' => array(
+      'type' => 'float',
+    ),
+  ),
+);
+
 $spec2a = $spec2;
 $spec2a['id'] = 'test2a';
 $spec2a['query-visible'] = 'visible=true';
@@ -84,18 +102,35 @@ $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
 $db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext not null, c tinytext null, d1 text not null, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
 $db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, visible boolean not null default true, primary key(id)); insert into test2 (id) values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
+$db->query(<<<EOT
+drop table if exists test3;
+create table test3 (
+  name          varchar(255)    not null,
+  birthday      date            null,
+  weight        float           null,
+  primary key (name)
+);
+insert into test3 values
+  ('Alice', '1978-01-01', 50),
+  ('Bob', '1982-03-25', 82),
+  ('Conny', '1982-08-12', 50),
+  ('Dennis', '1950-11-20', 68);
+EOT
+);
 
 global $api;
 global $table1;
 global $table1a;
 global $table2;
 global $table2a;
+global $table3;
 
 $api = new DBApi($db);
 $table1 = $api->addTable($spec1);
 $table1a = $api->addTable($spec1a);
 $table2 = $api->addTable($spec2);
 $table2a = $api->addTable($spec2a);
+$table3 = $api->addTable($spec3);
 
 /**
  * @backupGlobals disabled
@@ -562,10 +597,134 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function test3_load_order_age () {
+    global $table3;
+
+    $actual = $table3->select(array(
+      'fields' => array('name', 'age'),
+      'order' => array('age'),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'name' => 'Bob',
+	'age' => 35,
+      ),
+      array (
+	'name' => 'Conny',
+	'age' => 35,
+      ),
+      array (
+	'name' => 'Alice',
+	'age' => 40,
+      ),
+      array (
+	'name' => 'Dennis',
+	'age' => 67,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function test3_load_order_age_asc () {
+    global $table3;
+
+    $actual = $table3->select(array(
+      'fields' => array('name', 'age'),
+      'order' => array('+age'),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'name' => 'Bob',
+	'age' => 35,
+      ),
+      array (
+	'name' => 'Conny',
+	'age' => 35,
+      ),
+      array (
+	'name' => 'Alice',
+	'age' => 40,
+      ),
+      array (
+	'name' => 'Dennis',
+	'age' => 67,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function test3_load_order_age_desc () {
+    global $table3;
+
+    $actual = $table3->select(array(
+      'fields' => array('name', 'age'),
+      'order' => array('-age'),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'name' => 'Dennis',
+	'age' => 67,
+      ),
+      array (
+	'name' => 'Alice',
+	'age' => 40,
+      ),
+      array (
+	'name' => 'Bob',
+	'age' => 35,
+      ),
+      array (
+	'name' => 'Conny',
+	'age' => 35,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function test3_load_order_weight_age () {
+    global $table3;
+
+    $actual = $table3->select(array(
+      'fields' => array('name', 'weight', 'age'),
+      'order' => array('weight', 'age'),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'name' => 'Conny',
+        'weight' => 50.0,
+	'age' => 35,
+      ),
+      array (
+	'name' => 'Alice',
+        'weight' => 50.0,
+	'age' => 40,
+      ),
+      array (
+	'name' => 'Dennis',
+        'weight' => 68.0,
+	'age' => 67,
+      ),
+      array (
+	'name' => 'Bob',
+        'weight' => 82.0,
+	'age' => 35,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testApiTables() {
     global $api;
 
-    $expected = array('test1', 'test1a', 'test2', 'test2a');
+    $expected = array('test1', 'test1a', 'test2', 'test2a', 'test3');
     $actual = array_keys($api->tables);
 
     $this->assertEquals($expected, $actual);

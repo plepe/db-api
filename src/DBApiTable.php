@@ -117,7 +117,46 @@ class DBApiTable {
 
     return 'select ' . implode(', ', $select) .
       " from {$this->table_quoted}" .
-      $this->_build_where($action);
+      $this->_build_where($action) .
+      $this->_build_order($action);
+  }
+
+  function _build_order ($action) {
+    $res = array();
+
+    $order = $action['order'] ?? $this->spec['order'] ?? array();
+
+    foreach ($order as $key) {
+      $dir = 'asc';
+      if ($key[0] === '+') {
+        $key = substr($key, 1);
+      }
+      elseif ($key[0] === '-') {
+        $dir = 'desc';
+        $key = substr($key, 1);
+      }
+
+      $field = $this->spec['fields'][$key];
+
+      if (array_key_exists('read', $field) && $field['read'] === false) {
+        throw new Exception("permission denied, order by '{$key}'");
+      }
+
+      if (array_key_exists('select', $field)) {
+        $res[] = "({$field['select']}) {$dir}";
+      }
+      else if (array_key_exists('column', $field)) {
+        $res[] = $this->db->quoteIdent($field['column']) . ' ' . $dir;
+      } else {
+        $res[] = $this->db->quoteIdent($key) . ' ' . $dir;
+      }
+    }
+
+    if (sizeof($res) === 0) {
+      return '';
+    }
+
+    return ' order by ' . implode(', ', $res);
   }
 
   function select ($action=array()) {
