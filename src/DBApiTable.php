@@ -17,6 +17,9 @@ class DBApiTable {
     }
 
     $this->id_field = $this->spec['id_field'] ?? 'id';
+
+    $this->id_field_quoted = $this->db->quoteIdent($this->id_field);
+    $this->table_quoted = $this->db->quoteIdent($this->spec['table']);
   }
 
   function _build_where ($options=array()) {
@@ -41,7 +44,7 @@ class DBApiTable {
       }
     }
     else {
-      $where[] = $this->db->quoteIdent($this->id_field) . '=' . $this->db->quote($options['query']);
+      $where[] = "{$this->id_field_quoted}=" . $this->db->quote($options['query']);
     }
 
     if (array_key_exists('query-visible', $this->spec)) {
@@ -113,7 +116,7 @@ class DBApiTable {
     }
 
     return 'select ' . implode(', ', $select) .
-      ' from ' . $this->db->quoteIdent($this->spec['table']) .
+      " from {$this->table_quoted}" .
       $this->_build_where($action);
   }
 
@@ -171,8 +174,8 @@ class DBApiTable {
 
     //if ($update_sub_table) {
       $ids = array();
-      $qry = 'select ' . $this->db->quoteIdent($this->id_field) . ' as `id` from ' .
-        $this->db->quoteIdent($this->spec['table']) . $this->_build_where($action);
+      $qry = "select {$this->id_field_quoted} as `id` " .
+             "from {$this->table_quoted} " . $this->_build_where($action);
       $res = $this->db->query($qry);
       while ($elem = $res->fetch()) {
         $ids[] = $elem['id'];
@@ -180,9 +183,7 @@ class DBApiTable {
     //}
 
     if ($set !== '') {
-      $qry = 'update ' .
-        $this->db->quoteIdent($this->spec['table']) .
-        ' set ' . $set .
+      $qry = "update {$this->table_quoted} set {$set}" .
         $this->_build_where($action);
       $this->db->query($qry);
     }
@@ -247,7 +248,7 @@ class DBApiTable {
   }
 
   function delete ($action) {
-    $res = $this->db->query('delete from ' . $this->db->quoteIdent($this->spec['table']) .
+    $res = $this->db->query("delete from {$this->table_quoted}" .
       $this->_build_where($action));
 
     return array('count' => $res->rowCount());
@@ -268,7 +269,8 @@ class DBApiTable {
       else {
         $id = $elem[$this->id_field];
 
-        $res = $this->db->query('select 1 from ' . $this->db->quoteIdent($this->spec['table']) . ' where ' . $this->db->quoteIdent($this->id_field) . '=' . $this->db->quote($elem[$this->id_field]));
+        $res = $this->db->query("select 1 from {$this->table_quoted}" .
+          " where {$this->id_field_quoted}=" . $this->db->quote($elem[$this->id_field]));
         if (!$res->rowCount()) {
           $insert = true;
         }
@@ -279,23 +281,20 @@ class DBApiTable {
 
       if ($insert) {
         if ($set !== '') {
-          $this->db->query('insert into ' .
-            $this->db->quoteIdent($this->spec['table']) .
-            ' set ' . $set);
+          $this->db->query("insert into {$this->table_quoted} set {$set}");
           $id = $this->db->lastInsertId();
         }
         else {
-          $this->db->query('insert into ' .
-            $this->db->quoteIdent($this->spec['table']) .
+          $this->db->query("insert into {$this->table_quoted} " .
             '() values ()');
           $id = $this->db->lastInsertId();
         }
       }
       else {
         $this->db->query(
-          'update ' .  $this->db->quoteIdent($this->spec['table']) .
+          "update {$this->table_quoted} " .
           ' set ' . $set .
-          ' where ' . $this->db->quoteIdent($this->id_field) . '=' . $this->db->quote($id));
+          " where {$this->id_field_quoted}=" . $this->db->quote($id));
         $id = array_key_exists($this->id_field, $elem) ? $elem[$this->id_field] : $id;
       }
 
