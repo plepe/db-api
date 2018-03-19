@@ -74,7 +74,9 @@ class DBApiTable {
       $limit_offset .= " offset {$options['offset']}";
     }
 
-    return ' where ' . implode(' and ', $where) . $limit_offset;
+    return ' where ' . implode(' and ', $where) .
+      $this->_build_order($options) .
+      $limit_offset;
   }
 
   function _build_set ($data) {
@@ -125,8 +127,7 @@ class DBApiTable {
 
     return 'select ' . implode(', ', $select) .
       " from {$this->table_quoted}" .
-      $this->_build_where($action) .
-      $this->_build_order($action);
+      $this->_build_where($action);
   }
 
   function _build_order ($action) {

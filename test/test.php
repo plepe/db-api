@@ -739,6 +739,31 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function test3_load_order_weight_age_limit () {
+    global $table3;
+
+    $actual = $table3->select(array(
+      'fields' => array('name', 'weight', 'age'),
+      'order' => array('weight', 'age'),
+      'limit' => 2,
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'name' => 'Conny',
+        'weight' => 50.0,
+	'age' => 35,
+      ),
+      array (
+	'name' => 'Alice',
+        'weight' => 50.0,
+	'age' => 40,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testApiTables() {
     global $api;
 
