@@ -22,6 +22,19 @@ class DBApiTable {
     $this->table_quoted = $this->db->quoteIdent($this->spec['table']);
   }
 
+  function _build_column ($key) {
+    $field = $this->spec['fields'][$key];
+
+    if (array_key_exists('select', $field)) {
+      return "({$field['select']})";
+    }
+    else if (array_key_exists('column', $field)) {
+      return $this->db->quoteIdent($field['column']);
+    } else {
+      return $this->db->quoteIdent($key);
+    }
+  }
+
   function _build_where ($options=array()) {
     $where = array();
     if (!array_key_exists('query', $options) || ($options['query'] === null)) {
@@ -104,14 +117,7 @@ class DBApiTable {
       }
 
       if (!array_key_exists('read', $field) || $field['read']) {
-        if (array_key_exists('select', $field)) {
-          $select[] = "({$field['select']}) as " . $this->db->quoteIdent($key);
-        }
-        else if (array_key_exists('column', $field)) {
-          $select[] = $this->db->quoteIdent($field['column']) . ' as ' . $this->db->quoteIdent($key);
-        } else {
-          $select[] = $this->db->quoteIdent($key);
-        }
+        $select[] = $this->_build_column($key) . ' as ' . $this->db->quoteIdent($key);
       }
     }
 
@@ -142,14 +148,7 @@ class DBApiTable {
         throw new Exception("permission denied, order by '{$key}'");
       }
 
-      if (array_key_exists('select', $field)) {
-        $res[] = "({$field['select']}) {$dir}";
-      }
-      else if (array_key_exists('column', $field)) {
-        $res[] = $this->db->quoteIdent($field['column']) . ' ' . $dir;
-      } else {
-        $res[] = $this->db->quoteIdent($key) . ' ' . $dir;
-      }
+      $res[] = $this->_build_column($key) . ' ' . $dir;
     }
 
     if (sizeof($res) === 0) {

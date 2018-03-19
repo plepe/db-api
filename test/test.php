@@ -140,7 +140,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $query = array('query' => 1);
-    $this->assertEquals("select `a`, `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `a`='1'", $table1->_build_select_query($query));
+    $this->assertEquals("select `a` as `a`, `b` as `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `a`='1'", $table1->_build_select_query($query));
   }
 
   public function testBuildLoad1 () {
@@ -228,7 +228,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
       array('key' => 'b', 'op' => '=', 'value' => 'foo'),
     ));
     $actual = $table1->_build_select_query($query);
-    $expected = "select `a`, `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `b`='foo'";
+    $expected = "select `a` as `a`, `b` as `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `b`='foo'";
     $this->assertEquals($expected, $actual);
   }
 
@@ -359,7 +359,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table2;
 
     $query = array('query' => 1);
-    $this->assertEquals("select `id`, (select count(*) from test2_comments where test2_id=test2.id) as `commentsCount` from `test2` where `id`='1'", $table2->_build_select_query($query));
+    $this->assertEquals("select `id` as `id`, (select count(*) from test2_comments where test2_id=test2.id) as `commentsCount` from `test2` where `id`='1'", $table2->_build_select_query($query));
   }
 
   public function testBuildLoad2 () {
