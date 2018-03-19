@@ -72,6 +72,11 @@ $spec2a = $spec2;
 $spec2a['id'] = 'test2a';
 $spec2a['query-visible'] = 'visible=true';
 
+$spec1a = $spec1;
+$spec1a['id'] = 'test1a';
+$spec1a['table'] = 'test1';
+$spec1a['fields']['a']['write'] = false;
+
 $dbconf[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES utf8";
 $db = new PDOext($dbconf);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -82,11 +87,13 @@ $db->query("drop table if exists test2_comments; drop table if exists test2; cre
 
 global $api;
 global $table1;
+global $table1a;
 global $table2;
 global $table2a;
 
 $api = new DBApi($db);
 $table1 = $api->addTable($spec1);
+$table1a = $api->addTable($spec1a);
 $table2 = $api->addTable($spec2);
 $table2a = $api->addTable($spec2a);
 
@@ -217,7 +224,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function testBuildLoad1_insert_update_only_a_b () {
+  public function testBuildLoad1_insert_update_only_b () {
     global $table1;
 
     $ids = $table1->insert_update(array(
@@ -227,6 +234,21 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array(1), $ids);
 
     $actual = $table1->select(array('query' => 1));
+    $actual = iterator_to_array($actual);
+    $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad1a_insert_update_only_b () {
+    global $table1a;
+
+    $ids = $table1a->insert_update(array(
+      array('a' => 1, 'b' => 'blubb'),
+    ));
+
+    $this->assertEquals(array(1), $ids);
+
+    $actual = $table1a->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -543,7 +565,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testApiTables() {
     global $api;
 
-    $expected = array('test1', 'test2', 'test2a');
+    $expected = array('test1', 'test1a', 'test2', 'test2a');
     $actual = array_keys($api->tables);
 
     $this->assertEquals($expected, $actual);

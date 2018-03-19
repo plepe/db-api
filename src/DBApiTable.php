@@ -274,6 +274,9 @@ class DBApiTable {
         if (!$res->rowCount()) {
           $insert = true;
         }
+        else {
+          unset($elem[$this->id_field]);
+        }
         $res->closeCursor();
       }
 
@@ -291,11 +294,13 @@ class DBApiTable {
         }
       }
       else {
-        $this->db->query(
-          "update {$this->table_quoted} " .
-          ' set ' . $set .
-          " where {$this->id_field_quoted}=" . $this->db->quote($id));
-        $id = array_key_exists($this->id_field, $elem) ? $elem[$this->id_field] : $id;
+        if ($set !== '') {
+          $this->db->query(
+            "update {$this->table_quoted} " .
+            ' set ' . $set .
+            " where {$this->id_field_quoted}=" . $this->db->quote($id));
+          $id = array_key_exists($this->id_field, $elem) ? $elem[$this->id_field] : $id;
+        }
       }
 
       foreach ($elem as $key => $d) {
