@@ -244,6 +244,8 @@ class DBApiTable {
           // not yet member of parent object -> add parent_field
           if ($pos_in_current_sub_ids === false) {
             $data[$i1][$field['parent_field']] = $id;
+          } else {
+            unset($current_sub_ids[$pos_in_current_sub_ids]);
           }
         }
         // id field not specified -> new entry, add parent field
@@ -252,6 +254,13 @@ class DBApiTable {
         }
       }
       $q = $this->insert_update($data, $field);
+
+      // delete sub fields which are no longer part of parent field
+      foreach ($current_sub_ids as $sub_id) {
+        $this->delete(array(
+          'query' => $sub_id
+        ), $field);
+      }
 
       if (!is_array($q)) {
         return $q;

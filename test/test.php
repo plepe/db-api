@@ -348,7 +348,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table2;
 
     $ids = $table2->update(array(
-      'update' => array('comments' => array(array('id' => 2, 'text' => 'foobar'), array('text' => 'foobar2'))),
+      'update' => array('comments' => array(array('id' => 1), array('id' => 2, 'text' => 'foobar'), array('text' => 'foobar2'))),
       'query' => 1,
     ));
     $this->assertEquals(array(1), $ids);
@@ -365,6 +365,40 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	    'id' => 1,
 	    'text' => 'foo',
 	  ),
+	  array (
+	    'test2_id' => 1,
+	    'id' => 2,
+	    'text' => 'foobar',
+	  ),
+          array(
+	    'test2_id' => 1,
+	    'id' => 4,
+	    'text' => 'foobar2',
+          ),
+	),
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad2_delete_sub_field () {
+    global $table2;
+
+    $ids = $table2->update(array(
+      'update' => array('comments' => array(array('id' => 2), array('id' => 4))),
+      'query' => 1,
+    ));
+    $this->assertEquals(array(1), $ids);
+
+    $actual = $table2->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
+    print_r($actual);
+    $expected = array (
+      array (
+	'id' => 1,
+        'commentsCount' => 2,
+	'comments' => array (
 	  array (
 	    'test2_id' => 1,
 	    'id' => 2,
@@ -460,13 +494,8 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $expected = array (
       array (
 	'id' => 1,
-        'commentsCount' => 3,
+        'commentsCount' => 2,
 	'comments' => array (
-	  array (
-	    'test2_id' => 1,
-	    'id' => 1,
-	    'text' => 'foo',
-	  ),
 	  array (
 	    'test2_id' => 1,
 	    'id' => 2,
@@ -526,7 +555,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	array ( 'a' => 3,),
       ),
       array (
-	array ( 'commentsCount' => 3, 'id' => 1,),
+	array ( 'commentsCount' => 2, 'id' => 1,),
       ),
     );
     $actual = iterator_to_array_deep($api->do(
