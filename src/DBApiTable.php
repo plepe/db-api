@@ -224,8 +224,32 @@ class DBApiTable {
 
   function _update_sub_table($ids, $data, $field) {
     foreach ($ids as $id) {
+      $sub_id_field = $field['id_field'] ?? 'id';
+
+      $current_sub_ids = array_map(
+        function ($el) use ($sub_id_field) {
+          return $el[$sub_id_field];
+        },
+        iterator_to_array($this->load(array(
+          'query' => array(array($field['parent_field'], '=', $id)),
+          'fields' => array($sub_id_field),
+        ), $field))
+      );
+
       foreach ($data as $i1 => $d1) {
-        $data[$i1][$field['parent_field']] = $id;
+        // id field in sub field specified
+        if (array_key_exists($sub_id_field, $d1)) {
+          $pos_in_current_sub_ids = array_search($d1[$sub_id_field], $current_sub_ids);
+
+          // not yet member of parent object -> add parent_field
+          if ($pos_in_current_sub_ids === false) {
+            $data[$i1][$field['parent_field']] = $id;
+          }
+        }
+        // id field not specified -> new entry, add parent field
+        else {
+          $data[$i1][$field['parent_field']] = $id;
+        }
       }
       $q = $this->insert_update($data, $field);
 
