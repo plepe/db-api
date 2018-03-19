@@ -282,6 +282,20 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1_delete () {
+    global $table1;
+
+    $result = $table1->delete(array(
+      'query' => 1
+    ));
+    $this->assertEquals(array('count' => 1), $result);
+
+    $actual = $table1->load(array('query' => 1));
+    $actual = iterator_to_array($actual);
+    $expected = array();
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoadQuery2 () {
     global $table2;
 
@@ -508,12 +522,11 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $expected = array(
       array (
-	0 => array ( 'a' => 1,),
-	1 => array ( 'a' => 2,),
-	2 => array ( 'a' => 3,),
+	array ( 'a' => 2,),
+	array ( 'a' => 3,),
       ),
       array (
-	0 => array ( 'commentsCount' => 3, 'id' => 1,),
+	array ( 'commentsCount' => 3, 'id' => 1,),
       ),
     );
     $actual = iterator_to_array_deep($api->do(

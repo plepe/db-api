@@ -29,6 +29,9 @@ class DBApi {
         case 'select':
           yield $this->tables[$action['table']]->load($action);
           break;
+        case 'delete':
+          yield $this->tables[$action['table']]->delete($action);
+          break;
         default:
           throw new Exception("No such action '{$action['action']}'");
       }

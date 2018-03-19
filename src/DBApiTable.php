@@ -259,6 +259,20 @@ class DBApiTable {
     }
   }
 
+  function delete ($action, $spec=null) {
+    if ($spec === null) {
+      $spec = $this->spec;
+    }
+    $this->_prepare_spec($spec);
+
+    $id_field = $spec['id_field'] ?? 'id';
+
+    $res = $this->db->query('delete from ' . $this->db->quoteIdent($spec['table']) .
+      $this->_build_where($action, $spec));
+
+    return array('count' => $res->rowCount());
+  }
+
   /*
    * @return [string] queries
    */
