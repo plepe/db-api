@@ -232,17 +232,13 @@ class DBApiTable {
           $data[$i1][$field['parent_field']] = $id;
         }
       }
-      $q = $sub_table->insert_update($data);
+      $sub_table->insert_update($data);
 
       // delete sub fields which are no longer part of parent field
       foreach ($current_sub_ids as $sub_id) {
         $sub_table->delete(array(
           'query' => $sub_id
         ));
-      }
-
-      if (!is_array($q)) {
-        return $q;
       }
     }
   }
