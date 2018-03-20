@@ -38,7 +38,7 @@ class DBApiTable {
   function _build_where ($options=array()) {
     $where = array();
     if (!array_key_exists('query', $options) || ($options['query'] === null)) {
-      $where[] = 'true';
+      // nothing
     }
     elseif (is_array($options['query'])) {
       foreach ($options['query'] as $q) {
@@ -74,7 +74,7 @@ class DBApiTable {
       $limit_offset .= " offset {$options['offset']}";
     }
 
-    return ' where ' . implode(' and ', $where) .
+    return (sizeof($where) ? ' where ' . implode(' and ', $where) : '') .
       $this->_build_order($options) .
       $limit_offset;
   }

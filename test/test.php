@@ -221,6 +221,18 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1_empty_query () {
+    global $table1;
+
+    $actual = $table1->select(array('query' => array(), 'fields' => array('a')));
+    $actual = iterator_to_array($actual);
+    $expected = array(
+      array('a' => 1),
+      array('a' => 2),
+    );
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoadQuery1_customQuery () {
     global $table1;
 
