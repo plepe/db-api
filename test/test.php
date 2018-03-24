@@ -100,7 +100,7 @@ $db = new PDOext($dbconf);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-$db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext not null, c tinytext null, d1 text not null, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
+$db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext not null, c tinytext null, d1 text null, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo'), (2, 'bar', 'bar', 'bar');");
 $db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, visible boolean not null default true, primary key(id)); insert into test2 (id) values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
 $db->query(<<<EOT
 drop table if exists test3;
@@ -333,6 +333,21 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $actual = $table1->select(array('query' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad1_insert_update_d_null () {
+    global $table1;
+
+    $ids = $table1->insert_update(array(
+      array('a' => 1, 'd' => null),
+    ));
+
+    $this->assertEquals(array(1), $ids);
+
+    $actual = $table1->select(array('query' => 1));
+    $actual = iterator_to_array($actual);
+    $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => null));
     $this->assertEquals($expected, $actual);
   }
 
