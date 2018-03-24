@@ -80,13 +80,14 @@ class DBApiTable {
       case '<':
         return "{$key_quoted}{$query['op']}" . $this->db->quote($query['value']);
       case '=':
-      default:
         if ($query['value'] === null) {
           return "{$key_quoted} is null";
         }
         else {
           return "{$key_quoted}=" . $this->db->quote($query['value']);
         }
+      default:
+        throw new Exception("Unknown query operation '{$query['op']}'");
     }
   }
 

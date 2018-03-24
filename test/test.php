@@ -366,7 +366,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $actual = $table1->select(array(
-      'query' => array(array('d', 'is', null)),
+      'query' => array(array('d', '=', null)),
     ));
 
 
