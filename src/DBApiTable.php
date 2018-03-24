@@ -50,7 +50,12 @@ class DBApiTable {
 
         switch ($q['op'] ?? '=') {
           case 'in':
-            $where[] = "{$key_quoted} in (" . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $q['value'])) . ')';
+            if (sizeof($q['value'])) {
+              $where[] = "{$key_quoted} in (" . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $q['value'])) . ')';
+            }
+            else {
+              $where[] = 'false';
+            }
             break;
           case '=':
           default:
