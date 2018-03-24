@@ -17,6 +17,10 @@ class DBApiTable {
     }
 
     $this->id_field = $this->spec['id_field'] ?? 'id';
+    if (array_key_exists('parent_field', $this->spec)) {
+      $this->parent_field = $this->spec['parent_field'];
+      $this->parent_field_quoted = $this->db->quoteIdent($this->spec['parent_field']);
+    }
 
     $this->id_field_quoted = $this->db->quoteIdent($this->id_field);
     $this->table_quoted = $this->db->quoteIdent($this->spec['table']);
