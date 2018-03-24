@@ -44,6 +44,25 @@ class DBApiTable {
       $query = array('key' => $query[0], 'op' => $query[1], 'value' => sizeof($query) > 2 ? $query[2] : null);
     }
 
+    if (is_array($query['key'])) {
+      $key = array_shift($query['key']);
+
+      if (sizeof($query['key'])) {
+        $sub_table = $this->sub_tables[$key];
+
+        if (sizeof($query['key'])) {
+          $sub_select = array(
+            'fields' => array(true),
+            'query' => array($query),
+          );
+
+          return '(' . $sub_table->_build_select_query($sub_select) . " and {$sub_table->table_quoted}.{$sub_table->parent_field_quoted}={$this->table_quoted}.{$this->id_field_quoted} limit 1)=true";
+        }
+      } else {
+        $query['key'] = $key;
+      }
+    }
+
     $key_quoted = $this->_build_column($query['key']);
 
     switch ($query['op'] ?? '=') {
@@ -137,6 +156,11 @@ class DBApiTable {
 
     $select = array();
     foreach ($action['fields'] as $key) {
+      if ($key === true) {
+        $select[] = 'true';
+        continue;
+      }
+
       $field = $this->spec['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {

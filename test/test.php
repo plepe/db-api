@@ -460,6 +460,31 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+// select x from bla where (select true from test2_comments where limit 1)=true is not null;
+  public function testBuildLoad2_select_nestedfield () {
+    global $table2;
+
+    $actual = $table2->select(array(
+      'query' => array(array(array('comments', 'text'), '=', 'foobar')),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'id' => 2,
+        'commentsCount' => 1,
+        'comments' => array (
+          array (
+            'test2_id' => 2,
+            'id' => 3,
+            'text' => 'foobar',
+          ),
+        ),
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad2_update () {
     global $table2;
 
