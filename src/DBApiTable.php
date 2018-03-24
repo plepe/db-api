@@ -35,58 +35,67 @@ class DBApiTable {
     }
   }
 
-  function _build_where ($options=array()) {
-    $where = array();
-    if (!array_key_exists('query', $options) || ($options['query'] === null)) {
-      // nothing
+  function _build_where_expression ($query) {
+    if (is_array($query) && !array_key_exists('key', $query) && array_key_exists(0, $query)) {
+      $query = array('key' => $query[0], 'op' => $query[1], 'value' => sizeof($query) > 2 ? $query[2] : null);
     }
-    elseif (is_array($options['query'])) {
-      foreach ($options['query'] as $q) {
-        if (is_array($q) && !array_key_exists('key', $q) && array_key_exists(0, $q)) {
-          $q = array('key' => $q[0], 'op' => $q[1], 'value' => sizeof($q) > 2 ? $q[2] : null);
-        }
 
-        $key_quoted = $this->_build_column($q['key']);
+    $key_quoted = $this->_build_column($query['key']);
 
-        switch ($q['op'] ?? '=') {
-          case 'in':
-            if (sizeof($q['value'])) {
-              $where[] = "{$key_quoted} in (" . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $q['value'])) . ')';
-            }
-            else {
-              $where[] = 'false';
-            }
-            break;
-          case '=':
-          default:
-            if ($q['value'] === null) {
-              $where[] = "{$key_quoted} is null";
-            }
-            else {
-              $where[] = "{$key_quoted}=" . $this->db->quote($q['value']);
-            }
+    switch ($query['op'] ?? '=') {
+      case 'in':
+        if (sizeof($query['value'])) {
+          return "{$key_quoted} in (" . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $query['value'])) . ')';
         }
+        else {
+          return 'false';
+        }
+        break;
+      case '=':
+      default:
+        if ($query['value'] === null) {
+          return "{$key_quoted} is null";
+        }
+        else {
+          return "{$key_quoted}=" . $this->db->quote($query['value']);
+        }
+    }
+  }
+
+  function _build_where ($query=array()) {
+    $where = array();
+    if ($query === null) {
+      return '';
+    }
+
+    if (is_array($query)) {
+      foreach ($query as $q) {
+        $where[] = $this->_build_where_expression($q);
       }
     }
     else {
-      $where[] = "{$this->id_field_quoted}=" . $this->db->quote($options['query']);
+      $where[] = "{$this->id_field_quoted}=" . $this->db->quote($query);
     }
 
     if (array_key_exists('query-visible', $this->spec)) {
       $where[] = $this->spec['query-visible'];
     }
 
+    return sizeof($where) ? 'where ' . implode(' and ', $where) : '';
+  }
+
+  function _build_query ($action) {
     $limit_offset = '';
-    if (array_key_exists('limit', $options) && is_int($options['limit'])) {
-      $limit_offset .= " limit {$options['limit']}";
+    if (array_key_exists('limit', $action) && is_int($action['limit'])) {
+      $limit_offset .= " limit {$action['limit']}";
     }
-    if (array_key_exists('offset', $options) && is_int($options['offset'])) {
-      $limit_offset .= " offset {$options['offset']}";
+    if (array_key_exists('offset', $action) && is_int($action['offset'])) {
+      $limit_offset .= " offset {$action['offset']}";
     }
 
-    return (sizeof($where) ? ' where ' . implode(' and ', $where) : '') .
-      $this->_build_order($options) .
-      $limit_offset;
+    return $this->_build_where($action['query'] ?? array()) .
+        $this->_build_order($action) .
+        $limit_offset;
   }
 
   function _build_set ($data) {
@@ -136,8 +145,8 @@ class DBApiTable {
     }
 
     return 'select ' . implode(', ', $select) .
-      " from {$this->table_quoted}" .
-      $this->_build_where($action);
+      " from {$this->table_quoted} " .
+      $this->_build_query($action);
   }
 
   function _build_order ($action) {
@@ -223,10 +232,12 @@ class DBApiTable {
 
     $set = $this->_build_set($action['update']);
 
+    $query = $this->_build_query($action);
+
     //if ($update_sub_table) {
       $ids = array();
       $qry = "select {$this->id_field_quoted} as `id` " .
-             "from {$this->table_quoted} " . $this->_build_where($action);
+             "from {$this->table_quoted} {$query}";
       $res = $this->db->query($qry);
       while ($elem = $res->fetch()) {
         $ids[] = $elem['id'];
@@ -234,8 +245,7 @@ class DBApiTable {
     //}
 
     if ($set !== '') {
-      $qry = "update {$this->table_quoted} set {$set}" .
-        $this->_build_where($action);
+      $qry = "update {$this->table_quoted} set {$set} {$query}";
       $this->db->query($qry);
     }
 
@@ -296,7 +306,7 @@ class DBApiTable {
 
   function delete ($action) {
     $res = $this->db->query("delete from {$this->table_quoted}" .
-      $this->_build_where($action));
+      $this->_build_query($action));
 
     return array('count' => $res->rowCount());
   }
