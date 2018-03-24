@@ -59,7 +59,12 @@ class DBApiTable {
             break;
           case '=':
           default:
-            $where[] = "{$key_quoted}=" . $this->db->quote($q['value']);
+            if ($q['value'] === null) {
+              $where[] = "{$key_quoted} is null";
+            }
+            else {
+              $where[] = "{$key_quoted}=" . $this->db->quote($q['value']);
+            }
         }
       }
     }

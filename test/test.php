@@ -351,6 +351,20 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1_select_null() {
+    global $table1;
+
+    $actual = $table1->select(array(
+      'query' => array(array('d', 'is', null)),
+    ));
+
+
+    $actual = iterator_to_array($actual);
+    print_r($actual);
+    $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => null));
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad1_create () {
     global $table1;
 
