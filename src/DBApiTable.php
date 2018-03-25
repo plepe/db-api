@@ -86,6 +86,12 @@ class DBApiTable {
         else {
           return "{$key_quoted}=" . $this->db->quote($query['value']);
         }
+      case 'strsearch':
+        $q = array();
+        foreach (explode(' ', $query['value']) as $v) {
+          $q[] = "{$key_quoted} like " . $this->db->quote("%{$v}%");
+        }
+        return implode(' and ', $q);
       default:
         throw new Exception("Unknown query operation '{$query['op']}'");
     }

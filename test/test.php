@@ -851,6 +851,43 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function test3_load_strsearch () {
+    global $table3;
+
+    $actual = $table3->select(array(
+      'fields' => array('name'),
+      'query' => array(array('name', 'strsearch', 'nn')),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'name' => 'Conny',
+      ),
+      array (
+	'name' => 'Dennis',
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function test3_load_strsearch2 () {
+    global $table3;
+
+    $actual = $table3->select(array(
+      'fields' => array('name'),
+      'query' => array(array('name', 'strsearch', 'd nn')),
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      array (
+	'name' => 'Dennis',
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testApiTables() {
     global $api;
 
