@@ -151,9 +151,21 @@ class DBApiTable {
     return '';
   }
 
+  function _default_fields ($action) {
+    $fields = array();
+
+    foreach ($this->spec['fields'] as $field_id => $field) {
+      if (!array_key_exists('include', $field) || $field['include'] === true) {
+        $fields[] = $field_id;
+      }
+    }
+
+    return $fields;
+  }
+
   function _build_select_query (&$action) {
     if (!array_key_exists('fields', $action)) {
-      $action['fields'] = array_keys($this->spec['fields']);
+      $action['fields'] = $this->_default_fields($action);
     }
 
     if (!in_array($this->id_field, $action['fields'])) {
