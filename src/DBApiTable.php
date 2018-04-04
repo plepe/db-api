@@ -46,6 +46,11 @@ class DBApiTable {
 
     if (is_array($query['key'])) {
       $key = array_shift($query['key']);
+      $field = $this->spec['fields'][$key];
+
+      if (array_key_exists('read', $field) && $field['read'] === false) {
+        throw new Exception("permission denied, order by '{$key}'");
+      }
 
       if (sizeof($query['key'])) {
         $sub_table = $this->sub_tables[$key];
@@ -61,6 +66,12 @@ class DBApiTable {
       } else {
         $query['key'] = $key;
       }
+    }
+
+    $field = $this->spec['fields'][$query['key']];
+
+    if (array_key_exists('read', $field) && $field['read'] === false) {
+      throw new Exception("permission denied, order by '{$query['key']}'");
     }
 
     $key_quoted = $this->_build_column($query['key']);

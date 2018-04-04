@@ -190,6 +190,22 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1_query_unreadable_field () {
+    global $table1;
+
+    try {
+      $actual = $table1->select(array('query' => array(array('key' => 'c', 'op' => '=', 'value' => 'foo'))));
+      $actual = iterator_to_array($actual);
+    } catch (Exception $e) {
+      if ($e->getMessage() !== "permission denied, order by 'c'") {
+        throw $e;
+      }
+      $got_exception = true;
+    }
+
+    $this->assertEquals(true, $got_exception, 'Didn\'t get a "permission denied" exception!');
+  }
+
   public function testBuildLoad1_fields () {
     global $table1;
 
