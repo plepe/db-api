@@ -1,6 +1,13 @@
 {
+  "name": "db-api",
+  "version": "0.1.0",
+  "description": "A simple API to talk to a structured database￼Edit",
+  "main": "src/DBApi.js",
+  "repository": "https://github.com/plepe/db-api",
+  "author": "Stephan Bösch-Plepelits <skunk@xover.mud.at>",
+  "license": "GPL-3.0",
   "scripts": {
-    "test": "phpunit --stop-on-failure test/test.php && mocha --bail",
+    "test": "phpunit --stop-on-failure test/test.php",
     "lint": "standard src/*.js"
   },
   "devDependencies": {
