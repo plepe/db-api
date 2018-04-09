@@ -23,7 +23,7 @@ window.onload = () => {
   let view2 = new DBApiViewModulekitForm(api,
     {
       id: {
-        type: 'integer',
+        type: 'hidden',
         name: 'ID'
       },
       visible: {
@@ -32,12 +32,13 @@ window.onload = () => {
       },
       comments: {
         type: 'array',
+        name: 'Comments',
         count: { 'default': 1 },
         def: {
           type: 'form',
           def: {
             id: {
-              type: 'integer',
+              type: 'hidden',
               name: 'ID'
             },
             text: {
