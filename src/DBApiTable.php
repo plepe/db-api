@@ -17,12 +17,14 @@ class DBApiTable {
     }
 
     $this->id_field = $this->spec['id_field'] ?? 'id';
+    $this->old_id_field = $this->spec['old_id_field'] ?? '__id';
     if (array_key_exists('parent_field', $this->spec)) {
       $this->parent_field = $this->spec['parent_field'];
       $this->parent_field_quoted = $this->db->quoteIdent($this->spec['parent_field']);
     }
 
     $this->id_field_quoted = $this->db->quoteIdent($this->id_field);
+    $this->old_id_field_quoted = $this->db->quoteIdent($this->old_id_field);
     $this->table_quoted = $this->db->quoteIdent($this->spec['table']);
   }
 
@@ -382,8 +384,13 @@ class DBApiTable {
 
     foreach ($action as $elem) {
       $insert = false;
+      $idchange = false;
 
-      if (!array_key_exists($this->id_field, $elem)) {
+      if (array_key_exists($this->old_id_field, $elem)) {
+        $id = $elem[$this->old_id_field];
+        unset($elem[$this->old_id_field]);
+      }
+      elseif (!array_key_exists($this->id_field, $elem)) {
         $insert = true;
       }
       else {
