@@ -1,10 +1,7 @@
-var url = 'http://localhost/~skunk/db-api/db.php'
-
-var assert = require('assert')
-var DBApi = require('../src/DBApi')
-var api = new DBApi(url)
-
 const fs = require('fs')
+
+const DBApi = require('../src/DBApi')
+
 const conf = JSON.parse(fs.readFileSync('test-conf.json', 'utf8'));
 
 const assert = require('assert')
@@ -14,7 +11,7 @@ const DBView = require('../src/DBView')
 const DBViewJSON = require('../src/DBViewJSON')
 const DBViewTwig = require('../src/DBViewTwig')
 
-const dbApi = new DBApi(conf.url, conf.options)
+const api = new DBApi(conf.url, conf.options)
 
 describe('DBApi.do', function () {
   it('should return something', function (done) {
@@ -28,20 +25,20 @@ describe('DBApi.do', function () {
         done(err)
       }
     )
-  }
-}
+  })
+})
 
 describe('DBView', () => {
   it('init', () => {
-    new DBView(dbApi)
+    new DBView(api)
   })
 
   it('show', (done) => {
-    let view = new DBView(dbApi)
+    let view = new DBView(api)
     view.set_query({ table: 'test1' })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')
-      assert.equal(result, '[{"a":2,"b":"bar","d":"b"},{"a":3,"b":"bla","d":"b"}]')
+      assert.equal(result, '[{"a":2,"b":"bar","d":"b"},{"a":4,"b":"bla","d":"b"}]')
       done()
     })
   })
@@ -49,11 +46,11 @@ describe('DBView', () => {
 
 describe('DBViewJSON', () => {
   it('init', () => {
-    new DBViewJSON(dbApi)
+    new DBViewJSON(api)
   })
 
   it('show', (done) => {
-    let view = new DBViewJSON(dbApi)
+    let view = new DBViewJSON(api)
     view.set_query({ table: 'test2', query: 1 })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')
@@ -83,11 +80,11 @@ describe('DBViewJSON', () => {
 
 describe('DBViewTwig', () => {
   it('init', () => {
-    new DBViewTwig(dbApi, '', { twig })
+    new DBViewTwig(api, '', { twig })
   })
 
   it('show', (done) => {
-    let view = new DBViewTwig(dbApi, '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
+    let view = new DBViewTwig(api, '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
     view.set_query({ table: 'test2', query: 1 })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')

@@ -6,7 +6,7 @@ $db = new PDOext($dbconf);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-include 'node_modules/db-api/test/structure.php';
+include 'test/structure.php';
 
 $api->handle_http_response();
 

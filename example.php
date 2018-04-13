@@ -1,4 +1,5 @@
 <?php include "conf.php"; /* load a local configuration */ ?>
+<?php $modulekit_load[] = 'modulekit-form'; ?>
 <?php include "modulekit/loader.php"; /* loads all php-includes */ ?>
 <?php call_hooks("init"); /* initialize submodules */ ?>
 <!DOCTYPE html>

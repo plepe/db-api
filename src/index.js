@@ -1,4 +1,4 @@
-const DBApi = require('db-api')
+const DBApi = require('./DBApi')
 const DBViewTwig = require('./DBViewTwig')
 const DBViewModulekitForm = require('./DBViewModulekitForm')
 const twig = require('twig')
