@@ -1,5 +1,5 @@
 <?php
-class DBView {
+class DBApiView {
   function __construct ($dbApi, $def, $options=array()) {
     $this->api = $dbApi;
     $this->def = $def;

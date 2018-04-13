@@ -1,6 +1,6 @@
-const DBView = require('./DBView')
+const DBApiView = require('./DBApiView')
 
-class DBViewModulekitForm extends DBView {
+class DBApiViewModulekitForm extends DBApiView {
   show (div, callback) {
     this.get((err, result) => {
       if (err) {
@@ -22,4 +22,4 @@ class DBViewModulekitForm extends DBView {
   }
 }
 
-module.exports = DBViewModulekitForm
+module.exports = DBApiViewModulekitForm

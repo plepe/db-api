@@ -12,8 +12,8 @@ $include = array(
     'src/DBApi.php',
     'src/DBApiTable.php',
     'src/iterator_to_array_deep.php',
-    'src/DBView.php',
-    'src/DBViewJSON.php',
-    'src/DBViewTwig.php',
+    'src/DBApiView.php',
+    'src/DBApiViewJSON.php',
+    'src/DBApiViewTwig.php',
   ),
 );

@@ -883,10 +883,10 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function testDBViewJSON() {
+  public function testDBApiViewJSON() {
     global $api;
 
-    $view = new DBViewJSON($api, null);
+    $view = new DBApiViewJSON($api, null);
     $view->set_query(array(
       'table' => 'test2',
       'query' => 1,
@@ -917,10 +917,10 @@ EOT;
     $this->assertEquals($expected, $actual);
   }
 
-  public function testDBViewTwig() {
+  public function testDBApiViewTwig() {
     global $api;
 
-    $view = new DBViewTwig($api, "{{ entry.id }}: {{ entry.commentsCount }}\n");
+    $view = new DBApiViewTwig($api, "{{ entry.id }}: {{ entry.commentsCount }}\n");
     $view->set_query(array(
       'table' => 'test2',
       'query' => 1,

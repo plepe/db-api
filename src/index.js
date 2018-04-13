@@ -1,6 +1,6 @@
 const DBApi = require('./DBApi')
-const DBViewTwig = require('./DBViewTwig')
-const DBViewModulekitForm = require('./DBViewModulekitForm')
+const DBApiViewTwig = require('./DBApiViewTwig')
+const DBApiViewModulekitForm = require('./DBApiViewModulekitForm')
 const twig = require('twig')
 
 window.onload = () => {
@@ -9,7 +9,7 @@ window.onload = () => {
   let div1 = document.createElement('div')
   document.body.appendChild(div1)
 
-  let view = new DBViewTwig(api, 'Entry {{ entry.id }}: {{ entry.commentsCount }} Comments\n<ul>{% for c in entry.comments %}<li>{{ c.text }}</li>{% endfor %}</ul>', { twig })
+  let view = new DBApiViewTwig(api, 'Entry {{ entry.id }}: {{ entry.commentsCount }} Comments\n<ul>{% for c in entry.comments %}<li>{{ c.text }}</li>{% endfor %}</ul>', { twig })
   view.set_query({ table: 'test2' })
   view.show((err, result) => {
     if (err) {
@@ -20,7 +20,7 @@ window.onload = () => {
 
   let div2 = document.createElement('div')
   document.body.appendChild(div2)
-  let view2 = new DBViewModulekitForm(api,
+  let view2 = new DBApiViewModulekitForm(api,
     {
       id: {
         type: 'integer',

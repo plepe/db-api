@@ -1,5 +1,5 @@
 <?php
-class DBViewTwig extends DBView {
+class DBApiViewTwig extends DBApiView {
   function show () {
     $ret = '';
 

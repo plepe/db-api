@@ -1,6 +1,6 @@
-const DBView = require('./DBView')
+const DBApiView = require('./DBApiView')
 
-class DBViewTwig extends DBView {
+class DBApiViewTwig extends DBApiView {
   constructor (dbApi, def, options) {
     super(dbApi, def, options)
 
@@ -29,4 +29,4 @@ class DBViewTwig extends DBView {
   }
 }
 
-module.exports = DBViewTwig
+module.exports = DBApiViewTwig

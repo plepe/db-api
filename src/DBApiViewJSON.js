@@ -1,6 +1,6 @@
-const DBView = require('./DBView')
+const DBApiView = require('./DBApiView')
 
-class DBViewJSON extends DBView {
+class DBApiViewJSON extends DBApiView {
   show (callback) {
     this.get((err, result) => {
       if (err) {
@@ -12,4 +12,4 @@ class DBViewJSON extends DBView {
   }
 }
 
-module.exports = DBViewJSON
+module.exports = DBApiViewJSON

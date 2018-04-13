@@ -13,13 +13,13 @@ include 'test/structure.php';
 
 $viewDef = null;
 
-$view = new DBViewJSON($api, $viewDef);
+$view = new DBApiViewJSON($api, $viewDef);
 $view->set_query(array(
   'table' => 'test2',
 ));
 print $view->show();
 
-$view = new DBViewTwig($api, "<div>\n<b>{{ entry.id }}</b><br/>\n{{ entry.commentsCount }}\n</div>\n");
+$view = new DBApiViewTwig($api, "<div>\n<b>{{ entry.id }}</b><br/>\n{{ entry.commentsCount }}\n</div>\n");
 $view->set_query(array(
   'table' => 'test2',
 ));

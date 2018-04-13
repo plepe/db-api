@@ -1,4 +1,4 @@
-class DBView {
+class DBApiView {
   constructor (dbApi, def, options) {
     this.api = dbApi
     this.def = def
@@ -30,4 +30,4 @@ class DBView {
   }
 }
 
-module.exports = DBView
+module.exports = DBApiView
