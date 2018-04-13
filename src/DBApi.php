@@ -50,12 +50,12 @@ class DBApi {
 
     Header("Content-type: application/json; charset=utf8");
 
-    $output = '';
+    $output = "[[";
     $error = false;
 
     try {
       foreach ($this->do($actions) as $i => $result) {
-        $output .= $i === 0 ? "[[\n" : "\n] ,[\n";
+        $output .= $i === 0 ? "\n" : "\n] ,[\n";
         foreach ($result as $j => $elem) {
           $output .= $j === 0 ? '' : ",\n";
           $output .= json_readable_encode($elem);
