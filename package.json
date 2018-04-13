@@ -7,16 +7,22 @@
   "author": "Stephan Bösch-Plepelits <skunk@xover.mud.at>",
   "license": "GPL-3.0",
   "scripts": {
-    "test": "phpunit --stop-on-failure test/test.php",
-    "lint": "standard src/*.js"
+    "test": "npm run phptest && npm run jstest",
+    "lint": "standard src/*.js",
+    "jstest": "mocha --bail",
+    "phptest": "phpunit --stop-on-failure test/test.php",
+    "build": "browserify src/index.js -o dist/build.js",
+    "watch": "watchify --debug src/index.js -o dist/build.js -v"
+  },
+  "dependencies": {
+    "w3c-xmlhttprequest": "^2.1.2",
+    "json-readable-encode": "https://github.com/plepe/json-readable-encode"
   },
   "devDependencies": {
     "browserify": "^16.1.1",
-    "mocha": "^5.0.4",
+    "mocha": "^5.0.5",
     "standard": "^11.0.1",
+    "twig": "^1.10.5",
     "watchify": "^3.11.0"
-  },
-  "dependencies": {
-    "w3c-xmlhttprequest": "^2.1.2"
   }
 }
