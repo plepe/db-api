@@ -886,7 +886,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testDBApiViewJSON() {
     global $api;
 
-    $view = new DBApiViewJSON($api, null);
+    $view = $api->createView('JSON', null);
     $view->set_query(array(
       'table' => 'test2',
       'query' => 1,
@@ -920,7 +920,7 @@ EOT;
   public function testDBApiViewTwig() {
     global $api;
 
-    $view = new DBApiViewTwig($api, "{{ entry.id }}: {{ entry.commentsCount }}\n");
+    $view = $api->createView('Twig', "{{ entry.id }}: {{ entry.commentsCount }}\n");
     $view->set_query(array(
       'table' => 'test2',
       'query' => 1,

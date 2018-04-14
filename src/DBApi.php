@@ -1,4 +1,10 @@
 <?php
+$dbApiViewTypes = array(
+  'Base' => 'DBApiView',
+  'JSON' => 'DBApiViewJSON',
+  'Twig' => 'DBApiViewTwig',
+);
+
 class DBApi {
   function __construct ($db) {
     $this->db = $db;
@@ -36,6 +42,12 @@ class DBApi {
           throw new Exception("No such action '{$action['action']}'");
       }
     }
+  }
+
+  function createView ($type, $def=null, $options=array()) {
+    global $dbApiViewTypes;
+
+    return new $dbApiViewTypes[$type]($this, $def, $options);
   }
 
   function handle_http_response () {

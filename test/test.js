@@ -7,10 +7,6 @@ const conf = JSON.parse(fs.readFileSync('test-conf.json', 'utf8'));
 const assert = require('assert')
 const twig = require('twig')
 
-const DBApiView = require('../src/DBApiView')
-const DBApiViewJSON = require('../src/DBApiViewJSON')
-const DBApiViewTwig = require('../src/DBApiViewTwig')
-
 const api = new DBApi(conf.url, conf.options)
 
 describe('DBApi.do', function () {
@@ -30,11 +26,11 @@ describe('DBApi.do', function () {
 
 describe('DBApiView', () => {
   it('init', () => {
-    new DBApiView(api)
+    let view = api.createView('Base')
   })
 
   it('show', (done) => {
-    let view = new DBApiView(api)
+    let view = api.createView('Base')
     view.set_query({ table: 'test1' })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')
@@ -46,11 +42,11 @@ describe('DBApiView', () => {
 
 describe('DBApiViewJSON', () => {
   it('init', () => {
-    new DBApiViewJSON(api)
+    let view = api.createView('JSON')
   })
 
   it('show', (done) => {
-    let view = new DBApiViewJSON(api)
+    let view = api.createView('JSON')
     view.set_query({ table: 'test2', query: 1 })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')
@@ -80,11 +76,11 @@ describe('DBApiViewJSON', () => {
 
 describe('DBApiViewTwig', () => {
   it('init', () => {
-    new DBApiViewTwig(api, '', { twig })
+    let view = api.createView('Twig', '', { twig })
   })
 
   it('show', (done) => {
-    let view = new DBApiViewTwig(api, '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
+    let view = api.createView('Twig', '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
     view.set_query({ table: 'test2', query: 1 })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')
