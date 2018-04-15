@@ -1,4 +1,5 @@
 const DBApiView = require('./DBApiView')
+const emptyElement = require('@f/empty-element')
 
 class DBApiViewTwig extends DBApiView {
   constructor (dbApi, def, options) {
@@ -10,24 +11,26 @@ class DBApiViewTwig extends DBApiView {
     })
   }
 
-  show (callback) {
+  show (dom) {
     this.get((err, result) => {
       if (err) {
-        this.emit('show', {
+        return this.emit('show', {
           error: err
         })
-        return callback(err)
       }
 
       let data = {}
       let renderedResult = []
 
+      emptyElement(dom)
       result.forEach(entry => {
         data.entry = entry
-        renderedResult.push(this.template.render(data))
+        let r = this.template.render(data)
+        let div = document.createElement('div')
+        div.innerHTML = r
+        dom.appendChild(div)
+        renderedResult.push(r)
       })
-
-      callback(null, renderedResult.join(''))
 
       this.emit('show', {
         result: renderedResult,

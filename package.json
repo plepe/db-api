@@ -15,12 +15,15 @@
     "watch": "watchify --debug src/index.js -o dist/build.js -v"
   },
   "dependencies": {
+    "@f/empty-element": "^1.0.0",
     "event-emitter": "^0.3.5",
     "json-readable-encode": "https://github.com/plepe/json-readable-encode",
     "w3c-xmlhttprequest": "^2.1.2"
   },
   "devDependencies": {
     "browserify": "^16.1.1",
+    "chai": "^4.1.2",
+    "jsdom": "^11.7.0",
     "mocha": "^5.0.5",
     "standard": "^11.0.1",
     "twig": "^1.10.5",

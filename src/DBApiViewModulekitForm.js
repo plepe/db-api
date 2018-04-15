@@ -1,13 +1,12 @@
 const DBApiView = require('./DBApiView')
 
 class DBApiViewModulekitForm extends DBApiView {
-  show (div, callback) {
+  show (dom) {
     this.get((err, result) => {
       if (err) {
-        this.emit('show', {
+        return this.emit('show', {
           error: err
         })
-        return callback(err)
       }
 
       let options = {
@@ -17,10 +16,8 @@ class DBApiViewModulekitForm extends DBApiView {
       let formDef = { def: this.def, type: 'form' }
 
       this.form = new form(null, formDef, options)
-      this.form.show(div)
+      this.form.show(dom)
       this.form.set_data(result)
-
-      callback(null)
 
       this.emit('show', {
         form: this.form,

@@ -1,17 +1,19 @@
 <?php
 class DBApiViewTwig extends DBApiView {
-  function show () {
-    $ret = '';
+  function show ($dom) {
+    $document = $dom->ownerDocument;
 
     foreach ($this->get() as $entry) {
       $data = array(
         'entry' => $entry
       );
 
-      $ret .= twig_render_custom($this->def, $data);
-    }
+      $newDom=new DOMDocument();
+      $newDom->loadHTML("<?xml encoding='UTF-8'><html><body><div>" . twig_render_custom($this->def, $data) . "</div></body></html>");
+      $node = $document->importNode($newDom->lastChild->lastChild->lastChild, true);
 
-    return $ret;
+      $dom->appendChild($node);
+    }
   }
 }
 

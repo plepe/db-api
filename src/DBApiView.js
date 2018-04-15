@@ -1,4 +1,5 @@
 const eventEmitter = require('event-emitter')
+const emptyElement = require('@f/empty-element')
 
 class DBApiView {
   constructor (dbApi, def, options) {
@@ -32,17 +33,19 @@ class DBApiView {
     })
   }
 
-  show (callback) {
+  show (dom) {
     this.get((err, result) => {
       if (err) {
-        this.emit('show', {
+        return this.emit('show', {
           error: err
         })
-        return callback(err)
       }
 
       let renderedResult = JSON.stringify(result)
-      callback(null, renderedResult)
+      if (dom) {
+        emptyElement(dom)
+        dom.appendChild(document.createTextNode(renderedResult))
+      }
 
       this.emit('show', {
         result: renderedResult,

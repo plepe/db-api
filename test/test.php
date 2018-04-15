@@ -893,7 +893,8 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
 
     $expected = <<<EOT
-[
+<?xml version="1.0"?>
+<div>[
     {
         "id": 1,
         "commentsCount": 2,
@@ -910,11 +911,16 @@ class db_api_test extends PHPUnit_Framework_TestCase {
             }
         ]
     }
-]
-EOT;
-    $actual = $view->show();
+]</div>
 
-    $this->assertEquals($expected, $actual);
+EOT;
+    $document = new DOMDocument();
+    $dom = $document->createElement('div');
+    $document->appendChild($dom);
+    $view->show($dom);
+
+    print $document->saveXML();
+    $this->assertEquals($expected, $document->saveXML());
   }
 
   public function testDBApiViewTwig() {
@@ -927,11 +933,17 @@ EOT;
     ));
 
     $expected = <<<EOT
-1: 2
+<?xml version="1.0"?>
+<div><div>1: 2
+</div></div>
 
 EOT;
-    $actual = $view->show();
 
-    $this->assertEquals($expected, $actual);
+    $document = new DOMDocument();
+    $dom = $document->createElement('div');
+    $document->appendChild($dom);
+    $view->show($dom);
+
+    $this->assertEquals($expected, $document->saveXML());
   }
 }

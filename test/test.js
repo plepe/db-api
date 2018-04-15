@@ -1,4 +1,6 @@
 const fs = require('fs')
+const jsdom = require('jsdom')
+global.document = (new jsdom.JSDOM('')).window.document
 
 const DBApi = require('../src/DBApi')
 
@@ -32,16 +34,19 @@ describe('DBApiView', () => {
   it('show', (done) => {
     let doneCount = 0
     function stepDone (err) {
-      if (++doneCount >= 4) {
+      if (++doneCount >= 3) {
         done()
       }
     }
 
     let view = api.createView('Base')
+    let dom = document.createElement('div')
+    let expected = '[{"a":2,"b":"bar","d":"b"},{"a":4,"b":"bla","d":"b"}]'
     view.set_query({ table: 'test1' })
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
-      assert.equal(ev.result, '[{"a":2,"b":"bar","d":"b"},{"a":4,"b":"bla","d":"b"}]')
+      assert.equal(ev.result, expected)
+      assert.equal(dom.innerHTML, expected)
       stepDone()
     })
     view.once('loadstart', ev => {
@@ -50,11 +55,7 @@ describe('DBApiView', () => {
     view.once('loadend', ev => {
       stepDone()
     })
-    view.show((err, result) => {
-      assert.equal(err, null, 'Error should be null')
-      assert.equal(result, '[{"a":2,"b":"bar","d":"b"},{"a":4,"b":"bla","d":"b"}]')
-      stepDone()
-    })
+    view.show(dom)
   })
 })
 
@@ -84,12 +85,13 @@ describe('DBApiViewJSON', () => {
 ]`
     let doneCount = 0
     function stepDone (err) {
-      if (++doneCount >= 4) {
+      if (++doneCount >= 3) {
         done()
       }
     }
 
     let view = api.createView('JSON')
+    let dom = document.createElement('div')
     view.set_query({ table: 'test2', query: 1 })
     view.once('loadstart', ev => {
       stepDone()
@@ -102,11 +104,7 @@ describe('DBApiViewJSON', () => {
       assert.equal(ev.result, expected)
       stepDone()
     })
-    view.show((err, result) => {
-      assert.equal(err, null, 'Error should be null')
-      assert.equal(result, expected)
-      stepDone()
-    })
+    view.show(dom)
   })
 })
 
@@ -118,12 +116,13 @@ describe('DBApiViewTwig', () => {
   it('show', (done) => {
     let doneCount = 0
     function stepDone (err) {
-      if (++doneCount >= 4) {
+      if (++doneCount >= 3) {
         done()
       }
     }
 
     let view = api.createView('Twig', '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
+    let dom = document.createElement('div')
     view.set_query({ table: 'test2', query: 1 })
     view.once('loadstart', ev => {
       stepDone()
@@ -134,13 +133,10 @@ describe('DBApiViewTwig', () => {
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ '1: 2\n' ])
+      let expected = '<div>1: 2\n</div>'
+      assert.equal(dom.innerHTML, expected)
       stepDone()
     })
-    view.show((err, result) => {
-      assert.equal(err, null, 'Error should be null')
-      let expected = '1: 2\n'
-      assert.equal(result, expected)
-      stepDone()
-    })
+    view.show(dom)
   })
 })
