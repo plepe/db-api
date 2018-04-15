@@ -1,7 +1,7 @@
 const DBApiView = require('./DBApiView')
 
 class DBApiViewModulekitForm extends DBApiView {
-  show (dom) {
+  show (dom, options={}) {
     this.get((err, result) => {
       if (err) {
         return this.emit('show', {

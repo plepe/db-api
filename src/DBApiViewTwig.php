@@ -1,6 +1,6 @@
 <?php
 class DBApiViewTwig extends DBApiView {
-  function show ($dom) {
+  function show ($dom, $options=array()) {
     $document = $dom->ownerDocument;
 
     foreach ($this->get() as $entry) {
