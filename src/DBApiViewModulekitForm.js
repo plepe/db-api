@@ -4,6 +4,9 @@ class DBApiViewModulekitForm extends DBApiView {
   show (div, callback) {
     this.get((err, result) => {
       if (err) {
+        this.emit('show', {
+          error: err
+        })
         return callback(err)
       }
 
@@ -18,6 +21,11 @@ class DBApiViewModulekitForm extends DBApiView {
       this.form.set_data(result)
 
       callback(null)
+
+      this.emit('show', {
+        form: this.form,
+        error: null
+      })
     })
   }
 }

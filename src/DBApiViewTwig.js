@@ -13,18 +13,26 @@ class DBApiViewTwig extends DBApiView {
   show (callback) {
     this.get((err, result) => {
       if (err) {
+        this.emit('show', {
+          error: err
+        })
         return callback(err)
       }
 
       let data = {}
-      let ret = ''
+      let renderedResult = []
 
       result.forEach(entry => {
         data.entry = entry
-        ret += this.template.render(data)
+        renderedResult.push(this.template.render(data))
       })
 
-      callback(null, ret)
+      callback(null, renderedResult.join(''))
+
+      this.emit('show', {
+        result: renderedResult,
+        error: null
+      })
     })
   }
 }

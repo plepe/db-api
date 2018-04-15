@@ -30,12 +30,30 @@ describe('DBApiView', () => {
   })
 
   it('show', (done) => {
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 4) {
+        done()
+      }
+    }
+
     let view = api.createView('Base')
     view.set_query({ table: 'test1' })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.equal(ev.result, '[{"a":2,"b":"bar","d":"b"},{"a":4,"b":"bla","d":"b"}]')
+      stepDone()
+    })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')
       assert.equal(result, '[{"a":2,"b":"bar","d":"b"},{"a":4,"b":"bla","d":"b"}]')
-      done()
+      stepDone()
     })
   })
 })
@@ -46,11 +64,7 @@ describe('DBApiViewJSON', () => {
   })
 
   it('show', (done) => {
-    let view = api.createView('JSON')
-    view.set_query({ table: 'test2', query: 1 })
-    view.show((err, result) => {
-      assert.equal(err, null, 'Error should be null')
-      let expected = `[
+    let expected = `[
     {
         "id": 1,
         "commentsCount": 2,
@@ -68,8 +82,30 @@ describe('DBApiViewJSON', () => {
         ]
     }
 ]`
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 4) {
+        done()
+      }
+    }
+
+    let view = api.createView('JSON')
+    view.set_query({ table: 'test2', query: 1 })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.equal(ev.result, expected)
+      stepDone()
+    })
+    view.show((err, result) => {
+      assert.equal(err, null, 'Error should be null')
       assert.equal(result, expected)
-      done()
+      stepDone()
     })
   })
 })
@@ -80,13 +116,31 @@ describe('DBApiViewTwig', () => {
   })
 
   it('show', (done) => {
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 4) {
+        done()
+      }
+    }
+
     let view = api.createView('Twig', '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
     view.set_query({ table: 'test2', query: 1 })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.deepEqual(ev.result, [ '1: 2\n' ])
+      stepDone()
+    })
     view.show((err, result) => {
       assert.equal(err, null, 'Error should be null')
       let expected = '1: 2\n'
       assert.equal(result, expected)
-      done()
+      stepDone()
     })
   })
 })

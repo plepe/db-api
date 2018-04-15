@@ -4,10 +4,19 @@ class DBApiViewJSON extends DBApiView {
   show (callback) {
     this.get((err, result) => {
       if (err) {
+        this.emit('show', {
+          error: err
+        })
         return callback(err)
       }
 
-      callback(null, JSON.stringify(result, null, '    '))
+      let renderedResult = JSON.stringify(result, null, '    ')
+      callback(null, renderedResult)
+
+      this.emit('show', {
+        result: renderedResult,
+        error: null
+      })
     })
   }
 }

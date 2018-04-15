@@ -15,8 +15,9 @@
     "watch": "watchify --debug src/index.js -o dist/build.js -v"
   },
   "dependencies": {
-    "w3c-xmlhttprequest": "^2.1.2",
-    "json-readable-encode": "https://github.com/plepe/json-readable-encode"
+    "event-emitter": "^0.3.5",
+    "json-readable-encode": "https://github.com/plepe/json-readable-encode",
+    "w3c-xmlhttprequest": "^2.1.2"
   },
   "devDependencies": {
     "browserify": "^16.1.1",
