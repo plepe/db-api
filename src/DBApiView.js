@@ -1,4 +1,4 @@
-var eventEmitter = require('event-emitter')
+const eventEmitter = require('event-emitter')
 
 class DBApiView {
   constructor (dbApi, def, options) {
