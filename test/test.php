@@ -340,10 +340,10 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(4), $ids);
 
-    $actual = $table1->select(array('query' => array(array('a', 'in', array(3, 4)))));
+    $actual = $table1->select(array('query' => array(array('a', 'in', array(3, 4))), 'old_id' => true));
     $actual = iterator_to_array($actual);
     $expected = array(
-      array('a' => 4, 'b' => 'bla', 'd' => 'b')
+      array('a' => 4, '__id' => 4, 'b' => 'bla', 'd' => 'b')
     );
     $this->assertEquals($expected, $actual);
   }
@@ -614,7 +614,6 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $actual = $table2a->select(array('fields' => array('id', 'commentsCount')));
     $actual = iterator_to_array($actual);
-    print_r($actual);
     $expected = array (
       array (
 	'id' => 2,
@@ -627,6 +626,66 @@ class db_api_test extends PHPUnit_Framework_TestCase {
       array (
 	'id' => 4,
         'commentsCount' => 2,
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad2_with_old_id () {
+    global $table2a;
+
+    $actual = $table2a->select(array('fields' => array('id', 'comments'), 'old_id' => true));
+    $actual = iterator_to_array($actual);
+    var_export($actual);
+    $expected = array (
+      array (
+	'id' => 2,
+	'__id' => '2',
+	'comments' => array (
+	  0 => array (
+	    'test2_id' => 2,
+	    'id' => 3,
+            '__id' => 3,
+	    'text' => 'foobar',
+	  ),
+	),
+      ),
+      array (
+	'id' => 3,
+	'__id' => '3',
+	'comments' => array (
+	  0 => array (
+	    'test2_id' => 3,
+	    'id' => 5,
+            '__id' => 5,
+	    'text' => 'foobar',
+	  ),
+	  1 => array (
+	    'test2_id' => 3,
+	    'id' => 6,
+            '__id' => 6,
+	    'text' => 'foobar2',
+	  ),
+	),
+      ),
+      array (
+	'id' => 4,
+	'__id' => '4',
+	'comments' => array (
+	  0 => array (
+	    'test2_id' => 4,
+	    'id' => 7,
+            '__id' => 7,
+	    'text' => 'foobar',
+	  ),
+	  1 => array (
+	    'test2_id' => 4,
+	    'id' => 8,
+            '__id' => 8,
+	    'text' => 'foobar2',
+	  ),
+	),
       ),
     );
 

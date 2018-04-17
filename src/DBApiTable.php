@@ -209,6 +209,10 @@ class DBApiTable {
       }
     }
 
+    if ($action['old_id'] ?? false) {
+      $select[] = $this->id_field_quoted . ' as ' . $this->old_id_field_quoted;
+    }
+
     return 'select ' . implode(', ', $select) .
       " from {$this->table_quoted} " .
       $this->_build_query($action);
@@ -278,7 +282,12 @@ class DBApiTable {
             break;
           case 'sub_table':
             $id = $result[$this->id_field];
-            $result[$key] = iterator_to_array($this->sub_tables[$key]->select(array('query' => array(array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)))));
+            $result[$key] = iterator_to_array($this->sub_tables[$key]->select(array(
+              'query' => array(
+                array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)
+              ),
+              'old_id' => $action['old_id'] ?? false,
+            )));
           default:
         }
       }
