@@ -139,4 +139,40 @@ describe('DBApiViewTwig', () => {
     })
     view.show(dom)
   })
+
+  it('show step', (done) => {
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 4) {
+        done()
+      }
+    }
+
+    let view = api.createView('Twig', '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
+    let dom = document.createElement('div')
+    view.set_query({ table: 'test2' })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.deepEqual(ev.result, [ '1: 2\n', '2: 1\n' ])
+      let expected = '<div>1: 2\n</div><div>2: 1\n</div><div class="loadMore"><a href="#">load more</a></div>'
+      assert.equal(dom.innerHTML, expected)
+      stepDone()
+
+      view.once('show', ev => {
+        assert.equal(ev.error, null, 'Error should be null')
+        assert.deepEqual(ev.result, [ '3: 2\n', '4: 2\n' ])
+        let expected = '<div>1: 2\n</div><div>2: 1\n</div><div>3: 2\n</div><div>4: 2\n</div>'
+        assert.equal(dom.innerHTML, expected)
+        stepDone()
+      })
+      ev.showMoreFunction()
+    })
+    view.show(dom, { step: 2 })
+  })
 })
