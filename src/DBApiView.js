@@ -22,7 +22,7 @@ class DBApiView {
       this.emit('loadend', {
         query: this.query,
         error: err,
-        result: result[0]
+        result: result && result.length ? result[0] : null
       })
 
       if (err) {
