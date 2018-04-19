@@ -7,13 +7,33 @@ class DBApiViewTwig extends DBApiView {
     super(dbApi, def, options)
 
     this.twig = this.options.twig
+    this.twig.extendFilter('dbApiGet', function (value, args) {
+      let result = dbApi.getCached(args[0], value, global._dbApiViewTwigCacheCallback)
+      global._dbApiViewTwigCacheCallback = null
+
+      if (typeof result === 'undefined') {
+        global._dbApiViewTwigNeedReload = true
+      }
+      return result
+    })
     this.template = this.twig.twig({
       data: def
     })
   }
 
   render (data, callback) {
-    callback(null, this.template.render(data))
+    let result
+
+    global._dbApiViewTwigNeedReload = false
+    global._dbApiViewTwigCacheCallback = () => {
+      callback(null, this.template.render(data))
+    }
+
+    result = this.template.render(data)
+
+    if (!global._dbApiViewTwigNeedReload) {
+      callback(null, result)
+    }
   }
 
   show (dom, options={}, start=0, next=null, divMore=null) {
@@ -47,7 +67,6 @@ class DBApiViewTwig extends DBApiView {
         next = null
       }
 
-      let data = {}
       let renderedResult = []
 
       if (start === 0) {
@@ -59,7 +78,9 @@ class DBApiViewTwig extends DBApiView {
           let div = document.createElement('div')
           dom.appendChild(div)
 
-          data.entry = entry
+          let data = {
+            entry: entry
+          }
 
           this.render(data, (err, r) => {
             div.innerHTML = r

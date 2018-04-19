@@ -11,6 +11,7 @@ class DBApi {
   constructor (url, options) {
     this.url = url
     this.options = options
+    this.cache = {}
   }
 
   do (actions, callback) {
@@ -30,6 +31,58 @@ class DBApi {
         return callback(null, result)
       }
     )
+  }
+
+  getCached (table, id, callback) {
+    if (table in this.cache && id in this.cache[table]) {
+      return this.cache[table][id]
+    }
+
+    if (!this.toLoad) {
+      this.toLoad = {}
+      this.toLoadCallbacks = []
+    }
+    if (!this.toLoad[table]) {
+      this.toLoad[table] = {}
+    }
+    this.toLoad[table][id] = true
+    if (callback) {
+      this.toLoadCallbacks.push(callback)
+    }
+
+    if (!this.toLoadTimer) {
+      this.toLoadTimer = global.setTimeout(this.loadCache.bind(this), 0)
+    }
+  }
+
+  loadCache () {
+    let query = []
+    for (let table in this.toLoad) {
+      query.push({
+        table,
+        query: [[ 'id', 'in', Object.keys(this.toLoad[table]) ]]
+      })
+    }
+
+    var callbacks = this.toLoadCallbacks
+    var loading = this.toLoad
+    this.do(query, (err, result) => {
+      let i = 0
+      for (let table in loading) {
+        if (!this.cache[table]) {
+          this.cache[table] = {}
+        }
+        for (var k in result[i]) {
+          this.cache[table][result[i][k].id] = result[i][k]
+        }
+        i++
+      }
+
+      callbacks.forEach(callback => callback())
+    })
+
+    delete this.toLoad
+    delete this.toLoadCallbacks
   }
 
   createView (type, def, options) {
