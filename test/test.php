@@ -858,7 +858,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
       ),
     );
 
-    $this->assertEquals($expected, $actual);
+    $this->assertEquals($expected, $actual, 'Result not equals expected data', $delta = 0.0, $maxDepth = 1, $canonicalize = true);
   }
 
   public function test3_load_strsearch2 () {
