@@ -85,6 +85,23 @@ $spec3 = array(
     'weight' => array(
       'type' => 'float',
     ),
+    'nationality' => array(
+      'type' => 'string',
+      'reference' => array('test3_nationality', 'code'),
+    ),
+  ),
+);
+
+$spec3nationality = array(
+  'id' => 'test3_nationality',
+  'id_field' => 'code',
+  'fields' => array(
+    'code' => array(
+      'type' => 'string',
+    ),
+    'name' => array(
+      'type' => 'string',
+    ),
   ),
 );
 
@@ -103,3 +120,4 @@ $table1a = $api->addTable($spec1a);
 $table2 = $api->addTable($spec2);
 $table2a = $api->addTable($spec2a);
 $table3 = $api->addTable($spec3);
+$table3a = $api->addTable($spec3nationality);

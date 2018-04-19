@@ -11,20 +11,32 @@ $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 $db->query("drop table if exists test1; create table test1 ( a int not null auto_increment, b tinytext not null, c tinytext null, d1 text null, e int null, primary key(a)); insert into test1 values (1, 'foo', 'foo', 'foo', 5), (2, 'bar', 'bar', 'bar', 10);");
 $db->query("drop table if exists test2_comments; drop table if exists test2; create table test2 ( id int not null auto_increment, visible boolean not null default true, primary key(id)); insert into test2 (id) values (1), (2); create table test2_comments ( test2_id int not null, id int not null auto_increment, text mediumtext, primary key(id), foreign key(test2_id) references test2(id) on update cascade on delete cascade); insert into test2_comments values (1, 1, 'foo'), (1, 2, 'bar'), (2, 3, 'foobar');");
 $db->query(<<<EOT
-drop table if exists test3;
+drop table if exists test3, test3_nationality;
+create table test3_nationality (
+  code          varchar(3)      not null,
+  name          tinytext        null,
+  primary key(code)
+);
 create table test3 (
   name          varchar(255)    not null,
   birthday      date            null,
   weight        float           null,
-  primary key (name)
+  nationality   varchar(3)      null,
+  primary key (name),
+  foreign key (nationality) references test3_nationality(code) on update cascade on delete cascade
 );
+insert into test3_nationality values
+  ('de', 'Deutschland'),
+  ('at', 'Österreich'),
+  ('uk', 'United Kingdom');
 insert into test3 values
-  ('Alice', '1978-01-01', 50),
-  ('Bob', '1982-03-25', 82),
-  ('Conny', '1982-08-12', 50),
-  ('Dennis', '1950-11-20', 68);
+  ('Alice', '1978-01-01', 50, 'de'),
+  ('Bob', '1982-03-25', 82, 'at'),
+  ('Conny', '1982-08-12', 50, 'uk'),
+  ('Dennis', '1950-11-20', 68, null);
 EOT
 );
+$res = $db->query('select * from test3_nationality');
 
 global $api;
 global $table1;
@@ -881,7 +893,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testApiTables() {
     global $api;
 
-    $expected = array('test1', 'test1a', 'test2', 'test2a', 'test3');
+    $expected = array('test1', 'test1a', 'test2', 'test2a', 'test3', 'test3_nationality');
     $actual = array_keys($api->tables);
 
     $this->assertEquals($expected, $actual);
@@ -995,6 +1007,28 @@ EOT;
 <?xml version="1.0"?>
 <div><div>1: 2
 </div></div>
+
+EOT;
+
+    $document = new DOMDocument();
+    $dom = $document->createElement('div');
+    $document->appendChild($dom);
+    $view->show($dom);
+
+    $this->assertEquals($expected, $document->saveXML());
+  }
+
+  public function testDBApiViewTwigReference () {
+    global $api;
+
+    $view = $api->createView('Twig', "{{ entry.name }}: {{ entry.nationality|dbApiGet('test3_nationality').name }} ({{ entry.nationality}})");
+    $view->set_query(array(
+      'table' => 'test3',
+    ));
+
+    $expected = <<<EOT
+<?xml version="1.0"?>
+<div><div>Alice: Deutschland (de)</div><div>Bob: &#xD6;sterreich (at)</div><div>Conny: United Kingdom (uk)</div><div>Dennis:  ()</div></div>
 
 EOT;
 

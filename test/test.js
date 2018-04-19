@@ -10,6 +10,10 @@ const assert = require('assert')
 const twig = require('twig')
 
 const api = new DBApi(conf.url, conf.options)
+api.addTable({
+  id: 'test3_nationality',
+  id_field: 'code'
+})
 
 describe('DBApi.do', function () {
   it('should return something', function (done) {
@@ -197,6 +201,35 @@ describe('DBApiViewTwig', () => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ '1: 2\n', '2: 1\n', '3: 2\n', '4: 2\n' ])
       let expected = '<div>1: 2\n</div><div>2: 1\n</div><div>3: 2\n</div><div>4: 2\n</div>'
+      assert.equal(dom.innerHTML, expected)
+      stepDone()
+    })
+    view.show(dom, { step: 0 })
+  })
+
+  it('show test3 (with dbApiGet)', (done) => {
+    api.clearCache()
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 3) {
+        done()
+      }
+    }
+
+    let view = api.createView('Twig', "{{ entry.name }}: {{ entry.nationality|dbApiGet('test3_nationality').name }} ({{ entry.nationality}})", { twig })
+    let dom = document.createElement('div')
+    view.set_query({ table: 'test3' })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.deepEqual(ev.result, [ "Alice: Deutschland (de)", "Bob: Österreich (at)", "Conny: United Kingdom (uk)", "Dennis:  ()" ])
+
+      let expected = '<div>Alice: Deutschland (de)</div><div>Bob: Österreich (at)</div><div>Conny: United Kingdom (uk)</div><div>Dennis:  ()</div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })

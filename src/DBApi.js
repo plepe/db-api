@@ -12,6 +12,11 @@ class DBApi {
     this.url = url
     this.options = options
     this.cache = {}
+    this.tables = {}
+  }
+
+  addTable (spec) {
+    this.tables[spec.id] = spec
   }
 
   do (actions, callback) {
@@ -58,22 +63,32 @@ class DBApi {
   loadCache () {
     let query = []
     for (let table in this.toLoad) {
+      let spec = this.tables[table]
+      let id_field = spec ? spec.id_field || 'id' : 'id'
+
       query.push({
         table,
-        query: [[ 'id', 'in', Object.keys(this.toLoad[table]) ]]
+        query: [[ id_field, 'in', Object.keys(this.toLoad[table]) ]]
       })
     }
 
     var callbacks = this.toLoadCallbacks
     var loading = this.toLoad
     this.do(query, (err, result) => {
+      if (err) {
+        return callbacks.forEach(callback => callback(err))
+      }
+
       let i = 0
       for (let table in loading) {
+        let spec = this.tables[table]
+        let id_field = spec ? spec.id_field || 'id' : 'id'
+
         if (!this.cache[table]) {
           this.cache[table] = {}
         }
         for (var k in result[i]) {
-          this.cache[table][result[i][k].id] = result[i][k]
+          this.cache[table][result[i][k][id_field]] = result[i][k]
         }
         i++
       }
@@ -83,6 +98,10 @@ class DBApi {
 
     delete this.toLoad
     delete this.toLoadCallbacks
+  }
+
+  clearCache () {
+    this.cache = {}
   }
 
   createView (type, def, options) {

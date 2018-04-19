@@ -2,17 +2,24 @@ const DBApiView = require('./DBApiView')
 const emptyElement = require('@f/empty-element')
 const asyncForEach = require('async/eachOf')
 
+let _CacheCallback
+let _NeedReload
+
 class DBApiViewTwig extends DBApiView {
   constructor (dbApi, def, options) {
     super(dbApi, def, options)
 
     this.twig = this.options.twig
     this.twig.extendFilter('dbApiGet', function (value, args) {
-      let result = dbApi.getCached(args[0], value, global._dbApiViewTwigCacheCallback)
-      global._dbApiViewTwigCacheCallback = null
+      if (value === null) {
+        return null
+      }
+
+      let result = dbApi.getCached(args[0], value, _CacheCallback)
+      _CacheCallback = null
 
       if (typeof result === 'undefined') {
-        global._dbApiViewTwigNeedReload = true
+        _NeedReload = true
       }
       return result
     })
@@ -24,14 +31,14 @@ class DBApiViewTwig extends DBApiView {
   render (data, callback) {
     let result
 
-    global._dbApiViewTwigNeedReload = false
-    global._dbApiViewTwigCacheCallback = () => {
+    _NeedReload = false
+    _CacheCallback = () => {
       callback(null, this.template.render(data))
     }
 
     result = this.template.render(data)
 
-    if (!global._dbApiViewTwigNeedReload) {
+    if (!_NeedReload) {
       callback(null, result)
     }
   }
