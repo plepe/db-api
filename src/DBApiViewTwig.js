@@ -92,6 +92,13 @@ class DBApiViewTwig extends DBApiView {
           this.render(data, (err, r) => {
             div.innerHTML = r
             renderedResult[index] = r
+
+            this.emit('showEntry', {
+              dom: div,
+              entry,
+              error: null
+            })
+
             callback()
           })
         },

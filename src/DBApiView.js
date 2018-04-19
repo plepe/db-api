@@ -1,11 +1,19 @@
 const eventEmitter = require('event-emitter')
 const emptyElement = require('@f/empty-element')
+let viewExtensions = {
+  'Leaflet': require('./DBApiExtLeaflet')
+}
 
 class DBApiView {
   constructor (dbApi, def, options) {
     this.api = dbApi
     this.def = def
     this.options = options
+    this.extensions = []
+  }
+
+  extend (type, def, options) {
+    this.extensions.push(new viewExtensions[type](this, def, options))
   }
 
   set_query (query) {
