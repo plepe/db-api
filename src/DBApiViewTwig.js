@@ -1,5 +1,6 @@
 const DBApiView = require('./DBApiView')
 const emptyElement = require('@f/empty-element')
+const asyncForEach = require('async/eachOf')
 
 class DBApiViewTwig extends DBApiView {
   constructor (dbApi, def, options) {
@@ -9,6 +10,10 @@ class DBApiViewTwig extends DBApiView {
     this.template = this.twig.twig({
       data: def
     })
+  }
+
+  render (data, callback) {
+    callback(null, this.template.render(data))
   }
 
   show (dom, options={}, start=0, next=null, divMore=null) {
@@ -49,42 +54,49 @@ class DBApiViewTwig extends DBApiView {
         emptyElement(dom)
       }
 
-      result.forEach(entry => {
-        data.entry = entry
-        let r = this.template.render(data)
-        let div = document.createElement('div')
-        div.innerHTML = r
-        dom.appendChild(div)
-        renderedResult.push(r)
-      })
+      asyncForEach(result,
+        (entry, index, callback) => {
+          let div = document.createElement('div')
+          dom.appendChild(div)
 
-      let showMoreFunction
-      if (divMore) {
-        dom.removeChild(divMore)
-      }
-      if (next) {
-        divMore = document.createElement('div')
-        divMore.className = 'loadMore'
-        showMoreFunction = this.show.bind(this, dom, options, start + options.step, next, divMore)
-        dom.appendChild(divMore)
+          data.entry = entry
 
-        let a = document.createElement('a')
-        a.href = '#'
-        a.innerHTML = 'load more'
-        a.onclick = () => {
-          showMoreFunction()
-          return false
+          this.render(data, (err, r) => {
+            div.innerHTML = r
+            renderedResult[index] = r
+            callback()
+          })
+        },
+        () => {
+          let showMoreFunction
+          if (divMore) {
+            dom.removeChild(divMore)
+          }
+          if (next) {
+            divMore = document.createElement('div')
+            divMore.className = 'loadMore'
+            showMoreFunction = this.show.bind(this, dom, options, start + options.step, next, divMore)
+            dom.appendChild(divMore)
+
+            let a = document.createElement('a')
+            a.href = '#'
+            a.innerHTML = 'load more'
+            a.onclick = () => {
+              showMoreFunction()
+              return false
+            }
+            divMore.appendChild(a)
+          } else {
+            divMore = null
+          }
+
+          this.emit('show', {
+            result: renderedResult,
+            error: null,
+            showMoreFunction
+          })
         }
-        divMore.appendChild(a)
-      } else {
-        divMore = null
-      }
-
-      this.emit('show', {
-        result: renderedResult,
-        error: null,
-        showMoreFunction
-      })
+      )
     })
   }
 }
