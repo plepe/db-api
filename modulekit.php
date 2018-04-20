@@ -16,5 +16,7 @@ $include = array(
     'src/DBApiViewJSON.php',
     'src/DBApiViewTwig.php',
     'src/emptyElement.php',
+    'src/DBApiExt.php',
+    'src/DBApiExtDummy.php',
   ),
 );

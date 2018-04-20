@@ -1,9 +1,19 @@
 <?php
+$dbApiViewExtensions = array(
+  'Dummy' => 'DBApiExtDummy',
+);
+
 class DBApiView extends Evenement\EventEmitter {
   function __construct ($dbApi, $def, $options=array()) {
     $this->api = $dbApi;
     $this->def = $def;
     $this->options = $options;
+    $this->extensions = array();
+  }
+
+  function extend ($type, $def, $options=array()) {
+    global $dbApiViewExtensions;
+    $this->extensions[] = new $dbApiViewExtensions[$type]($this, $def, $options);
   }
 
   function set_query ($query) {
