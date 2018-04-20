@@ -1,7 +1,7 @@
 const DBApiExt = require('./DBApiExt')
 
 class DBApiExtLeaflet extends DBApiExt {
-  constructor (view, options) {
+  constructor (view, options={}) {
     super(view, options)
 
     view.on('showEntry', ev => {
@@ -10,14 +10,34 @@ class DBApiExtLeaflet extends DBApiExt {
         return
       }
 
+      let layers
+      if ('layers' in options) {
+        layers = options.layers
+      } else {
+        layers = {
+          'OpenStreetMap Mapnik': {
+              url: '//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+        }
+      }
+
+      let mapLayers = {}
+      for (var k in layers) {
+        mapLayers[k] = L.tileLayer(layers[k].url, layers[k])
+      }
+
+      var defaultLayer = mapLayers[Object.keys(mapLayers)[0]]
+
       var map = L.map(divs[0], {
         center: [ ev.entry[this.options.latitudeField], ev.entry[this.options.longitudeField] ],
-        zoom: this.options.zoom || 17
+        zoom: this.options.zoom || 17,
+        layers: defaultLayer
       })
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
+      if (Object.keys(mapLayers).length > 1) {
+        L.control.layers(mapLayers).addTo(map)
+      }
 
       L.marker([ ev.entry[this.options.latitudeField], ev.entry[this.options.longitudeField] ]).addTo(map)
     })

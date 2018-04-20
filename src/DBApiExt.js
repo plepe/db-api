@@ -1,5 +1,5 @@
 class DBApiExt {
-  constructor (view, options) {
+  constructor (view, options={}) {
     this.view = view
     this.api = view.api
     this.options = options
