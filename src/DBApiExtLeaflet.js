@@ -9,10 +9,19 @@ class DBApiExtLeaflet extends DBApiExt {
 
       for (var i = 0; i < divs.length; i++) {
         let div = divs[i]
+        let mapOptions = JSON.parse(JSON.stringify(this.options))
+
+        if (div.hasAttribute('options')) {
+          let o = JSON.parse(div.getAttribute('options'))
+          for (let k in o) {
+            mapOptions[k] = o[k]
+          }
+        }
+        console.log(mapOptions)
 
         let layers
-        if ('layers' in options) {
-          layers = options.layers
+        if ('layers' in mapOptions) {
+          layers = mapOptions.layers
         } else {
           layers = {
             'OpenStreetMap Mapnik': {
@@ -27,11 +36,16 @@ class DBApiExtLeaflet extends DBApiExt {
           mapLayers[k] = L.tileLayer(layers[k].url, layers[k])
         }
 
-        var defaultLayer = mapLayers[Object.keys(mapLayers)[0]]
+        let defaultLayer
+        if (mapOptions.layer) {
+          defaultLayer = mapLayers[mapOptions.layer]
+        } else {
+          defaultLayer = mapLayers[Object.keys(mapLayers)[0]]
+        }
 
         var map = L.map(div, {
-          center: [ ev.entry[this.options.latitudeField], ev.entry[this.options.longitudeField] ],
-          zoom: this.options.zoom || 17,
+          center: [ ev.entry[mapOptions.latitudeField], ev.entry[mapOptions.longitudeField] ],
+          zoom: mapOptions.zoom || 17,
           layers: defaultLayer
         })
 
@@ -39,7 +53,7 @@ class DBApiExtLeaflet extends DBApiExt {
           L.control.layers(mapLayers).addTo(map)
         }
 
-        L.marker([ ev.entry[this.options.latitudeField], ev.entry[this.options.longitudeField] ]).addTo(map)
+        L.marker([ ev.entry[mapOptions.latitudeField], ev.entry[mapOptions.longitudeField] ]).addTo(map)
       }
     })
   }
