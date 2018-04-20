@@ -28,9 +28,14 @@ class DBApiViewTwig extends DBApiView {
 
   }
 
+  function render ($data) {
+    return twig_render_custom($this->def, $data);
+  }
+
   function show ($dom, $options=array()) {
     global $_dbApiViewTwigApi;
     $document = $dom->ownerDocument;
+    $renderedResult = array();
 
     foreach ($this->get() as $entry) {
       $data = array(
@@ -39,11 +44,24 @@ class DBApiViewTwig extends DBApiView {
 
       $newDom=new DOMDocument();
       $_dbApiViewTwigApi = $this->api;
-      $newDom->loadHTML("<?xml encoding='UTF-8'><html><body><div>" . twig_render_custom($this->def, $data) . "</div></body></html>");
+      $r = $this->render($data);
+      $renderedResult[] = $r;
+      $newDom->loadHTML("<?xml encoding='UTF-8'><html><body><div>{$r}</div></body></html>");
       $node = $document->importNode($newDom->lastChild->lastChild->lastChild, true);
 
       $dom->appendChild($node);
+
+      $this->emit('showEntry', [array(
+        'dom' => $node,
+        'entry' => $entry,
+        'error' => null,
+      )]);
     }
+
+    $this->emit('show', [array(
+      'result' => $renderedResult,
+      'error' => null,
+    )]);
   }
 }
 

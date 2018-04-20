@@ -1,4 +1,5 @@
 <?php include "conf.php"; /* load a local configuration */ ?>
+<?php require 'vendor/autoload.php'; ?>
 <?php include "modulekit/loader.php"; /* loads all php-includes */ ?>
 <?php
 $dbconf[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES utf8";

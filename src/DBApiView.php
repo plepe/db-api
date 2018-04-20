@@ -1,5 +1,5 @@
 <?php
-class DBApiView {
+class DBApiView extends Evenement\EventEmitter {
   function __construct ($dbApi, $def, $options=array()) {
     $this->api = $dbApi;
     $this->def = $def;
