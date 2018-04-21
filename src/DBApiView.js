@@ -13,8 +13,8 @@ class DBApiView {
     this.extensions = []
   }
 
-  extend (type, def, options) {
-    this.extensions.push(new viewExtensions[type](this, def, options))
+  extend (def, options) {
+    this.extensions.push(new viewExtensions[def.type](this, def, options))
   }
 
   set_query (query) {

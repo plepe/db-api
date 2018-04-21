@@ -11,9 +11,9 @@ class DBApiView extends Evenement\EventEmitter {
     $this->extensions = array();
   }
 
-  function extend ($type, $def, $options=array()) {
+  function extend ($def, $options=array()) {
     global $dbApiViewExtensions;
-    $this->extensions[] = new $dbApiViewExtensions[$type]($this, $def, $options);
+    $this->extensions[] = new $dbApiViewExtensions[$def['type']]($this, $def, $options);
   }
 
   function set_query ($query) {

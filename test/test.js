@@ -303,7 +303,10 @@ describe('DBApiExtDummy', () => {
       type: 'Twig',
       each: '{{ entry.name }}'
     }, { twig })
-    view.extend('Dummy', { 'text': 'dummy' })
+    view.extend({
+      type: 'Dummy',
+      text: 'dummy'
+    })
     let dom = document.createElement('div')
     view.set_query({ table: 'test3' })
     view.once('loadstart', ev => {

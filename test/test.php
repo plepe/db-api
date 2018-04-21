@@ -1081,7 +1081,10 @@ EOT;
       'type' => 'Twig',
       'each' => "{{ entry.name }}"
     ));
-    $view->extend('Dummy', array('text' => 'dummy'));
+    $view->extend(array(
+      'type' => 'Dummy',
+      'text' => 'dummy',
+    ));
     $view->set_query(array(
       'table' => 'test3',
     ));
