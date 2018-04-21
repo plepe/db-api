@@ -1102,4 +1102,35 @@ EOT;
 
     $this->assertEquals($expected, $document->saveXML());
   }
+
+  public function testDBApiViewTwigExtDummyAuto () {
+    global $api;
+
+    $view = $api->createView(array(
+      'type' => 'Twig',
+      'each' => "{{ entry.name }}",
+      'extensions' => array(
+        array(
+          'type' => 'Dummy',
+          'text' => 'dummy',
+        ),
+      ),
+    ));
+    $view->set_query(array(
+      'table' => 'test3',
+    ));
+
+    $expected = <<<EOT
+<?xml version="1.0"?>
+<div><div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div></div>
+
+EOT;
+
+    $document = new DOMDocument();
+    $dom = $document->createElement('div');
+    $document->appendChild($dom);
+    $view->show($dom);
+
+    $this->assertEquals($expected, $document->saveXML());
+  }
 }

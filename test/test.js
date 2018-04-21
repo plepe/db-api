@@ -324,4 +324,40 @@ describe('DBApiExtDummy', () => {
     })
     view.show(dom)
   })
+
+  it('show', (done) => {
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 3) {
+        done()
+      }
+    }
+
+    let view = api.createView({
+      type: 'Twig',
+      each: '{{ entry.name }}',
+      extensions: [
+        {
+          type: 'Dummy',
+          text: 'dummy'
+        }
+      ]
+    }, { twig })
+    let dom = document.createElement('div')
+    view.set_query({ table: 'test3' })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.deepEqual(ev.result, [ 'Alice', 'Bob', 'Conny', 'Dennis' ])
+      let expected = '<div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div>'
+      assert.equal(dom.innerHTML, expected)
+      stepDone()
+    })
+    view.show(dom)
+  })
 })

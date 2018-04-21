@@ -9,6 +9,12 @@ class DBApiView extends Evenement\EventEmitter {
     $this->def = $def;
     $this->options = $options;
     $this->extensions = array();
+
+    if (array_key_exists('extensions', $this->def)) {
+      foreach ($this->def['extensions'] as $ext) {
+        $this->extend($ext, $options);
+      }
+    }
   }
 
   function extend ($def, $options=array()) {

@@ -11,6 +11,12 @@ class DBApiView {
     this.def = def
     this.options = options
     this.extensions = []
+
+    if (this.def.extensions) {
+      for (var i in this.def.extensions) {
+        this.extend(this.def.extensions[i], options)
+      }
+    }
   }
 
   extend (def, options) {
