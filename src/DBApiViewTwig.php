@@ -26,10 +26,16 @@ class DBApiViewTwig extends DBApiView {
   function __construct ($dbApi, $def, $options=array()) {
     parent::__construct($dbApi, $def, $options);
 
+    if (is_array($this->def['each'])) {
+      $this->template = implode("\n", $this->def['each']);
+    }
+    else {
+      $this->template = $this->def['each'];
+    }
   }
 
   function render ($data) {
-    return twig_render_custom($this->def, $data);
+    return twig_render_custom($this->template, $data);
   }
 
   function show ($dom, $options=array()) {

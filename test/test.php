@@ -957,7 +957,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testDBApiViewJSON() {
     global $api;
 
-    $view = $api->createView('JSON', null);
+    $view = $api->createView(array('type' => 'JSON'));
     $view->set_query(array(
       'table' => 'test2',
       'query' => 1,
@@ -997,7 +997,10 @@ EOT;
   public function testDBApiViewTwig() {
     global $api;
 
-    $view = $api->createView('Twig', "{{ entry.id }}: {{ entry.commentsCount }}\n");
+    $view = $api->createView(array(
+      'type' => 'Twig',
+      'each' => "{{ entry.id }}: {{ entry.commentsCount }}\n"
+    ));
     $view->set_query(array(
       'table' => 'test2',
       'query' => 1,
@@ -1018,10 +1021,41 @@ EOT;
     $this->assertEquals($expected, $document->saveXML());
   }
 
+  public function testDBApiViewTwigArray() {
+    global $api;
+
+    $view = $api->createView(array(
+      'type' => 'Twig',
+      'each' => array("{{ entry.id }}", "{{ entry.commentsCount }}\n")
+    ));
+    $view->set_query(array(
+      'table' => 'test2',
+      'query' => 1,
+    ));
+
+    $expected = <<<EOT
+<?xml version="1.0"?>
+<div><div>1
+2
+</div></div>
+
+EOT;
+
+    $document = new DOMDocument();
+    $dom = $document->createElement('div');
+    $document->appendChild($dom);
+    $view->show($dom);
+
+    $this->assertEquals($expected, $document->saveXML());
+  }
+
   public function testDBApiViewTwigReference () {
     global $api;
 
-    $view = $api->createView('Twig', "{{ entry.name }}: {{ entry.nationality|dbApiGet('test3_nationality').name }} ({{ entry.nationality}})");
+    $view = $api->createView(array(
+      'type' => 'Twig',
+      'each' => "{{ entry.name }}: {{ entry.nationality|dbApiGet('test3_nationality').name }} ({{ entry.nationality}})"
+    ));
     $view->set_query(array(
       'table' => 'test3',
     ));
@@ -1043,7 +1077,10 @@ EOT;
   public function testDBApiViewTwigExtDummy () {
     global $api;
 
-    $view = $api->createView('Twig', "{{ entry.name }}");
+    $view = $api->createView(array(
+      'type' => 'Twig',
+      'each' => "{{ entry.name }}"
+    ));
     $view->extend('Dummy', array('text' => 'dummy'));
     $view->set_query(array(
       'table' => 'test3',

@@ -32,7 +32,9 @@ describe('DBApi.do', function () {
 
 describe('DBApiView', () => {
   it('init', () => {
-    let view = api.createView('Base')
+    let view = api.createView({
+      type: 'Base'
+    })
   })
 
   it('show', (done) => {
@@ -43,7 +45,9 @@ describe('DBApiView', () => {
       }
     }
 
-    let view = api.createView('Base')
+    let view = api.createView({
+      type: 'Base'
+    })
     let dom = document.createElement('div')
     let expected = '[{"a":2,"b":"bar","d":"b"},{"a":4,"b":"bla","d":"b"}]'
     view.set_query({ table: 'test1' })
@@ -65,7 +69,9 @@ describe('DBApiView', () => {
 
 describe('DBApiViewJSON', () => {
   it('init', () => {
-    let view = api.createView('JSON')
+    let view = api.createView({
+      type: 'JSON'
+    })
   })
 
   it('show', (done) => {
@@ -94,7 +100,9 @@ describe('DBApiViewJSON', () => {
       }
     }
 
-    let view = api.createView('JSON')
+    let view = api.createView({
+      type: 'JSON'
+    })
     let dom = document.createElement('div')
     view.set_query({ table: 'test2', query: 1 })
     view.once('loadstart', ev => {
@@ -114,7 +122,10 @@ describe('DBApiViewJSON', () => {
 
 describe('DBApiViewTwig', () => {
   it('init', () => {
-    let view = api.createView('Twig', '', { twig })
+    let view = api.createView({
+      type: 'Twig',
+      each: ''
+    }, { twig })
   })
 
   it('show', (done) => {
@@ -125,7 +136,10 @@ describe('DBApiViewTwig', () => {
       }
     }
 
-    let view = api.createView('Twig', '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
+    let view = api.createView({
+      type: 'Twig',
+      each: '{{ entry.id }}: {{ entry.commentsCount }}\n'
+    }, { twig })
     let dom = document.createElement('div')
     view.set_query({ table: 'test2', query: 1 })
     view.once('loadstart', ev => {
@@ -144,6 +158,36 @@ describe('DBApiViewTwig', () => {
     view.show(dom)
   })
 
+  it('show (defined via array)', (done) => {
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 3) {
+        done()
+      }
+    }
+
+    let view = api.createView({
+      type: 'Twig',
+      each: [ '{{ entry.id }}', '{{ entry.commentsCount }}\n' ]
+    }, { twig })
+    let dom = document.createElement('div')
+    view.set_query({ table: 'test2', query: 1 })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.deepEqual(ev.result, [ '1\n2\n' ])
+      let expected = '<div>1\n2\n</div>'
+      assert.equal(dom.innerHTML, expected)
+      stepDone()
+    })
+    view.show(dom)
+  })
+
   it('show step', (done) => {
     let doneCount = 0
     function stepDone (err) {
@@ -152,7 +196,10 @@ describe('DBApiViewTwig', () => {
       }
     }
 
-    let view = api.createView('Twig', '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
+    let view = api.createView({
+      type: 'Twig',
+      each: '{{ entry.id }}: {{ entry.commentsCount }}\n'
+    }, { twig })
     let dom = document.createElement('div')
     view.set_query({ table: 'test2' })
     view.once('loadstart', ev => {
@@ -188,7 +235,10 @@ describe('DBApiViewTwig', () => {
       }
     }
 
-    let view = api.createView('Twig', '{{ entry.id }}: {{ entry.commentsCount }}\n', { twig })
+    let view = api.createView({
+      type: 'Twig',
+      each: '{{ entry.id }}: {{ entry.commentsCount }}\n'
+    }, { twig })
     let dom = document.createElement('div')
     view.set_query({ table: 'test2' })
     view.once('loadstart', ev => {
@@ -216,7 +266,10 @@ describe('DBApiViewTwig', () => {
       }
     }
 
-    let view = api.createView('Twig', "{{ entry.name }}: {{ entry.nationality|dbApiGet('test3_nationality').name }} ({{ entry.nationality}})", { twig })
+    let view = api.createView({
+      type: 'Twig',
+      each: "{{ entry.name }}: {{ entry.nationality|dbApiGet('test3_nationality').name }} ({{ entry.nationality}})"
+    }, { twig })
     let dom = document.createElement('div')
     view.set_query({ table: 'test3' })
     view.once('loadstart', ev => {
@@ -246,7 +299,10 @@ describe('DBApiExtDummy', () => {
       }
     }
 
-    let view = api.createView('Twig', '{{ entry.name }}', { twig })
+    let view = api.createView({
+      type: 'Twig',
+      each: '{{ entry.name }}'
+    }, { twig })
     view.extend('Dummy', { 'text': 'dummy' })
     let dom = document.createElement('div')
     view.set_query({ table: 'test3' })

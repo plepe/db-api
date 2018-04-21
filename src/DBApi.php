@@ -44,10 +44,10 @@ class DBApi {
     }
   }
 
-  function createView ($type, $def=null, $options=array()) {
+  function createView ($def=array(), $options=array()) {
     global $dbApiViewTypes;
 
-    return new $dbApiViewTypes[$type]($this, $def, $options);
+    return new $dbApiViewTypes[$def['type']]($this, $def, $options);
   }
 
   function handle_http_response () {

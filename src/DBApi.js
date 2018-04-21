@@ -104,12 +104,12 @@ class DBApi {
     this.cache = {}
   }
 
-  createView (type, def, options) {
-    if (!(type in viewTypes)) {
-      throw new Error('db-api view type ' + type + ' not defined!')
+  createView (def, options) {
+    if (!(def.type in viewTypes)) {
+      throw new Error('db-api view type ' + def.type + ' not defined!')
     }
 
-    return new viewTypes[type](this, def, options)
+    return new viewTypes[def.type](this, def, options)
   }
 }
 

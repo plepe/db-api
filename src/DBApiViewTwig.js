@@ -24,7 +24,7 @@ class DBApiViewTwig extends DBApiView {
       return result
     })
     this.template = this.twig.twig({
-      data: def
+      data: Array.isArray(def.each) ? def.each.join('\n') : def.each
     })
   }
 
