@@ -23,9 +23,14 @@ class DBApiViewTwig extends DBApiView {
       }
       return result
     })
+  }
+
+  init (callback) {
     this.template = this.twig.twig({
-      data: Array.isArray(def.each) ? def.each.join('\n') : def.each
+      data: Array.isArray(this.def.each) ? this.def.each.join('\n') : this.def.each
     })
+
+    callback()
   }
 
   render (data, callback) {
@@ -44,6 +49,18 @@ class DBApiViewTwig extends DBApiView {
   }
 
   show (dom, options={}, start=0, next=null, divMore=null) {
+    if (typeof this.template === 'undefined') {
+      return this.init((err) => {
+        if (err) {
+          return this.emit('show', {
+            error: err
+          })
+        }
+
+        this.show(dom, options, start, next, divMore)
+      })
+    }
+
     options.step = 'step' in options ? options.step : 25
 
     if (options.step !== 0) {
