@@ -8,7 +8,7 @@ class DBApiViewModulekitForm extends DBApiView {
         'entry' => $entry
       );
 
-      $ret .= twig_render_custom($this->def, $data);
+      $ret .= twig_render_custom($this->def['def'], $data);
     }
 
     return $ret;

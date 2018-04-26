@@ -16,7 +16,7 @@ class DBApiViewModulekitForm extends DBApiView {
         type: 'array',
         default: 1
       }
-      let formDef = { def: this.def, type: 'form' }
+      let formDef = { def: this.def.def, type: 'form' }
 
       this.form = new form(null, formDef, options)
       this.form.show(domForm)
