@@ -1,7 +1,37 @@
 const DBApiView = require('./DBApiView')
 
 class DBApiViewModulekitForm extends DBApiView {
+  _handleValuesQueries (def, todo, todoRef) {
+    if (typeof def !== 'object') {
+      return
+    }
+
+    if ('values_query' in def) {
+      todo.push(def.values_query)
+      delete def.values_query
+      todoRef.push(def)
+    } else {
+      for (var k in def) {
+        this._handleValuesQueries(def[k], todo, todoRef)
+      }
+    }
+  }
+
   show (dom, options={}) {
+    let todo = []
+    let todoRef = []
+    this._handleValuesQueries(this.def, todo, todoRef)
+
+    this.api.do(todo, (err, result) => {
+      for (var i = 0; i < todo.length; i++) {
+        todoRef[i].values = result[i]
+      }
+
+      this._show(dom, options)
+    })
+  }
+
+  _show (dom, options={}) {
     this.get((err, result) => {
       if (err) {
         return this.emit('show', {
