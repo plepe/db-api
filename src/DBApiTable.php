@@ -28,6 +28,10 @@ class DBApiTable {
     $this->table_quoted = $this->db->quoteIdent($this->spec['table']);
   }
 
+  function schema ($action) {
+    yield $this->spec;
+  }
+
   function _build_column ($key) {
     $field = $this->spec['fields'][$key];
 
