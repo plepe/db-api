@@ -49,6 +49,8 @@ class DBApiViewModulekitForm extends DBApiView {
   }
 
   _show (dom, options={}) {
+    this.query.old_id = true
+
     this.get((err, result) => {
       if (err) {
         return this.emit('show', {
@@ -58,6 +60,10 @@ class DBApiViewModulekitForm extends DBApiView {
 
       let domForm = document.createElement('form')
       dom.appendChild(domForm)
+
+      this.def.def[this.schema.old_id_field || '__id'] = {
+        type: 'hidden'
+      }
 
       let options = {
         type: 'array',
