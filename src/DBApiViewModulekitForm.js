@@ -22,6 +22,15 @@ class DBApiViewModulekitForm extends DBApiView {
   show (dom, options={}) {
     let todoQuery = []
     let todoFun = []
+
+    if (!this.schema) {
+      todoQuery.push({
+        table: this.query.table,
+        action: 'schema'
+      })
+      todoFun.push(result => this.schema = result[0])
+    }
+
     this._handleValuesQueries(this.def, todoQuery, todoFun)
 
     if (todoQuery.length === 0) {
@@ -32,6 +41,8 @@ class DBApiViewModulekitForm extends DBApiView {
       for (var i = 0; i < todoQuery.length; i++) {
         todoFun[i](result[i])
       }
+
+      checkFormRights(this.def.def, this.schema)
 
       this._show(dom, options)
     })
@@ -89,6 +100,28 @@ class DBApiViewModulekitForm extends DBApiView {
         error: null
       })
     })
+  }
+}
+
+function checkFormRights (def, rights) {
+  for (var k in def) {
+    if (k === 'id') {
+    }
+    else if (!(k in rights.fields)) {
+      delete def[k]
+    }
+    else if (rights.fields[k].type === 'sub_table') {
+      checkFormRights(def[k].def.def, rights.fields[k])
+    }
+    else {
+      def[k].may_read = ('read' in rights.fields[k] ? rights.fields[k].read : true)
+      def[k].may_write = ('write' in rights.fields[k] ? rights.fields[k].write : false)
+
+      if (rights.fields[k].write !== true) {
+        def[k].type = 'label'
+        def[k].include_data = false
+      }
+    }
   }
 }
 
