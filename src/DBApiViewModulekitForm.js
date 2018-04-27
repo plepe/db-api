@@ -103,6 +103,7 @@ class DBApiViewModulekitForm extends DBApiView {
 
       this.emit('show', {
         form: this.form,
+        entries: result,
         error: null
       })
     })

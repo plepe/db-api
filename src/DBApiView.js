@@ -2,7 +2,8 @@ const eventEmitter = require('event-emitter')
 const emptyElement = require('@f/empty-element')
 let viewExtensions = {
   'Dummy': require('./DBApiExtDummy'),
-  'Leaflet': require('./DBApiExtLeaflet')
+  'Leaflet': require('./DBApiExtLeaflet'),
+  'ModulekitFormLeaflet': require('./DBApiExtModulekitFormLeaflet')
 }
 
 class DBApiView {
