@@ -1,4 +1,6 @@
-function leafletMap (div, mapOptions, entry) {
+function leafletMap (div, mapOptions, entry, callback) {
+  let result = {}
+
   let layers
   if ('layers' in mapOptions) {
     layers = mapOptions.layers
@@ -33,7 +35,11 @@ function leafletMap (div, mapOptions, entry) {
     L.control.layers(mapLayers).addTo(map)
   }
 
-  L.marker([ entry[mapOptions.latitudeField], entry[mapOptions.longitudeField] ]).addTo(map)
+  result.marker = L.marker([ entry[mapOptions.latitudeField], entry[mapOptions.longitudeField] ], mapOptions.markerOptions).addTo(map)
+
+  if (callback) {
+    callback(null, result)
+  }
 }
 
 module.exports = leafletMap
