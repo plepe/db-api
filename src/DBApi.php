@@ -23,6 +23,10 @@ class DBApi {
     $this->db->beginTransaction();
 
     foreach ($actions as $i => $action) {
+      if (!array_key_exists('table', $action)) {
+        throw new Exception("No table specified");
+      }
+
       if (!array_key_exists($action['table'], $this->tables)) {
         throw new Exception("No such table '{$action['table']}'");
       }
