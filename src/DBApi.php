@@ -24,7 +24,15 @@ class DBApi {
 
     foreach ($actions as $i => $action) {
       if (!array_key_exists('table', $action)) {
-        throw new Exception("No table specified");
+        if ($action['action'] === 'schema') {
+          foreach ($this->tables as $table) {
+            yield $table->schema($action);
+          }
+          continue;
+        }
+        else {
+          throw new Exception("No table specified");
+        }
       }
 
       if (!array_key_exists($action['table'], $this->tables)) {
