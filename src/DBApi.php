@@ -20,31 +20,40 @@ class DBApi {
   }
 
   function do ($actions) {
+    $this->db->beginTransaction();
+
     foreach ($actions as $i => $action) {
       if (!array_key_exists($action['table'], $this->tables)) {
         throw new Exception("No such table '{$action['table']}'");
       }
 
-      switch ($action['action'] ?? 'select') {
-        case 'update':
-          yield $this->tables[$action['table']]->update($action);
-          break;
-        case 'insert-update':
-          yield $this->tables[$action['table']]->insert_update($action['data']);
-          break;
-        case 'select':
-          yield $this->tables[$action['table']]->select($action);
-          break;
-        case 'delete':
-          yield $this->tables[$action['table']]->delete($action);
-          break;
-        case 'schema':
-          yield $this->tables[$action['table']]->schema($action);
-          break;
-        default:
-          throw new Exception("No such action '{$action['action']}'");
+      try {
+        switch ($action['action'] ?? 'select') {
+          case 'update':
+            yield $this->tables[$action['table']]->update($action);
+            break;
+          case 'insert-update':
+            yield $this->tables[$action['table']]->insert_update($action['data']);
+            break;
+          case 'select':
+            yield $this->tables[$action['table']]->select($action);
+            break;
+          case 'delete':
+            yield $this->tables[$action['table']]->delete($action);
+            break;
+          case 'schema':
+            yield $this->tables[$action['table']]->schema($action);
+            break;
+          default:
+            throw new Exception("No such action '{$action['action']}'");
+        }
+      } catch (Exception $e) {
+        $this->db->rollBack();
+        throw $e;
       }
     }
+
+    $this->db->commit();
   }
 
   function createView ($def=array(), $options=array()) {
