@@ -25,11 +25,12 @@ function leafletMap (div, mapOptions, entry, callback) {
     defaultLayer = mapLayers[Object.keys(mapLayers)[0]]
   }
 
-  var map = L.map(div, {
+  let map = L.map(div, {
     center: [ entry[mapOptions.latitudeField], entry[mapOptions.longitudeField] ],
     zoom: mapOptions.zoom || 17,
     layers: defaultLayer
   })
+  div.map = map
 
   if (Object.keys(mapLayers).length > 1) {
     L.control.layers(mapLayers).addTo(map)

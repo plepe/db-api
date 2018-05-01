@@ -1,5 +1,9 @@
 const DBApiExt = require('./DBApiExt')
 const leafletMap = require('./leafletMap')
+const leafletImage = require('leaflet-image')
+const async = {
+  each: require('async/each')
+}
 
 class DBApiExtLeaflet extends DBApiExt {
   constructor (view, options={}) {
@@ -22,6 +26,40 @@ class DBApiExtLeaflet extends DBApiExt {
         leafletMap(div, mapOptions, ev.entry)
       }
     })
+  }
+
+  export (div, options, callback) {
+    let divs = div.getElementsByTagName('map')
+
+    async.each(divs,
+      (div, done) => {
+        let map = div.map
+        leafletImage(map, (err, canvas) => {
+          let img = document.createElement('img')
+          let dimensions = map.getSize()
+          img.width = dimensions.x
+          img.height = dimensions.y
+          img.src = canvas.toDataURL()
+
+          let attrs = div.attributes
+          Array.prototype.forEach.call(attrs, (attr) => {
+            img.setAttribute(attr.name, attr.value)
+          })
+
+          div.parentNode.replaceChild(img, div)
+
+//          let divAttr = document.createElement('div')
+//          divAttr.className = 'attribution'
+//          divAttr.innerHTML = layers[options.preferredLayer].options.attribution
+//          img.appendChild(divAttr)
+
+          done()
+        })
+      },
+      (err) => {
+        callback(err)
+      }
+    )
   }
 }
 

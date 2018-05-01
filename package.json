@@ -19,6 +19,7 @@
     "async": "^2.6.0",
     "event-emitter": "^0.3.5",
     "json-readable-encode": "https://github.com/plepe/json-readable-encode",
+    "leaflet-image": "^0.4.0",
     "w3c-xmlhttprequest": "^2.1.2"
   },
   "devDependencies": {
