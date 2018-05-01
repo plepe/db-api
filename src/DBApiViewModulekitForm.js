@@ -19,7 +19,7 @@ class DBApiViewModulekitForm extends DBApiView {
     }
   }
 
-  show (dom, options={}) {
+  show (dom, options={}, callback=null) {
     let todoQuery = []
     let todoFun = []
 
@@ -44,15 +44,19 @@ class DBApiViewModulekitForm extends DBApiView {
 
       checkFormRights(this.def.def, this.schema)
 
-      this._show(dom, options)
+      this._show(dom, options, callback)
     })
   }
 
-  _show (dom, options={}) {
+  _show (dom, options, callback) {
     this.query.old_id = true
 
     this.get((err, result) => {
       if (err) {
+        if (callback) {
+          callback(err)
+          callback = null
+        }
         return this.emit('show', {
           error: err
         })
@@ -101,6 +105,10 @@ class DBApiViewModulekitForm extends DBApiView {
         return false
       }
 
+      if (callback) {
+        callback(null)
+        callback = null
+      }
       this.emit('show', {
         form: this.form,
         entries: result,

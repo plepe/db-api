@@ -49,9 +49,13 @@ class DBApiView {
     })
   }
 
-  show (dom, options={}) {
+  show (dom, options={}, callback=null) {
     this.get((err, result) => {
       if (err) {
+        if (callback) {
+          callback(err, null)
+          callback = null
+        }
         return this.emit('show', {
           error: err
         })
@@ -63,6 +67,10 @@ class DBApiView {
         dom.appendChild(document.createTextNode(renderedResult))
       }
 
+      if (callback) {
+        callback(null)
+        callback = null
+      }
       this.emit('show', {
         result: renderedResult,
         error: null

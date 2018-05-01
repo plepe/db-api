@@ -48,16 +48,20 @@ class DBApiViewTwig extends DBApiView {
     }
   }
 
-  show (dom, options={}, start=0, next=null, divMore=null) {
+  show (dom, options={}, callback=null, start=0, next=null, divMore=null) {
     if (typeof this.template === 'undefined') {
       return this.init((err) => {
         if (err) {
+          if (callback) {
+            callback(err)
+            callback = null
+          }
           return this.emit('show', {
             error: err
           })
         }
 
-        this.show(dom, options, start, next, divMore)
+        this.show(dom, options, callback, start, next, divMore)
       })
     }
 
@@ -77,6 +81,10 @@ class DBApiViewTwig extends DBApiView {
 
     this.get((err, result) => {
       if (err) {
+        if (callback) {
+          callback(err)
+          callback = null
+        }
         return this.emit('show', {
           error: err
         })
@@ -127,7 +135,7 @@ class DBApiViewTwig extends DBApiView {
           if (next) {
             divMore = document.createElement('div')
             divMore.className = 'loadMore'
-            showMoreFunction = this.show.bind(this, dom, options, start + options.step, next, divMore)
+            showMoreFunction = this.show.bind(this, dom, options, callback, start + options.step, next, divMore)
             dom.appendChild(divMore)
 
             let a = document.createElement('a')
@@ -142,6 +150,10 @@ class DBApiViewTwig extends DBApiView {
             divMore = null
           }
 
+          if (callback) {
+            callback(null)
+            callback = null
+          }
           this.emit('show', {
             result: renderedResult,
             error: null,
