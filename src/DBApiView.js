@@ -1,5 +1,8 @@
 const eventEmitter = require('event-emitter')
 const emptyElement = require('@f/empty-element')
+const async = {
+  each: require('async/each')
+}
 let viewExtensions = {
   'Dummy': require('./DBApiExtDummy'),
   'Leaflet': require('./DBApiExtLeaflet'),
@@ -75,6 +78,34 @@ class DBApiView {
         result: renderedResult,
         error: null
       })
+    })
+  }
+
+  export (options, callback) {
+    let div = document.createElement('div')
+    div.style = {
+      position: 'absolute',
+      width: 0,
+      height: 0
+    }
+    document.body.appendChild(div)
+
+    options.step = 0
+    this.show(div, options, (err) => {
+      async.each(
+        this.extensions,
+        (ext, callback) => {
+          if ('export' in ext) {
+            ext.export(div, options, callback)
+          } else {
+            callback(null)
+          }
+        },
+        (err) => {
+          callback(null, div.innerHTML, 'text/html', 'html')
+          document.body.removeChild(div)
+        }
+      )
     })
   }
 }
