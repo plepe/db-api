@@ -19,6 +19,10 @@ class DBApi {
     return $table;
   }
 
+  function getTable ($id) {
+    return $this->tables[$id];
+  }
+
   function do ($actions) {
     $this->db->beginTransaction();
 

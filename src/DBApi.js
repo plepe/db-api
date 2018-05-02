@@ -1,4 +1,5 @@
 const httpGetJSON = require('./httpGetJSON')
+const DBApiTable = require('./DBApiTable')
 
 let viewTypes = {
   'Base': require('./DBApiView'),
@@ -8,15 +9,32 @@ let viewTypes = {
 }
 
 class DBApi {
-  constructor (url, options) {
+  constructor (url, options, callback) {
     this.url = url
     this.options = options
     this.cache = {}
     this.tables = {}
+
+    this.do(
+      [{
+        action: 'schema'
+      }],
+      (err, result) => {
+        if (err) {
+          return callback(err)
+        }
+
+        for (let i in result[0]) {
+          this.tables[result[0][i].id] = new DBApiTable(result[0][i])
+        }
+
+        callback(null)
+      }
+    )
   }
 
-  addTable (spec) {
-    this.tables[spec.id] = spec
+  getTable (id) {
+    return this.tables[id]
   }
 
   do (actions, callback) {

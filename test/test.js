@@ -9,24 +9,34 @@ const conf = JSON.parse(fs.readFileSync('test-conf.json', 'utf8'));
 const assert = require('assert')
 const twig = require('twig')
 
-const api = new DBApi(conf.url, conf.options)
-api.addTable({
-  id: 'test3_nationality',
-  id_field: 'code'
-})
+let api
 
-describe('DBApi.do', function () {
-  it('should return something', function (done) {
-    api.do(
-      [
-        { table: 'test2' }
-      ],
-      function (err, result) {
-        console.log(JSON.stringify(result, null, '  '))
-        assert.equal(!!result, true)
-        done(err)
-      }
-    )
+describe('DBApi', function () {
+  it('init', function (done) {
+    api = new DBApi(conf.url, conf.options, (err) => done(err))
+  })
+
+  describe('do', function () {
+    it('should return something', function (done) {
+      api.do(
+        [
+          { table: 'test2' }
+        ],
+        function (err, result) {
+          console.log(JSON.stringify(result, null, '  '))
+          assert.equal(!!result, true)
+          done(err)
+        }
+      )
+    })
+  })
+
+  describe('getTable', function () {
+    it('test2', function (done) {
+      let table = api.getTable('test2')
+      assert.equal(table.id, 'test2')
+      done()
+    })
   })
 })
 

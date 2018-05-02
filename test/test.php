@@ -978,6 +978,45 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testApiGetTable() {
+    global $api;
+
+    $expectedSpec = array (
+      'id' => 'test1',
+      'fields' => array (
+	'a' => array (
+	  'type' => 'int',
+	  'read' => true,
+	  'write' => true,
+	),
+	'b' => array (
+	  'type' => 'string',
+	  'write' => true,
+	),
+	'c' => array (
+	  'type' => 'string',
+	  'read' => false,
+	),
+	'd' => array (
+	  'column' => 'd1',
+	  'read' => true,
+	  'write' => true,
+	  'select' => 'select substr(`d1`, 1, 1)',
+	),
+	'e' => array (
+	  'type' => 'int',
+	  'include' => false,
+	),
+      ),
+      'id_field' => 'a',
+      'table' => 'test1',
+    );
+    $actual = $api->getTable('test1');
+
+    $this->assertEquals('test1', $actual->id);
+    $this->assertEquals($expectedSpec, $actual->spec);
+  }
+
   public function testApiUpdate_perm_denied() {
     global $api;
 

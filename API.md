@@ -13,11 +13,14 @@ $db = new PDOext(array(
 $api = new DBApi($db);
 ```
 
-=== constructor(db) - JS ===
+=== constructor(db, options, callback) - JS ===
 Creates the API. Pass the URL to the PHP api.php file.
 
 ```js
-let api = new DBApi('https://example.com/db/api.php')
+let api = new DBApi('https://example.com/db/api.php', {}, function (err) {
+  // err should be null
+  // api is now ready ...
+})
 ```
 
 === addTable(spec) - PHP only ===
@@ -87,6 +90,9 @@ Example:
     }
   }
 ```
+
+=== getTable(id) - PHP/JS ===
+Returns an instance of DBApiTable for the specified table.
 
 === do(actions) - PHP/JS ===
 Execute a series of actions in a single transaction. JS version accepts an additional parameter callback which will be called with `(err, result)`.
