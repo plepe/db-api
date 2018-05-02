@@ -25,9 +25,13 @@ class DBApi {
     foreach ($actions as $i => $action) {
       if (!array_key_exists('table', $action)) {
         if ($action['action'] === 'schema') {
+          $ret = array();
           foreach ($this->tables as $table) {
-            yield $table->schema($action);
+            foreach ($table->schema($action) as $schema) {
+              $ret[] = $schema;
+            }
           }
+          yield $ret;
           continue;
         }
         else {
