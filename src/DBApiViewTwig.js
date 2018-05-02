@@ -121,6 +121,7 @@ class DBApiViewTwig extends DBApiView {
             this.emit('showEntry', {
               dom: div,
               entry,
+              table: this.query.table,
               error: null
             })
 
