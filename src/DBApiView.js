@@ -6,7 +6,8 @@ const async = {
 let viewExtensions = {
   'Dummy': require('./DBApiExtDummy'),
   'Leaflet': require('./DBApiExtLeaflet'),
-  'ModulekitFormLeaflet': require('./DBApiExtModulekitFormLeaflet')
+  'ModulekitFormLeaflet': require('./DBApiExtModulekitFormLeaflet'),
+  'InlineForm': require('./DBApiExtInlineForm')
 }
 
 class DBApiView {

@@ -3,7 +3,7 @@ function modulekitFormUpdate (def, api, tableId, callback) {
   let todoFun = []
   let table = api.getTable(tableId)
 
-  handleValuesQueries(def, todoQuery, todoFun)
+  handleValuesQueries(def, table.spec, todoQuery, todoFun)
   checkFormRights(def, table.spec)
 
   if (todoQuery.length === 0) {
@@ -23,7 +23,7 @@ function modulekitFormUpdate (def, api, tableId, callback) {
   })
 }
 
-function handleValuesQueries (def, todoQuery, todoFun) {
+function handleValuesQueries (def, table, todoQuery, todoFun) {
   if (typeof def !== 'object') {
     return
   }
@@ -33,10 +33,12 @@ function handleValuesQueries (def, todoQuery, todoFun) {
     delete def.values_query
     todoFun.push(result => {
       def.values = result
+      def.values_mode = 'property'
+      def.values_property = table.id_field || 'id'
     })
   } else {
     for (var k in def) {
-      handleValuesQueries(def[k], todoQuery, todoFun)
+      handleValuesQueries(def[k], table.fields[k], todoQuery, todoFun)
     }
   }
 }
