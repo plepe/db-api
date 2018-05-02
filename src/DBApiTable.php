@@ -114,19 +114,31 @@ class DBApiTable {
     }
   }
 
-  function _build_where ($query=array()) {
+  function _build_where ($action) {
     $where = array();
-    if ($query === null) {
-      return '';
-    }
 
-    if (is_array($query)) {
-      foreach ($query as $q) {
-        $where[] = $this->_build_where_expression($q);
+    if (array_key_exists('id', $action)) {
+      if (is_array($action['id'])) {
+        $where[] = $this->_build_where_expression(array(
+          'key' => $this->id_field,
+          'op' => 'in',
+          'value' => $action['id'],
+        ));
+      }
+      else {
+        $where[] = "{$this->id_field_quoted}=" . $this->db->quote($action['id']);
       }
     }
-    else {
-      $where[] = "{$this->id_field_quoted}=" . $this->db->quote($query);
+
+    if (array_key_exists('query', $action)) {
+      if (is_array($action['query'])) {
+        foreach ($action['query'] as $q) {
+          $where[] = $this->_build_where_expression($q);
+        }
+      }
+      else {
+        trigger_error('query with id is no longer supported, use id=>x instead', E_USER_ERROR);
+      }
     }
 
     if (array_key_exists('query-visible', $this->spec)) {
@@ -145,7 +157,7 @@ class DBApiTable {
       $limit_offset .= " offset {$action['offset']}";
     }
 
-    return $this->_build_where($action['query'] ?? array()) .
+    return $this->_build_where($action) .
         $this->_build_order($action) .
         $limit_offset;
   }
@@ -376,7 +388,7 @@ class DBApiTable {
       // delete sub fields which are no longer part of parent field
       foreach ($current_sub_ids as $sub_id) {
         $sub_table->delete(array(
-          'query' => $sub_id
+          'id' => $sub_id
         ));
       }
     }

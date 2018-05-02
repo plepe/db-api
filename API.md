@@ -145,6 +145,7 @@ The following parameters are available:
 * action: (string) 'select'
 * table: (string, mandatory) id of table
 * query: (array) only include elements which match certain criteria. See 'Query' for details.
+* id: (int|string|array) return only elements which have this value or one of these values as primary key (even if the table has a different id field).
 * order: (array) Order by the following fields. By default, order direction is ascending, precede by '-' to order descending. '+' forces ascending order.
 * offset: (int) start at nth result (starting at 0)
 * limit: (int) return only the first n results (after offset)
@@ -171,6 +172,7 @@ The following parameters are available:
 * action: (string, mandatory) 'update'
 * update: (hash, mandatory) List of key/value pairs to update
 * query: (array) only update elements which match certain criteria. See 'Query' for details.
+* id: (int|string|array) return only elements which have this value or one of these values as primary key (even if the table has a different id field).
 * limit: (int) update only n elements.
 * offset: (int) start with the nth element.
 * order: (array) Order by the specified fields.
@@ -194,6 +196,7 @@ Delete all matching elements.
 The following parameters are available:
 * action: (string, mandatory) 'delete'
 * query: (array) only update elements which match certain criteria. See 'Query' for details.
+* id: (int|string|array) return only elements which have this value or one of these values as primary key (even if the table has a different id field).
 * limit: (int) update only n elements.
 * offset: (int) start with the nth element.
 * order: (array) Order by the specified fields.
@@ -224,3 +227,5 @@ The following operations are available:
 * `>`, `<`, `>=`, `<=`: greater/lower than operations
 * `in`: value is an array, matches all elements which matches any of the values., matches all elements which matches any of the values., matches all elements which matches any of the values., matches all elements which matches any of the values.
 * `strsearch`: Tries to match strings in a convenient way.
+
+In an action the parameters 'id' and 'query' can be combined, only elements which match both criteria will be selected.

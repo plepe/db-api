@@ -54,14 +54,14 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery1 () {
     global $table1;
 
-    $query = array('query' => 1);
+    $query = array('id' => 1);
     $this->assertEquals("select `a` as `a`, `b` as `b`, (select substr(`d1`, 1, 1)) as `d` from `test1` where `a`='1'", $table1->_build_select_query($query));
   }
 
   public function testBuildLoad1 () {
     global $table1;
 
-    $actual = $table1->select(array('query' => 1));
+    $actual = $table1->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo', 'd' => 'f'));
     $this->assertEquals($expected, $actual);
@@ -120,7 +120,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_fields () {
     global $table1;
 
-    $actual = $table1->select(array('query' => 1, 'fields' => array('b', 'c')));
+    $actual = $table1->select(array('id' => 1, 'fields' => array('b', 'c')));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo'));
     $this->assertEquals($expected, $actual);
@@ -129,7 +129,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_fields_with_e () {
     global $table1;
 
-    $actual = $table1->select(array('query' => 1, 'fields' => array('b', 'e')));
+    $actual = $table1->select(array('id' => 1, 'fields' => array('b', 'e')));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'foo', 'e' => 5));
     $this->assertEquals($expected, $actual);
@@ -208,12 +208,12 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $ids = $table1->update(array(
       'update' => array('b' => 'bla', 'd' => 'bla'),
-      'query' => '1',
+      'id' => '1',
     ));
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1->select(array('query' => 1));
+    $actual = $table1->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -228,7 +228,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1->select(array('query' => 1));
+    $actual = $table1->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -243,7 +243,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1a->select(array('query' => 1));
+    $actual = $table1a->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -258,7 +258,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1->select(array('query' => 1));
+    $actual = $table1->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -281,7 +281,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(true, $got_exception, 'Didn\'t get a "permission denied" exception!');
 
-    $actual = $table1->select(array('query' => 1));
+    $actual = $table1->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -296,7 +296,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table1->select(array('query' => 1));
+    $actual = $table1->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 1, 'b' => 'blubb', 'd' => null));
     $this->assertEquals($expected, $actual);
@@ -324,7 +324,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(3), $ids);
 
-    $actual = $table1->select(array('query' => $ids[0]));
+    $actual = $table1->select(array('id' => $ids[0]));
     $actual = iterator_to_array($actual);
     $expected = array(array('a' => 3, 'b' => 'bla', 'd' => 'b'));
     $this->assertEquals($expected, $actual);
@@ -334,11 +334,11 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table1;
 
     $result = $table1->delete(array(
-      'query' => 1
+      'id' => 1
     ));
     $this->assertEquals(array('count' => 1), $result);
 
-    $actual = $table1->select(array('query' => 1));
+    $actual = $table1->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array();
     $this->assertEquals($expected, $actual);
@@ -363,14 +363,14 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoadQuery2 () {
     global $table2;
 
-    $query = array('query' => 1);
+    $query = array('id' => 1);
     $this->assertEquals("select `id` as `id`, (select count(*) from test2_comments where test2_id=test2.id) as `commentsCount` from `test2` where `id`='1'", $table2->_build_select_query($query));
   }
 
   public function testBuildLoad2 () {
     global $table2;
 
-    $actual = $table2->select(array('query' => 1));
+    $actual = $table2->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -397,7 +397,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad2_fields () {
     global $table2;
 
-    $actual = $table2->select(array('query' => 1, 'fields' => array('commentsCount')));
+    $actual = $table2->select(array('id' => 1, 'fields' => array('commentsCount')));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -457,11 +457,11 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $ids = $table2->update(array(
       'update' => array('comments' => array(array('id' => 1), array('id' => 2, 'text' => 'foobar'), array('text' => 'foobar2'))),
-      'query' => 1,
+      'id' => 1,
     ));
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table2->select(array('query' => 1));
+    $actual = $table2->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -495,11 +495,11 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $ids = $table2->update(array(
       'update' => array('comments' => array(array('id' => 2), array('id' => 4))),
-      'query' => 1,
+      'id' => 1,
     ));
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table2->select(array('query' => 1));
+    $actual = $table2->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     print_r($actual);
     $expected = array (
@@ -532,7 +532,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(3), $ids);
 
-    $actual = $table2->select(array('query' => $ids[0]));
+    $actual = $table2->select(array('id' => $ids[0]));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -564,7 +564,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $this->assertEquals(array(4), $ids);
 
-    $actual = $table2->select(array('query' => $ids[0]));
+    $actual = $table2->select(array('id' => $ids[0]));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -593,11 +593,11 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $ids = $table2->update(array(
       'update' => array('visible' => false),
-      'query' => 1,
+      'id' => 1,
     ));
     $this->assertEquals(array(1), $ids);
 
-    $actual = $table2->select(array('query' => 1));
+    $actual = $table2->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
@@ -920,7 +920,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
         array(
           'type' => 'select',
           'table' => 'test2',
-          'query' => 1,
+          'id' => 1,
           'fields' => array('commentsCount')
         ),
       )
@@ -1009,7 +1009,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $view = $api->createView(array('type' => 'JSON'));
     $view->set_query(array(
       'table' => 'test2',
-      'query' => 1,
+      'id' => 1,
     ));
 
     $expected = <<<EOT
@@ -1052,7 +1052,7 @@ EOT;
     ));
     $view->set_query(array(
       'table' => 'test2',
-      'query' => 1,
+      'id' => 1,
     ));
 
     $expected = <<<EOT
@@ -1079,7 +1079,7 @@ EOT;
     ));
     $view->set_query(array(
       'table' => 'test2',
-      'query' => 1,
+      'id' => 1,
     ));
 
     $expected = <<<EOT

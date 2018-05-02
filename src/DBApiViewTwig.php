@@ -13,7 +13,7 @@ register_hook('twig_init', function () {
 
     $result = iterator_to_array_deep($_dbApiViewTwigApi->do(array(array(
       'table' => $table,
-      'query' => $value,
+      'id' => $value,
     ))));
 
     if (sizeof($result[0])) {

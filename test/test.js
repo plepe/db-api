@@ -104,7 +104,7 @@ describe('DBApiViewJSON', () => {
       type: 'JSON'
     })
     let dom = document.createElement('div')
-    view.set_query({ table: 'test2', query: 1 })
+    view.set_query({ table: 'test2', id: 1 })
     view.once('loadstart', ev => {
       stepDone()
     })
@@ -112,7 +112,7 @@ describe('DBApiViewJSON', () => {
       stepDone()
     })
     view.once('show', ev => {
-      assert.equal(ev.error, null, 'Error should be null')
+      assert.equal(ev.error, null)
       assert.equal(ev.result, expected)
       stepDone()
     })
@@ -141,7 +141,7 @@ describe('DBApiViewTwig', () => {
       each: '{{ entry.id }}: {{ entry.commentsCount }}\n'
     }, { twig })
     let dom = document.createElement('div')
-    view.set_query({ table: 'test2', query: 1 })
+    view.set_query({ table: 'test2', id: 1 })
     view.once('loadstart', ev => {
       stepDone()
     })
@@ -171,7 +171,7 @@ describe('DBApiViewTwig', () => {
       each: [ '{{ entry.id }}', '{{ entry.commentsCount }}\n' ]
     }, { twig })
     let dom = document.createElement('div')
-    view.set_query({ table: 'test2', query: 1 })
+    view.set_query({ table: 'test2', id: 1 })
     view.once('loadstart', ev => {
       stepDone()
     })
