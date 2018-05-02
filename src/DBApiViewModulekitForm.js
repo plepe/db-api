@@ -22,14 +22,7 @@ class DBApiViewModulekitForm extends DBApiView {
   show (dom, options={}, callback=null) {
     let todoQuery = []
     let todoFun = []
-
-    if (!this.schema) {
-      todoQuery.push({
-        table: this.query.table,
-        action: 'schema'
-      })
-      todoFun.push(result => this.schema = result[0])
-    }
+    let table = this.api.getTable(this.query.table)
 
     this._handleValuesQueries(this.def, todoQuery, todoFun)
 
@@ -42,13 +35,13 @@ class DBApiViewModulekitForm extends DBApiView {
         todoFun[i](result[i])
       }
 
-      checkFormRights(this.def.def, this.schema)
+      checkFormRights(this.def.def, table.spec)
 
-      this._show(dom, options, callback)
+      this._show(dom, options, table, callback)
     })
   }
 
-  _show (dom, options, callback) {
+  _show (dom, options, table, callback) {
     this.query.old_id = true
 
     this.get((err, result) => {
@@ -65,7 +58,7 @@ class DBApiViewModulekitForm extends DBApiView {
       let domForm = document.createElement('form')
       dom.appendChild(domForm)
 
-      this.def.def[this.schema.old_id_field || '__id'] = {
+      this.def.def[table.old_id_field || '__id'] = {
         type: 'hidden'
       }
 
