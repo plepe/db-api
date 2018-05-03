@@ -10,6 +10,10 @@ class DBApiTable {
 
     this.cache = new DBApiTableCache(this)
   }
+
+  clearCache () {
+    this.cache = new DBApiTableCache(this)
+  }
 }
 
 module.exports = DBApiTable

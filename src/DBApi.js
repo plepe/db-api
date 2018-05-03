@@ -119,7 +119,9 @@ class DBApi {
   }
 
   clearCache () {
-    this.cache = {}
+    for (let k in this.tables) {
+      this.tables[k].clearCache()
+    }
   }
 
   createView (def, options) {
