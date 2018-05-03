@@ -23,8 +23,23 @@ describe('DBApi', function () {
           { table: 'test2' }
         ],
         function (err, result) {
-          console.log(JSON.stringify(result, null, '  '))
           assert.equal(!!result, true)
+          assert.deepEqual(result, [[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]},{"id":2,"commentsCount":1,"comments":[{"test2_id":2,"id":3,"text":"foobar"}]},{"id":3,"commentsCount":2,"comments":[{"test2_id":3,"id":5,"text":"foobar"},{"test2_id":3,"id":6,"text":"foobar2"}]},{"id":4,"commentsCount":2,"comments":[{"test2_id":4,"id":7,"text":"foobar"},{"test2_id":4,"id":8,"text":"foobar2"}]}]])
+          done(err)
+        }
+      )
+    })
+
+    it('cache', function (done) {
+      let actions = [
+          { table: 'test2' }
+        ]
+
+      api.do(actions,
+        function (err, result) {
+          assert.equal(!!result, true)
+          assert.deepEqual(result, [[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]},{"id":2,"commentsCount":1,"comments":[{"test2_id":2,"id":3,"text":"foobar"}]},{"id":3,"commentsCount":2,"comments":[{"test2_id":3,"id":5,"text":"foobar"},{"test2_id":3,"id":6,"text":"foobar2"}]},{"id":4,"commentsCount":2,"comments":[{"test2_id":4,"id":7,"text":"foobar"},{"test2_id":4,"id":8,"text":"foobar2"}]}]])
+          assert.deepEqual(actions, [{ "table": "test2", "action": "nop", "cacheIndex": 0 }])
           done(err)
         }
       )

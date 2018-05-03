@@ -37,6 +37,12 @@ class DBApi {
   }
 
   do (actions, callback) {
+    for (var k in actions) {
+      if ('table' in actions[k]) {
+        this.tables[actions[k].table].cache.modifyAction(actions[k])
+      }
+    }
+
     httpGetJSON(
       'POST',
       this.url,
@@ -48,6 +54,12 @@ class DBApi {
 
         if ('error' in result) {
           return callback(result.error, null)
+        }
+
+        for (var k in actions) {
+          if ('table' in actions[k]) {
+            result[k] = this.tables[actions[k].table].cache.modifyResult(actions[k], result[k])
+          }
         }
 
         return callback(null, result)
@@ -97,14 +109,6 @@ class DBApi {
     this.do(query, (err, result) => {
       if (err) {
         return callbacks.forEach(callback => callback(err))
-      }
-
-      let i = 0
-      for (let tableId in loading) {
-        let table = this.tables[tableId]
-
-        table.cache.addToCache(result[i])
-        i++
       }
 
       callbacks.forEach(callback => callback())

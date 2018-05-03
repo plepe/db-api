@@ -64,6 +64,9 @@ class DBApi {
           case 'schema':
             yield $this->tables[$action['table']]->schema($action);
             break;
+          case 'nop':
+            yield;
+            break;
           default:
             throw new Exception("No such action '{$action['action']}'");
         }

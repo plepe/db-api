@@ -17,6 +17,7 @@
   "dependencies": {
     "@f/empty-element": "^1.0.0",
     "async": "^2.6.0",
+    "deep-equal": "^1.0.1",
     "event-emitter": "^0.3.5",
     "json-readable-encode": "https://github.com/plepe/json-readable-encode",
     "leaflet-image": "^0.4.0",

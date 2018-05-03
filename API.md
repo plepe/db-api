@@ -209,6 +209,9 @@ The following parameters are available:
 
 Returns count of deleted elements.
 
+=== Action 'nop' ===
+Do nothing, return null.
+
 === Query ===
 Include only elements which match certain criteria, specified by an array of operations ,e.g.:
 ```json
