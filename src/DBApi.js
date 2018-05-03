@@ -12,7 +12,6 @@ class DBApi {
   constructor (url, options, callback) {
     this.url = url
     this.options = options
-    this.cache = {}
     this.tables = {}
 
     this.do(
@@ -56,19 +55,22 @@ class DBApi {
     )
   }
 
-  getCached (table, id, callback) {
-    if (table in this.cache && id in this.cache[table]) {
-      return this.cache[table][id]
+  getCached (tableId, id, callback) {
+    let cache = this.tables[tableId].cache
+    let result = cache.get(id)
+
+    if (typeof result !== 'undefined') {
+      return result
     }
 
     if (!this.toLoad) {
       this.toLoad = {}
       this.toLoadCallbacks = []
     }
-    if (!this.toLoad[table]) {
-      this.toLoad[table] = {}
+    if (!this.toLoad[tableId]) {
+      this.toLoad[tableId] = {}
     }
-    this.toLoad[table][id] = true
+    this.toLoad[tableId][id] = true
     if (callback) {
       this.toLoadCallbacks.push(callback)
     }
@@ -80,13 +82,13 @@ class DBApi {
 
   loadCache () {
     let query = []
-    for (let table in this.toLoad) {
-      let spec = this.tables[table]
-      let id_field = spec ? spec.id_field || 'id' : 'id'
+    for (let tableId in this.toLoad) {
+      let table = this.tables[tableId]
+      let id_field = table.spec ? table.spec.id_field || 'id' : 'id'
 
       query.push({
-        table,
-        query: [[ id_field, 'in', Object.keys(this.toLoad[table]) ]]
+        table: tableId,
+        query: [[ id_field, 'in', Object.keys(this.toLoad[tableId]) ]]
       })
     }
 
@@ -98,16 +100,10 @@ class DBApi {
       }
 
       let i = 0
-      for (let table in loading) {
-        let spec = this.tables[table]
-        let id_field = spec ? spec.id_field || 'id' : 'id'
+      for (let tableId in loading) {
+        let table = this.tables[tableId]
 
-        if (!this.cache[table]) {
-          this.cache[table] = {}
-        }
-        for (var k in result[i]) {
-          this.cache[table][result[i][k][id_field]] = result[i][k]
-        }
+        table.cache.addToCache(result[i])
         i++
       }
 
