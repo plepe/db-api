@@ -113,6 +113,36 @@ describe('DBApi', function () {
       done()
     })
   })
+
+  describe('funFields', function () {
+    it('test3 - capitalName', function (done) {
+      let table = api.getTable('test3')
+      table.addField({
+        id: 'capitalName',
+        type: 'fun',
+        fun: (entry) => {
+          return entry.name.toUpperCase()
+        }
+      })
+
+      api.do(
+        [
+          { table: 'test3' }
+        ],
+        function (err, result) {
+          assert.equal(!!result, true)
+          assert.deepEqual(result, [[
+            {"name":"Alice","age":40,"weight":50,"nationality":"de","capitalName":"ALICE"},
+            {"name":"Bob","age":35,"weight":82,"nationality":"at","capitalName":"BOB"},
+            {"name":"Conny","age":35,"weight":50,"nationality":"uk","capitalName":"CONNY"},
+            {"name":"Dennis","age":67,"weight":68,"nationality":null,"capitalName":"DENNIS"}
+          ]])
+
+          done(err)
+        }
+      )
+    })
+  })
 })
 
 describe('DBApiView', () => {

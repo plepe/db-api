@@ -890,6 +890,53 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function test3_load_funField () {
+    global $table3;
+
+    $table3->addField(array(
+      'id' => 'capitalName',
+      'type' => 'fun',
+      'fun' => function ($entry) {
+        return strtoupper($entry['name']);
+      }
+    ));
+    $actual = $table3->select(array(
+    ));
+    $actual = iterator_to_array($actual);
+    $expected = array (
+      0 => array (
+	'name' => 'Alice',
+	'age' => 40,
+	'weight' => 50.0,
+	'nationality' => 'de',
+	'capitalName' => 'ALICE',
+      ),
+      1 => array (
+	'name' => 'Bob',
+	'age' => 35,
+	'weight' => 82.0,
+	'nationality' => 'at',
+	'capitalName' => 'BOB',
+      ),
+      2 => array (
+	'name' => 'Conny',
+	'age' => 35,
+	'weight' => 50.0,
+	'nationality' => 'uk',
+	'capitalName' => 'CONNY',
+      ),
+      3 => array (
+	'name' => 'Dennis',
+	'age' => 67,
+	'weight' => 68.0,
+	'nationality' => NULL,
+	'capitalName' => 'DENNIS',
+      ),
+    );
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testApiTables() {
     global $api;
 

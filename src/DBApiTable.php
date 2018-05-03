@@ -216,7 +216,7 @@ class DBApiTable {
 
       $field = $this->spec['fields'][$key];
 
-      if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
+      if (array_key_exists('type', $field) && in_array($field['type'], array('fun', 'sub_table'))) {
         continue;
       }
 
@@ -304,6 +304,10 @@ class DBApiTable {
               ),
               'old_id' => $action['old_id'] ?? false,
             )));
+            break;
+          case 'fun':
+            $result[$key] = $field['fun']($result);
+            break;
           default:
         }
       }
@@ -467,5 +471,9 @@ class DBApiTable {
     }
 
     return $ret;
+  }
+
+  function addField ($def) {
+    $this->spec['fields'][$def['id']] = $def;
   }
 }

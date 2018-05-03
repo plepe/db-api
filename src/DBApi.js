@@ -85,6 +85,12 @@ class DBApi {
     async.eachOf(actions,
       (action, k, done) => {
         if ('table' in actions[k]) {
+          if (actions[k].action === 'select') {
+            result[k].forEach((entry) => {
+              this.tables[actions[k].table].updateFields(entry)
+            })
+          }
+
           this.tables[actions[k].table].cache.modifyResult(actions[k], result[k], (err, r) => {
             result[k] = r
             done(err)
