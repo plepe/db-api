@@ -37,10 +37,27 @@ class DBApi {
   }
 
   do (actions, callback) {
-    for (var k in actions) {
+    let allActionsAreNop = true
+    for (let k in actions) {
       if ('table' in actions[k]) {
         this.tables[actions[k].table].cache.modifyAction(actions[k])
+
+        if (actions[k].action !== 'nop') {
+          allActionsAreNop = false
+        }
       }
+      else {
+        allActionsAreNop = false
+      }
+    }
+
+    if (allActionsAreNop) {
+      let result = []
+      for (let k in actions) {
+        result.push(null)
+      }
+
+      return this._modifyResult(actions, result, callback)
     }
 
     httpGetJSON(
@@ -56,15 +73,19 @@ class DBApi {
           return callback(result.error, null)
         }
 
-        for (var k in actions) {
-          if ('table' in actions[k]) {
-            result[k] = this.tables[actions[k].table].cache.modifyResult(actions[k], result[k])
-          }
-        }
-
-        return callback(null, result)
+        this._modifyResult(actions, result, callback)
       }
     )
+  }
+
+  _modifyResult (actions, result, callback) {
+    for (var k in actions) {
+      if ('table' in actions[k]) {
+        result[k] = this.tables[actions[k].table].cache.modifyResult(actions[k], result[k])
+      }
+    }
+
+    callback(null, result)
   }
 
   getCached (tableId, id, callback) {

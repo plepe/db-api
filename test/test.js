@@ -44,6 +44,24 @@ describe('DBApi', function () {
         }
       )
     })
+
+    it('cache - accessing not loaded data twice in one do()', function (done) {
+      api.clearCache()
+
+      let actions = [
+          { table: 'test2', id: 1 },
+          { table: 'test2', id: 1 }
+        ]
+
+      api.do(actions,
+        function (err, result) {
+          assert.equal(!!result, true)
+          assert.deepEqual(actions, [{ "table": "test2", "id": 1, "action": "select", "cacheIndex": 0 }, { "table": "test2", "id": 1, "action": "nop", "cacheIndex": 0 }])
+          assert.deepEqual(result, [[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]}],[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]}]])
+          done(err)
+        }
+      )
+    })
   })
 
   describe('getTable', function () {

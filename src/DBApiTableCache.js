@@ -25,8 +25,12 @@ class DBApiTableCache {
         if (deepEqual(action, this.queryCache[i][0])) {
           action.action = 'nop'
           action.cacheIndex = i
+          return
         }
       }
+
+      this.queryCache.push([ JSON.parse(JSON.stringify(action)), null ])
+      action.cacheIndex = i
     }
   }
 
@@ -36,13 +40,19 @@ class DBApiTableCache {
     }
 
     if (action.action === 'nop') {
-      result = this.queryCache[action.cacheIndex][1].map(id => this.entryCache[id])
+      let ids = this.queryCache[action.cacheIndex][1]
+      if (ids !== null) {
+        result = ids.map(id => this.entryCache[id])
+      }
+      else {
+        console.log('oh no, not yet here')
+      }
     }
 
     return result
   }
 
-  addToCache (query, result) {
+  addToCache (action, result) {
     let id_field = this.table.spec ? this.table.spec.id_field || 'id' : 'id'
     let ids = []
 
@@ -51,7 +61,9 @@ class DBApiTableCache {
       ids.push(result[k][id_field])
     }
 
-    this.queryCache.push([ JSON.parse(JSON.stringify(query)), ids ])
+    if ('cacheIndex' in action) {
+      this.queryCache[action.cacheIndex][1] = ids
+    }
   }
 }
 
