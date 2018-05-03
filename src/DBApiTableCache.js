@@ -29,12 +29,12 @@ class DBApiTableCache {
         }
       }
 
-      this.queryCache.push([ JSON.parse(JSON.stringify(action)), null ])
+      this.queryCache.push([ JSON.parse(JSON.stringify(action)), null, [] ])
       action.cacheIndex = i
     }
   }
 
-  modifyResult (action, result) {
+  modifyResult (action, result, callback) {
     if (action.action === 'select') {
       this.addToCache(action, result)
     }
@@ -45,11 +45,12 @@ class DBApiTableCache {
         result = ids.map(id => this.entryCache[id])
       }
       else {
-        console.log('oh no, not yet here')
+        this.queryCache[action.cacheIndex][2].push(callback)
+        return
       }
     }
 
-    return result
+    callback(null, result)
   }
 
   addToCache (action, result) {
@@ -63,6 +64,14 @@ class DBApiTableCache {
 
     if ('cacheIndex' in action) {
       this.queryCache[action.cacheIndex][1] = ids
+
+      if (this.queryCache[action.cacheIndex][2].length) {
+        let pending = this.queryCache[action.cacheIndex][2]
+        this.queryCache[action.cacheIndex][2] = null
+        pending.forEach(callback => {
+          callback(null, result)
+        })
+      }
     }
   }
 }

@@ -8,6 +8,9 @@ const conf = JSON.parse(fs.readFileSync('test-conf.json', 'utf8'));
 
 const assert = require('assert')
 const twig = require('twig')
+const async = {
+  parallel: require('async/parallel')
+}
 
 let api
 
@@ -61,6 +64,45 @@ describe('DBApi', function () {
           done(err)
         }
       )
+    })
+
+    it('cache - accessing not loaded data trice', function (done) {
+      api.clearCache()
+
+      async.parallel([
+        (done) => {
+          let actions = [
+              { table: 'test2', id: 1 },
+              { table: 'test2', id: 1 }
+            ]
+
+          api.do(actions,
+            function (err, result) {
+              assert.equal(!!result, true)
+              assert.deepEqual(actions, [{ "table": "test2", "id": 1, "action": "select", "cacheIndex": 0 }, { "table": "test2", "id": 1, "action": "nop", "cacheIndex": 0 }])
+              assert.deepEqual(result, [[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]}],[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]}]])
+              done(err)
+            }
+          )
+        },
+        (done) => {
+          let actions = [
+              { table: 'test2', id: 1 }
+            ]
+
+          api.do(actions,
+            function (err, result) {
+              assert.equal(!!result, true)
+              assert.deepEqual(actions, [{ "table": "test2", "id": 1, "action": "nop", "cacheIndex": 0 }])
+              assert.deepEqual(result, [[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]}]])
+              done(err)
+            }
+          )
+        }
+      ],
+      (err) => {
+        done(err)
+      })
     })
   })
 

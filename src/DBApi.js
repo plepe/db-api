@@ -1,5 +1,8 @@
 const httpGetJSON = require('./httpGetJSON')
 const DBApiTable = require('./DBApiTable')
+const async = {
+  eachOf: require('async/eachOf')
+}
 
 let viewTypes = {
   'Base': require('./DBApiView'),
@@ -79,13 +82,21 @@ class DBApi {
   }
 
   _modifyResult (actions, result, callback) {
-    for (var k in actions) {
-      if ('table' in actions[k]) {
-        result[k] = this.tables[actions[k].table].cache.modifyResult(actions[k], result[k])
+    async.eachOf(actions,
+      (action, k, done) => {
+        if ('table' in actions[k]) {
+          this.tables[actions[k].table].cache.modifyResult(actions[k], result[k], (err, r) => {
+            result[k] = r
+            done(err)
+          })
+        } else {
+          done()
+        }
+      },
+      (err) => {
+        callback(err, result)
       }
-    }
-
-    callback(null, result)
+    )
   }
 
   getCached (tableId, id, callback) {
