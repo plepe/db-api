@@ -36,6 +36,10 @@ class DBApiExtInlineForm extends DBApiExt {
             return done(err)
           }
 
+          if (def.disabled) {
+            return done(null)
+          }
+
           let formId = 'inlineForm-' + entryId + '-' + fieldId
           let fieldForm = new form(formId, {}, def)
           fieldForm.set_data(el.getAttribute('value'))

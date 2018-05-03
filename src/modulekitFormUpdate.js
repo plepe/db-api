@@ -60,6 +60,7 @@ function checkFormRights (def, rights) {
       if (rights.fields[k].write !== true) {
         def[k].type = 'label'
         def[k].include_data = false
+        def[k].disabled = true
       }
     }
   }
