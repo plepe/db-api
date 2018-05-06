@@ -36,9 +36,11 @@ function handleValuesQueries (def, table, todoQuery, todoFun) {
       def.values_mode = 'property'
       def.values_property = table.id_field || 'id'
     })
-  } else {
+  } else if (table.fields) {
     for (var k in def) {
-      handleValuesQueries(def[k], table.fields[k], todoQuery, todoFun)
+      if (k in table.fields) {
+        handleValuesQueries(def[k], table.fields[k], todoQuery, todoFun)
+      }
     }
   }
 }
