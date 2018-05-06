@@ -54,19 +54,33 @@ class DBApiExtInlineForm extends DBApiExt {
             let data = {}
             data[fieldId] = fieldForm.get_data()
 
+            this.view.emit('savestart', {
+              form: fieldForm
+            })
+
             this.api.do([
               {
                 action: 'update',
                 table: tableId,
                 id: entryId,
                 update: data
+              },
+              {
+                action: 'select',
+                cache: false,
+                table: tableId,
+                id: entryId
               }
             ], (err, result) => {
-              if (err) {
-                alert(err)
+              if (!err) {
+                fieldForm.set_orig_data(result[1][0][fieldId])
               }
 
-              // TODO: update?
+              this.view.emit('save', {
+                form: fieldForm,
+                error: err,
+                result: result
+              })
             })
           }
         })
