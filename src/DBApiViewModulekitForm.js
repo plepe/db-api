@@ -49,13 +49,26 @@ class DBApiViewModulekitForm extends DBApiView {
         let data = this.form.get_data()
         let changeset = []
 
+        this.emit('savestart', {
+          form: this.form
+        })
+
         changeset.push({
           action: 'insert-update',
           table: this.query.table,
           data: data
         })
 
+        let query = JSON.parse(JSON.stringify(this.query))
+        query.cache = false
+        changeset = changeset.concat(query)
+
         this.api.do(changeset, (err, result) => {
+          if (!err) {
+            this.form.set_orig_data(result[1])
+            this.form.set_data(result[1])
+          }
+
           this.emit('save', {
             form: this.form,
             error: err,
