@@ -16,9 +16,12 @@ class DBApiExtModulekitFormLeaflet extends DBApiExt {
 
         element.dom_table.insertBefore(tr, element.dom_table.firstChild)
 
+        let latField = element.elements[options.latitudeField]
+        let lonField = element.elements[options.longitudeField]
+
         let data = ev.entries[i]
         options.markerOptions = {
-          draggable: true // TODO: only enable when writeable
+          draggable: !latField.def.disabled && !lonField.def.disabled
         }
         leafletMap(td, options, data, (err, result) => {
           result.marker.on('dragend', e => {
