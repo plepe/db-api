@@ -23,7 +23,11 @@ class DBApiTableCache {
     if (action.action === 'select') {
       for (var i = 0 ; i < this.queryCache.length; i++) {
         if (deepEqual(action, this.queryCache[i][0])) {
-          action.action = 'nop'
+
+          if (!('cache' in action) || action.cache !== false) {
+            action.action = 'nop'
+          }
+
           action.cacheIndex = i
           return
         }

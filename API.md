@@ -157,6 +157,7 @@ The following parameters are available:
 * limit: (int) return only the first n results (after offset)
 * fields: (array) limit list of queried fields (e.g. [ 'id', 'author' ]). Defaults to all fields which do not have `include=false`.
 * old_id: (boolean) if true, include a field '__id' (or as specified in table definition 'old_id_field') with the id of the field (to detect renames) in this table and all sub tables.
+* cache: (boolean) if false, result may not be read from cache (default: true).
 
 Returns array of elements
 
