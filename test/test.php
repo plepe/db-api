@@ -1028,7 +1028,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testApiGetTable() {
     global $api;
 
-    $expectedSpec = array (
+    $expectedSchema = array (
       'id' => 'test1',
       'fields' => array (
 	'a' => array (
@@ -1061,7 +1061,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $actual = $api->getTable('test1');
 
     $this->assertEquals('test1', $actual->id);
-    $this->assertEquals($expectedSpec, $actual->spec);
+    $this->assertEquals($expectedSchema, $actual->schema);
   }
 
   public function testApiUpdate_perm_denied() {

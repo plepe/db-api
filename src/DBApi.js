@@ -134,7 +134,7 @@ class DBApi {
     let query = []
     for (let tableId in this.toLoad) {
       let table = this.tables[tableId]
-      let id_field = table.spec ? table.spec.id_field || 'id' : 'id'
+      let id_field = table.schema ? table.schema.id_field || 'id' : 'id'
 
       query.push({
         table: tableId,

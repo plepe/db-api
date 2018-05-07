@@ -23,7 +23,7 @@ let api = new DBApi('https://example.com/db/api.php', {}, function (err) {
 })
 ```
 
-=== addTable(spec) - PHP only ===
+=== addTable(schema) - PHP only ===
 Adds a table definition to the API.
 
 Example:
@@ -106,7 +106,7 @@ If an error occures an object will be returned with the following fields:
 
 Available actions:
 ==== schema ====
-Return the specification of all tables or a specific table. The result is always an array.
+Return the schema of all tables or a specific table. The result is always an array.
 
 The following parameters are available:
 * action: (string, mandatory) 'schema'

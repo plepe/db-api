@@ -1,39 +1,39 @@
 <?php
 class DBApiTable {
-  function __construct ($db, $spec) {
+  function __construct ($db, $schema) {
     $this->db = $db;
-    $this->spec = $spec;
-    $this->id = $this->spec['id'];
+    $this->schema = $schema;
+    $this->id = $this->schema['id'];
     $this->sub_tables = array();
 
-    foreach ($this->spec['fields'] as $key => $field) {
+    foreach ($this->schema['fields'] as $key => $field) {
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
         $this->sub_tables[$key] = new DBApiTable($this->db, $field);
       }
     }
 
-    if (!array_key_exists('table', $this->spec)) {
-      $this->spec['table'] = $this->spec['id'];
+    if (!array_key_exists('table', $this->schema)) {
+      $this->schema['table'] = $this->schema['id'];
     }
 
-    $this->id_field = $this->spec['id_field'] ?? 'id';
-    $this->old_id_field = $this->spec['old_id_field'] ?? '__id';
-    if (array_key_exists('parent_field', $this->spec)) {
-      $this->parent_field = $this->spec['parent_field'];
-      $this->parent_field_quoted = $this->db->quoteIdent($this->spec['parent_field']);
+    $this->id_field = $this->schema['id_field'] ?? 'id';
+    $this->old_id_field = $this->schema['old_id_field'] ?? '__id';
+    if (array_key_exists('parent_field', $this->schema)) {
+      $this->parent_field = $this->schema['parent_field'];
+      $this->parent_field_quoted = $this->db->quoteIdent($this->schema['parent_field']);
     }
 
     $this->id_field_quoted = $this->db->quoteIdent($this->id_field);
     $this->old_id_field_quoted = $this->db->quoteIdent($this->old_id_field);
-    $this->table_quoted = $this->db->quoteIdent($this->spec['table']);
+    $this->table_quoted = $this->db->quoteIdent($this->schema['table']);
   }
 
   function schema ($action) {
-    yield $this->spec;
+    yield $this->schema;
   }
 
   function _build_column ($key) {
-    $field = $this->spec['fields'][$key];
+    $field = $this->schema['fields'][$key];
 
     if (array_key_exists('select', $field)) {
       return "({$field['select']})";
@@ -52,7 +52,7 @@ class DBApiTable {
 
     if (is_array($query['key'])) {
       $key = array_shift($query['key']);
-      $field = $this->spec['fields'][$key];
+      $field = $this->schema['fields'][$key];
 
       if (array_key_exists('read', $field) && $field['read'] === false) {
         throw new Exception("permission denied, order by '{$key}'");
@@ -74,7 +74,7 @@ class DBApiTable {
       }
     }
 
-    $field = $this->spec['fields'][$query['key']];
+    $field = $this->schema['fields'][$query['key']];
 
     if (array_key_exists('read', $field) && $field['read'] === false) {
       throw new Exception("permission denied, order by '{$query['key']}'");
@@ -141,8 +141,8 @@ class DBApiTable {
       }
     }
 
-    if (array_key_exists('query-visible', $this->spec)) {
-      $where[] = $this->spec['query-visible'];
+    if (array_key_exists('query-visible', $this->schema)) {
+      $where[] = $this->schema['query-visible'];
     }
 
     return sizeof($where) ? 'where ' . implode(' and ', $where) : '';
@@ -166,7 +166,7 @@ class DBApiTable {
     $set = array();
 
     foreach ($data as $key => $d) {
-      $field = $this->spec['fields'][$key];
+      $field = $this->schema['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
         $update_sub_table = false;
@@ -189,7 +189,7 @@ class DBApiTable {
   function _default_fields ($action) {
     $fields = array();
 
-    foreach ($this->spec['fields'] as $field_id => $field) {
+    foreach ($this->schema['fields'] as $field_id => $field) {
       if (!array_key_exists('include', $field) || $field['include'] === true) {
         $fields[] = $field_id;
       }
@@ -214,7 +214,7 @@ class DBApiTable {
         continue;
       }
 
-      $field = $this->spec['fields'][$key];
+      $field = $this->schema['fields'][$key];
 
       if (array_key_exists('type', $field) && in_array($field['type'], array('fun', 'sub_table'))) {
         continue;
@@ -237,7 +237,7 @@ class DBApiTable {
   function _build_order ($action) {
     $res = array();
 
-    $order = $action['order'] ?? $this->spec['order'] ?? array();
+    $order = $action['order'] ?? $this->schema['order'] ?? array();
 
     foreach ($order as $key) {
       $dir = 'asc';
@@ -249,7 +249,7 @@ class DBApiTable {
         $key = substr($key, 1);
       }
 
-      $field = $this->spec['fields'][$key];
+      $field = $this->schema['fields'][$key];
 
       if (array_key_exists('read', $field) && $field['read'] === false) {
         throw new Exception("permission denied, order by '{$key}'");
@@ -278,7 +278,7 @@ class DBApiTable {
       }
 
       foreach ($action['fields'] as $key) {
-        $field = $this->spec['fields'][$key];
+        $field = $this->schema['fields'][$key];
 
         if (array_key_exists('read', $field) && $field['read'] === false) {
           continue;
@@ -344,7 +344,7 @@ class DBApiTable {
     }
 
     foreach ($action['update'] as $key => $d) {
-      $field = $this->spec['fields'][$key];
+      $field = $this->schema['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
         $this->_update_sub_table($ids, $d, $key, $field);
@@ -460,7 +460,7 @@ class DBApiTable {
       }
 
       foreach ($elem as $key => $d) {
-        $field = $this->spec['fields'][$key];
+        $field = $this->schema['fields'][$key];
 
         if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
           $this->_update_sub_table(array($id), $d, $key, $field);
@@ -474,6 +474,6 @@ class DBApiTable {
   }
 
   function addField ($def) {
-    $this->spec['fields'][$def['id']] = $def;
+    $this->schema['fields'][$def['id']] = $def;
   }
 }

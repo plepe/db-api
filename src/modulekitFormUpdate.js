@@ -3,8 +3,8 @@ function modulekitFormUpdate (def, api, tableId, callback) {
   let todoFun = []
   let table = api.getTable(tableId)
 
-  handleValuesQueries(def, table.spec, todoQuery, todoFun)
-  checkFormRights(def, table.spec)
+  handleValuesQueries(def, table.schema, todoQuery, todoFun)
+  checkFormRights(def, table.schema)
 
   if (todoQuery.length === 0) {
     return callback(null)

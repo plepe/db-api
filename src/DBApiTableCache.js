@@ -58,7 +58,7 @@ class DBApiTableCache {
   }
 
   addToCache (action, result) {
-    let id_field = this.table.spec ? this.table.spec.id_field || 'id' : 'id'
+    let id_field = this.table.schema ? this.table.schema.id_field || 'id' : 'id'
     let ids = []
 
     for (var k in result) {

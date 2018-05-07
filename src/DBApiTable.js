@@ -1,12 +1,12 @@
 const DBApiTableCache = require('./DBApiTableCache')
 
 class DBApiTable {
-  constructor (spec) {
-    this.spec = spec
-    this.id = spec.id
+  constructor (schema) {
+    this.schema = schema
+    this.id = schema.id
 
-    this.id_field = this.spec.id_field
-    this.old_id_field = this.spec.old_id_field
+    this.id_field = this.schema.id_field
+    this.old_id_field = this.schema.old_id_field
 
     this.cache = new DBApiTableCache(this)
 
@@ -24,7 +24,7 @@ class DBApiTable {
   }
 
   addField (def) {
-    this.spec.fields[def.id] = def
+    this.schema.fields[def.id] = def
     this.funFields.push(def)
   }
 }

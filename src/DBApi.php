@@ -11,8 +11,8 @@ class DBApi {
     $this->tables = array();
   }
 
-  function addTable ($spec) {
-    $table = new DBApiTable($this->db, $spec);
+  function addTable ($schema) {
+    $table = new DBApiTable($this->db, $schema);
 
     $this->tables[$table->id] = $table;
 
