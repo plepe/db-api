@@ -131,6 +131,8 @@ class DBApi {
   }
 
   loadCache () {
+    delete this.toLoadTimer
+
     let query = []
     for (let tableId in this.toLoad) {
       let table = this.tables[tableId]
