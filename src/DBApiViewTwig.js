@@ -111,7 +111,8 @@ class DBApiViewTwig extends DBApiView {
           dom.appendChild(div)
 
           let data = {
-            entry: entry
+            entry: entry,
+            global: options.global
           }
 
           this.render(data, (err, r) => {
