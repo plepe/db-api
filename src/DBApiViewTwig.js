@@ -108,6 +108,7 @@ class DBApiViewTwig extends DBApiView {
       asyncForEach(result,
         (entry, index, callback) => {
           let div = document.createElement('div')
+          div.className = 'entry'
           dom.appendChild(div)
 
           let data = {
