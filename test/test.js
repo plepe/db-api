@@ -135,7 +135,8 @@ describe('DBApi', function () {
             {"name":"Alice","age":40,"weight":50,"nationality":"de","capitalName":"ALICE"},
             {"name":"Bob","age":35,"weight":82,"nationality":"at","capitalName":"BOB"},
             {"name":"Conny","age":35,"weight":50,"nationality":"uk","capitalName":"CONNY"},
-            {"name":"Dennis","age":67,"weight":68,"nationality":null,"capitalName":"DENNIS"}
+            {"name":"Dennis","age":67,"weight":68,"nationality":null,"capitalName":"DENNIS"},
+            {"name":"Emily","age":17,"weight":52,"nationality":null,"capitalName":"EMILY"}
           ]])
 
           done(err)
@@ -395,9 +396,9 @@ describe('DBApiViewTwig', () => {
     })
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
-      assert.deepEqual(ev.result, [ "Alice: Deutschland (de)", "Bob: Österreich (at)", "Conny: United Kingdom (uk)", "Dennis:  ()" ])
+      assert.deepEqual(ev.result, [ "Alice: Deutschland (de)", "Bob: Österreich (at)", "Conny: United Kingdom (uk)", "Dennis:  ()", "Emily:  ()" ])
 
-      let expected = '<div class="entry">Alice: Deutschland (de)</div><div class="entry">Bob: Österreich (at)</div><div class="entry">Conny: United Kingdom (uk)</div><div class="entry">Dennis:  ()</div>'
+      let expected = '<div class="entry">Alice: Deutschland (de)</div><div class="entry">Bob: Österreich (at)</div><div class="entry">Conny: United Kingdom (uk)</div><div class="entry">Dennis:  ()</div><div class="entry">Emily:  ()</div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
@@ -432,8 +433,8 @@ describe('DBApiExtDummy', () => {
     })
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
-      assert.deepEqual(ev.result, [ 'Alice', 'Bob', 'Conny', 'Dennis' ])
-      let expected = '<div class="entry">Alice<div>dummy</div></div><div class="entry">Bob<div>dummy</div></div><div class="entry">Conny<div>dummy</div></div><div class="entry">Dennis<div>dummy</div></div>'
+      assert.deepEqual(ev.result, [ 'Alice', 'Bob', 'Conny', 'Dennis', 'Emily' ])
+      let expected = '<div class="entry">Alice<div>dummy</div></div><div class="entry">Bob<div>dummy</div></div><div class="entry">Conny<div>dummy</div></div><div class="entry">Dennis<div>dummy</div></div><div class="entry">Emily<div>dummy</div></div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
@@ -468,8 +469,8 @@ describe('DBApiExtDummy', () => {
     })
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
-      assert.deepEqual(ev.result, [ 'Alice', 'Bob', 'Conny', 'Dennis' ])
-      let expected = '<div class="entry">Alice<div>dummy</div></div><div class="entry">Bob<div>dummy</div></div><div class="entry">Conny<div>dummy</div></div><div class="entry">Dennis<div>dummy</div></div>'
+      assert.deepEqual(ev.result, [ 'Alice', 'Bob', 'Conny', 'Dennis', 'Emily' ])
+      let expected = '<div class="entry">Alice<div>dummy</div></div><div class="entry">Bob<div>dummy</div></div><div class="entry">Conny<div>dummy</div></div><div class="entry">Dennis<div>dummy</div></div><div class="entry">Emily<div>dummy</div></div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })

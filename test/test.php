@@ -33,7 +33,8 @@ insert into test3 values
   ('Alice', '1978-01-01', 50, 'de'),
   ('Bob', '1982-03-25', 82, 'at'),
   ('Conny', '1982-08-12', 50, 'uk'),
-  ('Dennis', '1950-11-20', 68, null);
+  ('Dennis', '1950-11-20', 68, null),
+  ('Emily', '2001-01-20', 52, null);
 EOT
 );
 $res = $db->query('select * from test3_nationality');
@@ -714,6 +715,10 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $actual = iterator_to_array($actual);
     $expected = array (
       array (
+	'name' => 'Emily',
+	'age' => 17,
+      ),
+      array (
 	'name' => 'Bob',
 	'age' => 35,
       ),
@@ -743,6 +748,10 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     ));
     $actual = iterator_to_array($actual);
     $expected = array (
+      array (
+	'name' => 'Emily',
+	'age' => 17,
+      ),
       array (
 	'name' => 'Bob',
 	'age' => 35,
@@ -789,6 +798,10 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	'name' => 'Conny',
 	'age' => 35,
       ),
+      array (
+	'name' => 'Emily',
+	'age' => 17,
+      ),
     );
 
     $this->assertEquals($expected, $actual);
@@ -812,6 +825,11 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	'name' => 'Alice',
         'weight' => 50.0,
 	'age' => 40,
+      ),
+      array (
+	'name' => 'Emily',
+        'weight' => 52.0,
+	'age' => 17,
       ),
       array (
 	'name' => 'Dennis',
@@ -931,6 +949,13 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	'weight' => 68.0,
 	'nationality' => NULL,
 	'capitalName' => 'DENNIS',
+      ),
+      4 => array (
+	'name' => 'Emily',
+        'weight' => 52.0,
+	'age' => 17,
+        'nationality' => NULL,
+        'capitalName' => 'EMILY',
       ),
     );
 
@@ -1197,7 +1222,7 @@ EOT;
 
     $expected = <<<EOT
 <?xml version="1.0"?>
-<div><div>Alice: Deutschland (de)</div><div>Bob: &#xD6;sterreich (at)</div><div>Conny: United Kingdom (uk)</div><div>Dennis:  ()</div></div>
+<div><div>Alice: Deutschland (de)</div><div>Bob: &#xD6;sterreich (at)</div><div>Conny: United Kingdom (uk)</div><div>Dennis:  ()</div><div>Emily:  ()</div></div>
 
 EOT;
 
@@ -1226,7 +1251,7 @@ EOT;
 
     $expected = <<<EOT
 <?xml version="1.0"?>
-<div><div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div></div>
+<div><div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div><div>Emily<div>dummy</div></div></div>
 
 EOT;
 
@@ -1257,7 +1282,7 @@ EOT;
 
     $expected = <<<EOT
 <?xml version="1.0"?>
-<div><div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div></div>
+<div><div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div><div>Emily<div>dummy</div></div></div>
 
 EOT;
 
