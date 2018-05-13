@@ -266,7 +266,7 @@ describe('DBApiViewTwig', () => {
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ '1: 2\n' ])
-      let expected = '<div>1: 2\n</div>'
+      let expected = '<div class="entry">1: 2\n</div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
@@ -296,7 +296,7 @@ describe('DBApiViewTwig', () => {
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ '1\n2\n' ])
-      let expected = '<div>1\n2\n</div>'
+      let expected = '<div class="entry">1\n2\n</div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
@@ -326,14 +326,14 @@ describe('DBApiViewTwig', () => {
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ '1: 2\n', '2: 1\n' ])
-      let expected = '<div>1: 2\n</div><div>2: 1\n</div><div class="loadMore"><a href="#">load more</a></div>'
+      let expected = '<div class="entry">1: 2\n</div><div class="entry">2: 1\n</div><div class="loadMore"><a href="#">load more</a></div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
 
       view.once('show', ev => {
         assert.equal(ev.error, null, 'Error should be null')
         assert.deepEqual(ev.result, [ '3: 2\n', '4: 2\n' ])
-        let expected = '<div>1: 2\n</div><div>2: 1\n</div><div>3: 2\n</div><div>4: 2\n</div>'
+        let expected = '<div class="entry">1: 2\n</div><div class="entry">2: 1\n</div><div class="entry">3: 2\n</div><div class="entry">4: 2\n</div>'
         assert.equal(dom.innerHTML, expected)
         stepDone()
       })
@@ -365,7 +365,7 @@ describe('DBApiViewTwig', () => {
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ '1: 2\n', '2: 1\n', '3: 2\n', '4: 2\n' ])
-      let expected = '<div>1: 2\n</div><div>2: 1\n</div><div>3: 2\n</div><div>4: 2\n</div>'
+      let expected = '<div class="entry">1: 2\n</div><div class="entry">2: 1\n</div><div class="entry">3: 2\n</div><div class="entry">4: 2\n</div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
@@ -397,7 +397,7 @@ describe('DBApiViewTwig', () => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ "Alice: Deutschland (de)", "Bob: Österreich (at)", "Conny: United Kingdom (uk)", "Dennis:  ()" ])
 
-      let expected = '<div>Alice: Deutschland (de)</div><div>Bob: Österreich (at)</div><div>Conny: United Kingdom (uk)</div><div>Dennis:  ()</div>'
+      let expected = '<div class="entry">Alice: Deutschland (de)</div><div class="entry">Bob: Österreich (at)</div><div class="entry">Conny: United Kingdom (uk)</div><div class="entry">Dennis:  ()</div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
@@ -433,7 +433,7 @@ describe('DBApiExtDummy', () => {
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ 'Alice', 'Bob', 'Conny', 'Dennis' ])
-      let expected = '<div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div>'
+      let expected = '<div class="entry">Alice<div>dummy</div></div><div class="entry">Bob<div>dummy</div></div><div class="entry">Conny<div>dummy</div></div><div class="entry">Dennis<div>dummy</div></div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
@@ -469,7 +469,7 @@ describe('DBApiExtDummy', () => {
     view.once('show', ev => {
       assert.equal(ev.error, null, 'Error should be null')
       assert.deepEqual(ev.result, [ 'Alice', 'Bob', 'Conny', 'Dennis' ])
-      let expected = '<div>Alice<div>dummy</div></div><div>Bob<div>dummy</div></div><div>Conny<div>dummy</div></div><div>Dennis<div>dummy</div></div>'
+      let expected = '<div class="entry">Alice<div>dummy</div></div><div class="entry">Bob<div>dummy</div></div><div class="entry">Conny<div>dummy</div></div><div class="entry">Dennis<div>dummy</div></div>'
       assert.equal(dom.innerHTML, expected)
       stepDone()
     })
