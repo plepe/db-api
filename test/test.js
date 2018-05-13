@@ -453,6 +453,58 @@ describe('DBApiViewTwig', () => {
     })
     view.show(dom, { step: 0 })
   })
+
+  it('test3 - show step with pre/post', (done) => {
+    let doneCount = 0
+    function stepDone (err) {
+      if (++doneCount >= 5) {
+        done()
+      }
+    }
+
+    let view = api.createView({
+      type: 'Twig',
+      each: '{{ entry.name }}',
+      pre: 'foo',
+      post: 'bar'
+    }, { twig })
+    let dom = document.createElement('div')
+    view.set_query({ table: 'test3' })
+    view.once('loadstart', ev => {
+      stepDone()
+    })
+    view.once('loadend', ev => {
+      stepDone()
+    })
+    view.once('show', ev => {
+      assert.equal(ev.error, null, 'Error should be null')
+      assert.deepEqual(ev.result, [ 'Alice', 'Bob' ])
+      let expected = '<div class="pre">foo</div><div class="entry">Alice</div><div class="entry">Bob</div><div class="loadMore"><a href="#">load more</a></div><div class="post">bar</div>'
+      assert.equal(dom.innerHTML, expected)
+      stepDone()
+
+      view.once('show', ev => {
+        assert.equal(ev.error, null, 'Error should be null')
+        assert.deepEqual(ev.result, [ 'Conny', 'Dennis' ])
+        let expected = '<div class="pre">foo</div><div class="entry">Alice</div><div class="entry">Bob</div><div class="entry">Conny</div><div class="entry">Dennis</div><div class="loadMore"><a href="#">load more</a></div><div class="post">bar</div>'
+        assert.equal(dom.innerHTML, expected)
+        stepDone()
+
+        view.once('show', ev => {
+          assert.equal(ev.error, null, 'Error should be null')
+          assert.deepEqual(ev.result, [ 'Emily' ])
+          let expected = '<div class="pre">foo</div><div class="entry">Alice</div><div class="entry">Bob</div><div class="entry">Conny</div><div class="entry">Dennis</div><div class="entry">Emily</div><div class="post">bar</div>'
+          assert.equal(dom.innerHTML, expected)
+          stepDone()
+        })
+
+        ev.showMoreFunction()
+      })
+      ev.showMoreFunction()
+    })
+    view.show(dom, { step: 2 })
+  })
+
 })
 
 describe('DBApiExtDummy', () => {

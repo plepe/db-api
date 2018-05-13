@@ -1,6 +1,9 @@
 const DBApiView = require('./DBApiView')
 const emptyElement = require('@f/empty-element')
-const asyncForEach = require('async/eachOf')
+const async = {
+  each: require('async/eachOf'),
+  parallel: require('async/parallel')
+}
 
 let _CacheCallback
 let _NeedReload
@@ -29,19 +32,29 @@ class DBApiViewTwig extends DBApiView {
     this.template = this.twig.twig({
       data: Array.isArray(this.def.each) ? this.def.each.join('\n') : this.def.each
     })
+    if (this.def.pre) {
+      this.templatePre = this.twig.twig({
+        data: Array.isArray(this.def.pre) ? this.def.pre.join('\n') : this.def.pre
+      })
+    }
+    if (this.def.post) {
+      this.templatePost = this.twig.twig({
+        data: Array.isArray(this.def.post) ? this.def.post.join('\n') : this.def.post
+      })
+    }
 
     callback()
   }
 
-  render (data, callback) {
+  render (data, template, callback) {
     let result
 
     _NeedReload = false
     _CacheCallback = () => {
-      callback(null, this.template.render(data))
+      callback(null, template.render(data))
     }
 
-    result = this.template.render(data)
+    result = template.render(data)
 
     if (!_NeedReload) {
       callback(null, result)
@@ -105,31 +118,80 @@ class DBApiViewTwig extends DBApiView {
         emptyElement(dom)
       }
 
-      asyncForEach(result,
-        (entry, index, callback) => {
-          let div = document.createElement('div')
-          div.className = 'entry'
-          dom.appendChild(div)
+      async.parallel([
+        (done) => {
+          if (start === 0 && this.templatePre) {
+            let div = document.createElement('div')
+            div.className = 'pre'
+            dom.appendChild(div)
 
-          let data = {
-            entry: entry,
-            global: options.global
-          }
+            let data = {
+              global: options.global
+            }
 
-          this.render(data, (err, r) => {
-            div.innerHTML = r
-            renderedResult[index] = r
-
-            this.emit('showEntry', {
-              dom: div,
-              entry,
-              table: this.query.table,
-              error: null
+            this.render(data, this.templatePre, (err, result) => {
+              div.innerHTML = result
+              done(err)
             })
-
-            callback()
-          })
+          } else {
+            done()
+          }
         },
+
+        (done) => {
+          if (start === 0 && this.templatePost) {
+            let div = document.createElement('div')
+            div.className = 'post'
+            dom.appendChild(div)
+
+            let data = {
+              global: options.global
+            }
+
+            this.render(data, this.templatePost, (err, result) => {
+              div.innerHTML = result
+              done(err)
+            })
+          } else {
+            done()
+          }
+        },
+
+        (done) => {
+          async.each(result,
+            (entry, index, callback) => {
+              let div = document.createElement('div')
+              div.className = 'entry'
+              if (dom.lastChild && dom.lastChild.className === 'post') {
+                dom.insertBefore(div, dom.lastChild)
+              } else {
+                dom.appendChild(div)
+              }
+
+              let data = {
+                entry: entry,
+                global: options.global
+              }
+
+              this.render(data, this.template, (err, r) => {
+                div.innerHTML = r
+                renderedResult[index] = r
+
+                this.emit('showEntry', {
+                  dom: div,
+                  entry,
+                  table: this.query.table,
+                  error: null
+                })
+
+                callback(err)
+              })
+            },
+            (err) => {
+              done()
+            }
+          )}
+        ],
         () => {
           let showMoreFunction
           if (divMore) {
@@ -139,7 +201,11 @@ class DBApiViewTwig extends DBApiView {
             divMore = document.createElement('div')
             divMore.className = 'loadMore'
             showMoreFunction = this.show.bind(this, dom, options, callback, start + options.step, next, divMore)
-            dom.appendChild(divMore)
+            if (dom.lastChild && dom.lastChild.className === 'post') {
+              dom.insertBefore(divMore, dom.lastChild)
+            } else {
+              dom.appendChild(divMore)
+            }
 
             let a = document.createElement('a')
             a.href = '#'
