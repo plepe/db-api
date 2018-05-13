@@ -7,7 +7,8 @@ let viewExtensions = {
   'Dummy': require('./DBApiExtDummy'),
   'Leaflet': require('./DBApiExtLeaflet'),
   'ModulekitFormLeaflet': require('./DBApiExtModulekitFormLeaflet'),
-  'InlineForm': require('./DBApiExtInlineForm')
+  'InlineForm': require('./DBApiExtInlineForm'),
+  'ImageExport': require('./DBApiExtImageExport')
 }
 
 class DBApiView {
