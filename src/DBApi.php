@@ -23,8 +23,9 @@ class DBApi {
     return $this->tables[$id];
   }
 
-  function do ($actions) {
-    $this->db->beginTransaction();
+  function do ($actions, $options=array()) {
+    $changeset = new DBApiChangeset($this, $options);
+    $changeset->beginTransaction();
 
     foreach ($actions as $i => $action) {
       if (!array_key_exists('table', $action)) {
@@ -50,19 +51,19 @@ class DBApi {
       try {
         switch ($action['action'] ?? 'select') {
           case 'update':
-            yield $this->tables[$action['table']]->update($action);
+            yield $this->tables[$action['table']]->update($action, $changeset);
             break;
           case 'insert-update':
-            yield $this->tables[$action['table']]->insert_update($action['data']);
+            yield $this->tables[$action['table']]->insert_update($action['data'], $changeset);
             break;
           case 'select':
-            yield $this->tables[$action['table']]->select($action);
+            yield $this->tables[$action['table']]->select($action, $changeset);
             break;
           case 'delete':
-            yield $this->tables[$action['table']]->delete($action);
+            yield $this->tables[$action['table']]->delete($action, $changeset);
             break;
           case 'schema':
-            yield $this->tables[$action['table']]->schema($action);
+            yield $this->tables[$action['table']]->schema($action, $changeset);
             break;
           case 'nop':
             yield;
@@ -71,12 +72,14 @@ class DBApi {
             throw new Exception("No such action '{$action['action']}'");
         }
       } catch (Exception $e) {
-        $this->db->rollBack();
+        $changeset->rollBack();
         throw $e;
       }
     }
 
-    $this->db->commit();
+    $changeset->commit();
+
+    return $changeset;
   }
 
   function createView ($def=array(), $options=array()) {

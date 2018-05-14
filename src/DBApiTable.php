@@ -320,7 +320,11 @@ class DBApiTable {
   /*
    * @return [string] queries
    */
-  function update ($action) {
+  function update ($action, $changeset=null) {
+    if (!$changeset) {
+      $changeset = new DBApiChangeset($this->api);
+    }
+
     $queries = array();
 
     $update_sub_table = false;
@@ -336,6 +340,7 @@ class DBApiTable {
       $res = $this->db->query($qry);
       while ($elem = $res->fetch()) {
         $ids[] = $elem['id'];
+        $changeset->add($this, $elem['id']);
       }
     //}
 
@@ -348,14 +353,14 @@ class DBApiTable {
       $field = $this->schema['fields'][$key];
 
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-        $this->_update_sub_table($ids, $d, $key, $field);
+        $this->_update_sub_table($ids, $d, $key, $field, $changeset);
       }
     }
 
     return isset($ids) ? $ids : true;
   }
 
-  function _update_sub_table($ids, $data, $key, $field) {
+  function _update_sub_table($ids, $data, $key, $field, $changeset) {
     $sub_table = $this->sub_tables[$key];
 
     foreach ($ids as $id) {
@@ -388,20 +393,34 @@ class DBApiTable {
           $data[$i1][$field['parent_field']] = $id;
         }
       }
-      $sub_table->insert_update($data);
+      $sub_table->insert_update($data, $changeset);
 
       // delete sub fields which are no longer part of parent field
       foreach ($current_sub_ids as $sub_id) {
         $sub_table->delete(array(
           'id' => $sub_id
-        ));
+        ), $changeset);
       }
     }
   }
 
-  function delete ($action) {
-    $res = $this->db->query("delete from {$this->table_quoted}" .
-      $this->_build_query($action));
+  function delete ($action, $changeset=null) {
+    if (!$changeset) {
+      $changeset = new DBApiChangeset($this->api);
+    }
+
+    $query = $this->_build_query($action);
+
+    $ids = array();
+    $qry = "select {$this->id_field_quoted} as `id` " .
+           "from {$this->table_quoted} {$query}";
+    $res = $this->db->query($qry);
+    while ($elem = $res->fetch()) {
+      $ids[] = $elem['id'];
+      $changeset->remove($this, $elem['id']);
+    }
+
+    $res = $this->db->query("delete from {$this->table_quoted} {$query}");
 
     return array('count' => $res->rowCount());
   }
@@ -409,7 +428,11 @@ class DBApiTable {
   /*
    * @return [string] queries
    */
-  function insert_update ($action) {
+  function insert_update ($action, $changeset=null) {
+    if (!$changeset) {
+      $changeset = new DBApiChangeset($this->api);
+    }
+
     $queries = array();
 
     foreach ($action as $elem) {
@@ -449,14 +472,17 @@ class DBApiTable {
             '() values ()');
           $id = $this->db->lastInsertId();
         }
+        $changeset->add($this, $id);
       }
       else {
         if ($set !== '') {
+          $changeset->remove($this, $id);
           $this->db->query(
             "update {$this->table_quoted} " .
             ' set ' . $set .
             " where {$this->id_field_quoted}=" . $this->db->quote($id));
           $id = array_key_exists($this->id_field, $elem) ? $elem[$this->id_field] : $id;
+          $changeset->add($this, $id);
         }
       }
 
@@ -464,7 +490,7 @@ class DBApiTable {
         $field = $this->schema['fields'][$key];
 
         if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-          $this->_update_sub_table(array($id), $d, $key, $field);
+          $this->_update_sub_table(array($id), $d, $key, $field, $changeset);
         }
       }
 

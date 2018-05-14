@@ -18,5 +18,6 @@ $include = array(
     'src/emptyElement.php',
     'src/DBApiExt.php',
     'src/DBApiExtDummy.php',
+    'src/DBApiChangeset.php',
   ),
 );
