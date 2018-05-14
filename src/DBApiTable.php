@@ -1,14 +1,15 @@
 <?php
 class DBApiTable {
-  function __construct ($db, $schema) {
-    $this->db = $db;
+  function __construct ($api, $schema) {
+    $this->api = $api;
+    $this->db = $api->db;
     $this->schema = $schema;
     $this->id = $this->schema['id'];
     $this->sub_tables = array();
 
     foreach ($this->schema['fields'] as $key => $field) {
       if (array_key_exists('type', $field) && $field['type'] === 'sub_table') {
-        $this->sub_tables[$key] = new DBApiTable($this->db, $field);
+        $this->sub_tables[$key] = new DBApiTable($this->api, $field);
       }
     }
 

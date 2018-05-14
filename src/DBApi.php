@@ -12,7 +12,7 @@ class DBApi {
   }
 
   function addTable ($schema) {
-    $table = new DBApiTable($this->db, $schema);
+    $table = new DBApiTable($this, $schema);
 
     $this->tables[$table->id] = $table;
 
