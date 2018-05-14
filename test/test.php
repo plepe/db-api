@@ -52,6 +52,12 @@ include "structure.php";
  * @backupGlobals disabled
  */
 class db_api_test extends PHPUnit_Framework_TestCase {
+  public function testDumpInitial () {
+    global $api;
+    $history = new DBApiHistory($api);
+    $history->dump();
+  }
+
   public function testBuildLoadQuery1 () {
     global $table1;
 
@@ -1292,5 +1298,11 @@ EOT;
     $view->show($dom);
 
     $this->assertEquals($expected, $document->saveXML());
+  }
+
+  public function testDump () {
+    global $api;
+    $history = new DBApiHistory($api);
+    $history->dump();
   }
 }
