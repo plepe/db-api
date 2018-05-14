@@ -1,11 +1,13 @@
 <?php
 global $_dbApiViewTwigApi;
+global $_dbApiViewTwigChangeset;
 
 register_hook('twig_init', function () {
   global $twig;
 
   $twig->addFilter(new Twig_SimpleFilter('dbApiGet', function($value, $table) {
     global $_dbApiViewTwigApi;
+    global $_dbApiViewTwigChangeset;
     
     if ($value === null) {
       return null;
@@ -14,7 +16,9 @@ register_hook('twig_init', function () {
     $result = iterator_to_array_deep($_dbApiViewTwigApi->do(array(array(
       'table' => $table,
       'id' => $value,
-    ))));
+    )), array(
+      'changeset' => $_dbApiViewTwigChangeset
+    )));
 
     if (sizeof($result[0])) {
       return $result[0][0];
@@ -40,6 +44,7 @@ class DBApiViewTwig extends DBApiView {
 
   function show ($dom, $options=array()) {
     global $_dbApiViewTwigApi;
+    global $_dbApiViewTwigChangeset;
     $document = $dom->ownerDocument;
     $renderedResult = array();
 
@@ -50,6 +55,7 @@ class DBApiViewTwig extends DBApiView {
 
       $newDom=new DOMDocument();
       $_dbApiViewTwigApi = $this->api;
+      $_dbApiViewTwigChangeset = new DBApiChangeset($this->api);
       $r = $this->render($data);
       $renderedResult[] = $r;
       $newDom->loadHTML("<?xml encoding='UTF-8'><html><body><div>{$r}</div></body></html>");

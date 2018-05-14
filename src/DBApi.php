@@ -24,8 +24,12 @@ class DBApi {
   }
 
   function do ($actions, $options=array()) {
-    $changeset = new DBApiChangeset($this, $options);
-    $changeset->beginTransaction();
+    if (array_key_exists('changeset', $options)) {
+      $changeset = $options['changeset'];
+    } else {
+      $changeset = new DBApiChangeset($this, $options);
+      $changeset->beginTransaction();
+    }
 
     foreach ($actions as $i => $action) {
       if (!array_key_exists('table', $action)) {
@@ -77,7 +81,9 @@ class DBApi {
       }
     }
 
-    $changeset->commit();
+    if (!array_key_exists('changeset', $options)) {
+      $changeset->commit();
+    }
 
     return $changeset;
   }
