@@ -5,6 +5,7 @@ class DBApiHistory {
     $this->api->history = $this;
     $this->path = $options['path'];
 
+    $this->tables = array();
   }
 
   function checkInitialCommit () {
@@ -13,6 +14,14 @@ class DBApiHistory {
       $this->dump();
       $this->commit(new DBApiChangeset($this->api, array('message' => 'initial commit')));
     }
+  }
+
+  function setTable ($schema) {
+    $table = new DBApiTable($this->api, $schema);
+
+    $this->tables[$table->id] = $table;
+
+    return $table;
   }
 
   function clearRepo ($subPath='') {
@@ -38,6 +47,9 @@ class DBApiHistory {
 
   function writeFiles ($tableId, $ids) {
     $table = $this->api->tables[$tableId];
+    if (array_key_exists($tableId, $this->tables)) {
+      $table = $this->tables[$tableId];
+    }
 
     foreach ($table->select(array('id' => $ids)) as $entry) {
       $id = $entry[$table->id_field];
@@ -83,6 +95,10 @@ class DBApiHistory {
 
     foreach ($this->api->tables as $table) {
       mkdir("{$this->path}/{$table->id}");
+
+      if (array_key_exists($table->id, $this->tables)) {
+        $table = $this->tables[$table->id];
+      }
 
       foreach ($table->select() as $entry) {
         $id = $entry[$table->id_field];
