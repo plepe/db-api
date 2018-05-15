@@ -5,6 +5,9 @@ class DBApiHistory {
     $this->api->history = $this;
     $this->path = $options['path'];
 
+  }
+
+  function checkInitialCommit () {
     if (!is_dir("{$this->path}/.git")) {
       exec("cd " . escapeShellArg($this->path) . "; git init", $out);
       $this->dump();
