@@ -33,14 +33,21 @@ class DBApiHistory {
     return true;
   }
 
-  function writeFile ($tableId, $id, $entry) {
-    file_put_contents("{$this->path}/{$tableId}/{$id}.json", json_readable_encode($entry) . "\n");
-    exec("cd " . escapeShellArg($this->path) . "; git add " . escapeShellArg("{$tableId}/{$id}.json"));
+  function writeFiles ($tableId, $ids) {
+    $table = $this->api->tables[$tableId];
+
+    foreach ($table->select(array('id' => $ids)) as $entry) {
+      $id = $entry[$table->id_field];
+      file_put_contents("{$this->path}/{$tableId}/{$id}.json", json_readable_encode($entry) . "\n");
+      exec("cd " . escapeShellArg($this->path) . "; git add " . escapeShellArg("{$tableId}/{$id}.json"));
+    }
   }
 
-  function removeFile ($tableId, $id) {
-    unlink("{$this->path}/{$tableId}/{$id}.json");
-    exec("cd " . escapeShellArg($this->path) . "; git rm --cached " . escapeShellArg("{$tableId}/{$id}.json"));
+  function removeFiles ($tableId, $ids) {
+    foreach ($ids as $id) {
+      unlink("{$this->path}/{$tableId}/{$id}.json");
+      exec("cd " . escapeShellArg($this->path) . "; git rm --cached " . escapeShellArg("{$tableId}/{$id}.json"));
+    }
   }
 
   function commit ($changeset) {
@@ -76,7 +83,7 @@ class DBApiHistory {
 
       foreach ($table->select() as $entry) {
         $id = $entry[$table->id_field];
-        $this->writeFile($table->id, $id, $entry);
+        file_put_contents("{$this->path}/{$table->id}/{$id}.json", json_readable_encode($entry) . "\n");
       }
     }
 

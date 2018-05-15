@@ -53,19 +53,12 @@ class DBApiChangeset {
       return;
     }
 
-    foreach ($this->removed_objects as $tableId=>$entries) {
-      foreach ($entries as $id) {
-        $this->api->history->removeFile($tableId, $id);
-      }
+    foreach ($this->removed_objects as $tableId=>$ids) {
+      $this->api->history->removeFiles($tableId, $ids);
     }
 
-    foreach ($this->objects as $tableId=>$entries) {
-      $table = $this->api->tables[$tableId];
-
-      foreach ($table->select(array('id' => $entries)) as $entry) {
-        $id = $entry[$table->id_field];
-        $this->api->history->writeFile($tableId, $id, $entry);
-      }
+    foreach ($this->objects as $tableId=>$ids) {
+      $this->api->history->writeFiles($tableId, $ids);
     }
 
     $this->objects = null;
