@@ -10,7 +10,7 @@
     "test": "npm run phptest && npm run jstest",
     "lint": "standard src/*.js",
     "jstest": "mocha --bail",
-    "phptest": "phpunit --stop-on-failure test/test.php",
+    "phptest": "rm -rf test/data && phpunit --stop-on-failure test/test.php",
     "build": "browserify src/index.js -o dist/build.js",
     "watch": "watchify --debug src/index.js -o dist/build.js -v"
   },

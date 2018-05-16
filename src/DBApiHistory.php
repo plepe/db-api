@@ -1,6 +1,6 @@
 <?php
 class DBApiHistory {
-  function __construct ($api, $options) {
+  function __construct ($api, $options=array()) {
     $this->api = $api;
     $this->api->history = $this;
     $this->path = $options['path'];
