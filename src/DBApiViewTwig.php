@@ -13,7 +13,7 @@ register_hook('twig_init', function () {
       return null;
     }
 
-    $result = iterator_to_array_deep($_dbApiViewTwigApi->do(array(array(
+    $result = iterator_to_array_deep($_dbApiViewTwigApi->exec(array(array(
       'table' => $table,
       'id' => $value,
     )), array(

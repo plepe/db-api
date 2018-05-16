@@ -39,7 +39,7 @@ class DBApiView {
       start: 0
     })
 
-    this.api.do([ this.query ], (err, result) => {
+    this.api.exec([ this.query ], (err, result) => {
       this.emit('loadend', {
         query: this.query,
         error: err,

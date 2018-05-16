@@ -23,7 +23,7 @@ class DBApi {
     return $this->tables[$id];
   }
 
-  function do ($actions, $options=array()) {
+  function exec ($actions, $options=array()) {
     if (array_key_exists('changeset', $options)) {
       $changeset = $options['changeset'];
     } else {
@@ -110,7 +110,7 @@ class DBApi {
     $error = false;
 
     try {
-      foreach ($this->do($actions) as $i => $result) {
+      foreach ($this->exec($actions) as $i => $result) {
         $output .= $i === 0 ? "\n" : "\n] ,[\n";
         foreach ($result as $j => $elem) {
           $output .= $j === 0 ? '' : ",\n";

@@ -989,7 +989,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	array ( 'commentsCount' => 2, 'id' => 1,),
       ),
     );
-    $actual = iterator_to_array_deep($api->do(
+    $actual = iterator_to_array_deep($api->exec(
       array(
         array(
           'table' => 'test1',
@@ -1044,7 +1044,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	),
       ),
     );
-    $actual = iterator_to_array_deep($api->do(
+    $actual = iterator_to_array_deep($api->exec(
       array(
         array(
           'table' => 'test1',
@@ -1100,7 +1100,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 
     $expected = "permission denied";
     try {
-      iterator_to_array_deep($api->do(
+      iterator_to_array_deep($api->exec(
         array(
           array(
             'table' => 'test1',

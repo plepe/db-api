@@ -21,7 +21,7 @@ describe('DBApi', function () {
 
   describe('do', function () {
     it('should return something', function (done) {
-      api.do(
+      api.exec(
         [
           { table: 'test2' }
         ],
@@ -38,7 +38,7 @@ describe('DBApi', function () {
           { table: 'test2' }
         ]
 
-      api.do(actions,
+      api.exec(actions,
         function (err, result) {
           assert.equal(!!result, true)
           assert.deepEqual(result, [[{"id":1,"commentsCount":2,"comments":[{"test2_id":1,"id":2,"text":"foobar"},{"test2_id":1,"id":4,"text":"foobar2"}]},{"id":2,"commentsCount":1,"comments":[{"test2_id":2,"id":3,"text":"foobar"}]},{"id":3,"commentsCount":2,"comments":[{"test2_id":3,"id":5,"text":"foobar"},{"test2_id":3,"id":6,"text":"foobar2"}]},{"id":4,"commentsCount":2,"comments":[{"test2_id":4,"id":7,"text":"foobar"},{"test2_id":4,"id":8,"text":"foobar2"}]}]])
@@ -56,7 +56,7 @@ describe('DBApi', function () {
           { table: 'test2', id: 1 }
         ]
 
-      api.do(actions,
+      api.exec(actions,
         function (err, result) {
           assert.equal(!!result, true)
           assert.deepEqual(actions, [{ "table": "test2", "id": 1, "action": "select", "cacheIndex": 0 }, { "table": "test2", "id": 1, "action": "nop", "cacheIndex": 0 }])
@@ -76,7 +76,7 @@ describe('DBApi', function () {
               { table: 'test2', id: 1 }
             ]
 
-          api.do(actions,
+          api.exec(actions,
             function (err, result) {
               assert.equal(!!result, true)
               assert.deepEqual(actions, [{ "table": "test2", "id": 1, "action": "select", "cacheIndex": 0 }, { "table": "test2", "id": 1, "action": "nop", "cacheIndex": 0 }])
@@ -90,7 +90,7 @@ describe('DBApi', function () {
               { table: 'test2', id: 1 }
             ]
 
-          api.do(actions,
+          api.exec(actions,
             function (err, result) {
               assert.equal(!!result, true)
               assert.deepEqual(actions, [{ "table": "test2", "id": 1, "action": "nop", "cacheIndex": 0 }])
@@ -125,7 +125,7 @@ describe('DBApi', function () {
         }
       })
 
-      api.do(
+      api.exec(
         [
           { table: 'test3' }
         ],
