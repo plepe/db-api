@@ -85,8 +85,6 @@ class DBApi {
     if (!array_key_exists('changeset', $options)) {
       $changeset->commit();
     }
-
-    return $changeset;
   }
 
   function createView ($def=array(), $options=array()) {
