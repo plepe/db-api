@@ -58,7 +58,7 @@ class DBApiExtInlineForm extends DBApiExt {
               form: fieldForm
             })
 
-            this.api.do([
+            this.api.exec([
               {
                 action: 'update',
                 table: tableId,

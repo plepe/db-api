@@ -10,7 +10,7 @@ function modulekitFormUpdate (def, api, tableId, callback) {
     return callback(null)
   }
 
-  api.do(todoQuery, (err, result) => {
+  api.exec(todoQuery, (err, result) => {
     if (err) {
       return callback(err)
     }

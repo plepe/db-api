@@ -63,7 +63,7 @@ class DBApiViewModulekitForm extends DBApiView {
         query.cache = false
         changeset = changeset.concat(query)
 
-        this.api.do(changeset, (err, result) => {
+        this.api.exec(changeset, (err, result) => {
           if (!err) {
             this.form.set_orig_data(result[1])
             this.form.set_data(result[1])

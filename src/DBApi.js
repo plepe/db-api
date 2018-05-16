@@ -17,7 +17,7 @@ class DBApi {
     this.options = options
     this.tables = {}
 
-    this.do(
+    this.exec(
       [{
         action: 'schema'
       }],
@@ -39,7 +39,7 @@ class DBApi {
     return this.tables[id]
   }
 
-  do (actions, callback) {
+  exec (actions, callback) {
     let allActionsAreNop = true
     for (let k in actions) {
       if ('table' in actions[k]) {
@@ -146,7 +146,7 @@ class DBApi {
 
     var callbacks = this.toLoadCallbacks
     var loading = this.toLoad
-    this.do(query, (err, result) => {
+    this.exec(query, (err, result) => {
       if (err) {
         return callbacks.forEach(callback => callback(err))
       }

@@ -27,7 +27,7 @@ class DBApiView extends Evenement\EventEmitter {
   }
 
   function get () {
-    return iterator_to_array($this->api->do(array($this->query)))[0];
+    return iterator_to_array($this->api->exec(array($this->query)))[0];
   }
 
   function show ($dom, $options=array()) {
