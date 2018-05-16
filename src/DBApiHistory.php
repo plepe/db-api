@@ -84,7 +84,8 @@ class DBApiHistory {
 	     "-c user.name=" . escapeShellArg($user) . " " .
 	     "-c user.email=" . escapeShellArg($email) . " " .
 	     "commit " .
-	     "-a -m " . escapeShellArg($changeset->options['message'] ?? '') . " " .
+	     // "-a -m " . escapeShellArg($changeset->options['message'] ?? '') . " " . // PHP7
+	     "-a -m " . escapeShellArg(array_key_exists('message', $changeset->options) ? $changeset->options['message'] : '') . " " .
 	     "--allow-empty-message ".
 	     "--author=" . escapeShellArg("{$user} <{$email}>")
 	  );

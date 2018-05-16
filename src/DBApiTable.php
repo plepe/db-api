@@ -17,8 +17,11 @@ class DBApiTable {
       $this->schema['table'] = $this->schema['id'];
     }
 
-    $this->id_field = $this->schema['id_field'] ?? 'id';
-    $this->old_id_field = $this->schema['old_id_field'] ?? '__id';
+    // PHP7
+    // $this->id_field = $this->schema['id_field'] ?? 'id';
+    // $this->old_id_field = $this->schema['old_id_field'] ?? '__id';
+    $this->id_field = array_key_exists('id_field', $this->schema) ? $this->schema['id_field'] : 'id';
+    $this->old_id_field = array_key_exists('old_id_field', $this->schema) ? $this->schema['old_id_field'] : '__id';
     if (array_key_exists('parent_field', $this->schema)) {
       $this->parent_field = $this->schema['parent_field'];
       $this->parent_field_quoted = $this->db->quoteIdent($this->schema['parent_field']);
@@ -83,7 +86,8 @@ class DBApiTable {
 
     $key_quoted = $this->_build_column($query['key']);
 
-    switch ($query['op'] ?? '=') {
+    // switch ($query['op'] ?? '=') { // PHP7
+    switch (array_key_exists('op', $query) ? $query['op'] : '=') {
       case 'in':
         if (sizeof($query['value'])) {
           return "{$key_quoted} in (" . implode(', ', array_map(function ($v) { return $this->db->quote($v); }, $query['value'])) . ')';
@@ -178,7 +182,8 @@ class DBApiTable {
         throw new Exception('permission denied');
       }
 
-      $set[] = $this->db->quoteIdent($field['column'] ?? $key) . '=' . $this->db->quote($d);
+      // $set[] = $this->db->quoteIdent($field['column'] ?? $key) . '=' . $this->db->quote($d); // PHP7
+      $set[] = $this->db->quoteIdent(array_key_exists('column', $field) ? $field['column'] : $key) . '=' . $this->db->quote($d);
     }
 
     if (sizeof($set)) {
@@ -226,7 +231,8 @@ class DBApiTable {
       }
     }
 
-    if ($action['old_id'] ?? false) {
+    // if ($action['old_id'] ?? false) { // PHP7
+    if (array_key_exists('old_id', $action) ? $action['old_id'] : false) {
       $select[] = $this->id_field_quoted . ' as ' . $this->old_id_field_quoted;
     }
 
@@ -238,7 +244,10 @@ class DBApiTable {
   function _build_order ($action) {
     $res = array();
 
-    $order = $action['order'] ?? $this->schema['order'] ?? array();
+    // $order = $action['order'] ?? $this->schema['order'] ?? array(); // PHP7
+    $order = array_key_exists('order', $action) ? $action['order']
+           : (array_key_exists('order', $this->schema) ? $this->schema['order']
+           : array());
 
     foreach ($order as $key) {
       $dir = 'asc';
@@ -285,7 +294,8 @@ class DBApiTable {
           continue;
         }
 
-        switch ($field['type'] ?? 'string') {
+        // switch ($field['type'] ?? 'string') { // PHP7
+        switch (array_key_exists('type', $field) ? $field['type'] : 'string') {
           case 'string':
             break;
           case 'boolean':
@@ -303,7 +313,8 @@ class DBApiTable {
               'query' => array(
                 array('key' => $field['parent_field'], 'op' => '=', 'value' => $id)
               ),
-              'old_id' => $action['old_id'] ?? false,
+              // 'old_id' => $action['old_id'] ?? false, // PHP7
+              'old_id' => array_key_exists('old_id', $action) ? $action['old_id'] : false,
             )));
             break;
           case 'fun':

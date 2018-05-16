@@ -53,7 +53,8 @@ class DBApi {
       }
 
       try {
-        switch ($action['action'] ?? 'select') {
+        //switch ($action['action'] ?? 'select') { // PHP7
+        switch (array_key_exists('action', $action) ? $action['action'] : 'select') {
           case 'update':
             yield $this->tables[$action['table']]->update($action, $changeset);
             break;
