@@ -11,7 +11,7 @@ class DBApiHistory {
   function checkInitialCommit () {
     if (!is_dir("{$this->path}/.git")) {
       exec("cd " . escapeShellArg($this->path) . "; git init", $out);
-      $changeset = new DBApiChangeset($this->api, array('message' => 'initial commit'))
+      $changeset = new DBApiChangeset($this->api, array('message' => 'initial commit'));
       $this->dump($changeset);
       $this->commit($changeset);
     }
