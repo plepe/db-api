@@ -11,8 +11,9 @@ class DBApiHistory {
   function checkInitialCommit () {
     if (!is_dir("{$this->path}/.git")) {
       exec("cd " . escapeShellArg($this->path) . "; git init", $out);
-      $this->dump();
-      $this->commit(new DBApiChangeset($this->api, array('message' => 'initial commit')));
+      $changeset = new DBApiChangeset($this->api, array('message' => 'initial commit'))
+      $this->dump($changeset);
+      $this->commit($changeset);
     }
   }
 
@@ -91,7 +92,7 @@ class DBApiHistory {
 	  );
   }
 
-  function dump () {
+  function dump ($changeset) {
     $this->clearRepo();
 
     foreach ($this->api->tables as $table) {
@@ -107,6 +108,6 @@ class DBApiHistory {
       }
     }
 
-    exec("cd " . escapeShellArg($this->path) . "; git add . ; git ", $out);
+    exec("cd " . escapeShellArg($this->path) . "; git add .");
   }
 }
