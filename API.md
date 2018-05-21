@@ -51,6 +51,7 @@ $db->addTable(array(
 * old_id_field: (string) to detect renames with the 'insert-update' action, an old_field may supplied which holds the id again (default: '__id'). The old field will only be generated in the select action if the 'old_id' flag is set.
 * table: (string) database name of the table (defaults to the value of 'id')
 * order: (array) default order (see Action 'Select' for details)
+* delete: (boolean) whether entries may be delete (default: false)
 
 ==== Field parameters ====
 * (string) The ID of the field is the key of the hash.

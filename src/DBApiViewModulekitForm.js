@@ -34,6 +34,7 @@ class DBApiViewModulekitForm extends DBApiView {
         for (var k in schema.fields) {
           if (schema.fields[k].type === 'sub_table' && k in def.def) {
             updateSubTables(def.def[k].def, schema.fields[k])
+            def.def[k].removeable = !!schema.fields[k].delete
           }
         }
       }
@@ -41,7 +42,9 @@ class DBApiViewModulekitForm extends DBApiView {
 
       let options = {
         type: 'array',
-        default: 1
+        default: 1,
+        order: false,
+        removeable: !!table.schema.delete
       }
       let formDef = { def: this.def.def, type: 'form' }
 

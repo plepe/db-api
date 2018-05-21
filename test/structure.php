@@ -50,6 +50,7 @@ $spec2 = array(
     'comments' => array(
       'type' => 'sub_table',
       'id' => 'test2_comments',
+      'delete' => true,
       'fields' => array(
         'test2_id' => array(
           'read' => true,
@@ -112,6 +113,7 @@ $spec2a['query-visible'] = 'visible=true';
 $spec1a = $spec1;
 $spec1a['id'] = 'test1a';
 $spec1a['table'] = 'test1';
+$spec1a['delete'] = true;
 $spec1a['fields']['a']['write'] = false;
 
 $api = new DBApi($db);

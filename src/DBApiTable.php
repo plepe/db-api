@@ -426,6 +426,10 @@ class DBApiTable {
   }
 
   function delete ($action, $changeset=null) {
+    if (!array_key_exists('delete', $this->schema) || $this->schema['delete'] !== true) {
+      throw new Exception("permission denied, may not delete");
+    }
+
     if (!$changeset) {
       $changeset = new DBApiChangeset($this->api);
     }

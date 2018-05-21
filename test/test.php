@@ -341,12 +341,27 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testBuildLoad1_delete () {
     global $table1;
 
-    $result = $table1->delete(array(
+    $expected = "permission denied, may not delete";
+    try {
+      $result = $table1->delete(array(
+        'id' => 1
+      ));
+    } catch (Exception $e) {
+      $actual = $e->getMessage();
+    }
+
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad1a_delete () {
+    global $table1a;
+
+    $result = $table1a->delete(array(
       'id' => 1
     ));
     $this->assertEquals(array('count' => 1), $result);
 
-    $actual = $table1->select(array('id' => 1));
+    $actual = $table1a->select(array('id' => 1));
     $actual = iterator_to_array($actual);
     $expected = array();
     $this->assertEquals($expected, $actual);
