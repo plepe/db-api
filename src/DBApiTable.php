@@ -179,7 +179,7 @@ class DBApiTable {
       }
 
       if (!array_key_exists('write', $field) || $field['write'] === false) {
-        throw new Exception('permission denied');
+        throw new Exception("permission denied, writing {$this->id} field {$key}");
       }
 
       // $set[] = $this->db->quoteIdent($field['column'] ?? $key) . '=' . $this->db->quote($d); // PHP7

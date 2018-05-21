@@ -281,7 +281,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
         array('a' => 1, 'c' => 'foo'),
       ));
     } catch (Exception $e) {
-      if ($e->getMessage() !== 'permission denied') {
+      if ($e->getMessage() !== 'permission denied, writing test1 field c') {
         throw $e;
       }
       $got_exception = true;
@@ -1099,7 +1099,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testApiUpdate_perm_denied() {
     global $api;
 
-    $expected = "permission denied";
+    $expected = "permission denied, writing test1 field c";
     try {
       iterator_to_array_deep($api->exec(
         array(
