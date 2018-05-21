@@ -376,6 +376,7 @@ class DBApiTable {
 
     foreach ($ids as $id) {
       $sub_id_field = $sub_table->id_field;
+      $sub_old_id_field = $sub_table->old_id_field;
 
       $current_sub_ids = array_map(
         function ($el) use ($sub_id_field) {
@@ -396,6 +397,15 @@ class DBApiTable {
           if ($pos_in_current_sub_ids === false) {
             $data[$i1][$field['parent_field']] = $id;
           } else {
+            unset($current_sub_ids[$pos_in_current_sub_ids]);
+          }
+        }
+        // old_id field in sub field specified
+        if (array_key_exists($sub_old_id_field, $d1)) {
+          $pos_in_current_sub_ids = array_search($d1[$sub_old_id_field], $current_sub_ids);
+
+          // not yet member of parent object -> add parent_field
+          if ($pos_in_current_sub_ids !== false) {
             unset($current_sub_ids[$pos_in_current_sub_ids]);
           }
         }
