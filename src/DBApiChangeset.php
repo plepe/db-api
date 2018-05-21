@@ -44,7 +44,10 @@ class DBApiChangeset {
   }
 
   function commit () {
-    $this->writeChanges();
+    if (sizeof($this->removed_objects) + sizeof($this->objects)) {
+      $this->writeChanges();
+    }
+
     $this->db->commit();
   }
 
