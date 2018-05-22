@@ -492,6 +492,14 @@ class DBApiTable {
         $res->closeCursor();
       }
 
+      if ($insert) {
+        foreach ($this->schema['fields'] as $key => $field) {
+          if (array_key_exists('create_value', $field) && !array_key_exists($key, $elem)) {
+            $elem[$key] = $field['create_value'];
+          }
+        }
+      }
+
       $set = $this->_build_set($elem);
 
       if ($insert) {

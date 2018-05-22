@@ -366,6 +366,20 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1b_create_b_create_value() {
+    global $table1b;
+
+    $ids = $table1b->insert_update(array(
+      array('d' => 'bla'),
+    ));
+    $this->assertEquals(array(6), $ids);
+
+    $actual = $table1b->select(array('id' => $ids[0]));
+    $actual = iterator_to_array($actual);
+    $expected = array(array('a' => 6, 'b' => 'empty value', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad1_delete () {
     global $table1;
 
@@ -395,15 +409,15 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
-  public function testBuildLoad1a_delete_45 () {
+  public function testBuildLoad1a_delete_456 () {
     global $table1a;
 
     $result = $table1a->delete(array(
-      'id' => array(4, 5),
+      'id' => array(4, 5, 6),
     ));
-    $this->assertEquals(array('count' => 2), $result);
+    $this->assertEquals(array('count' => 3), $result);
 
-    $actual = $table1a->select(array('id' => array(4, 5)));
+    $actual = $table1a->select(array('id' => array(4, 5, 6)));
     $actual = iterator_to_array($actual);
     $expected = array();
     $this->assertEquals($expected, $actual);
@@ -1082,7 +1096,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
   public function testApiTables() {
     global $api;
 
-    $expected = array('test1', 'test1a', 'test2', 'test2a', 'test3', 'test3_nationality');
+    $expected = array('test1', 'test1a', 'test1b', 'test2', 'test2a', 'test3', 'test3_nationality');
     $actual = array_keys($api->tables);
 
     $this->assertEquals($expected, $actual);

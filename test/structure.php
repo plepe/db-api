@@ -116,9 +116,15 @@ $spec1a['table'] = 'test1';
 $spec1a['delete'] = true;
 $spec1a['fields']['a']['write'] = false;
 
+$spec1b = $spec1;
+$spec1b['id'] = 'test1b';
+$spec1b['table'] = 'test1';
+$spec1b['fields']['b']['create_value'] = 'empty value';
+
 $api = new DBApi($db);
 $table1 = $api->addTable($spec1);
 $table1a = $api->addTable($spec1a);
+$table1b = $api->addTable($spec1b);
 $table2 = $api->addTable($spec2);
 $table2a = $api->addTable($spec2a);
 $table3 = $api->addTable($spec3);
