@@ -30,16 +30,19 @@ class DBApiViewTwig extends DBApiView {
 
   init (callback) {
     this.template = this.twig.twig({
-      data: Array.isArray(this.def.each) ? this.def.each.join('\n') : this.def.each
+      data: Array.isArray(this.def.each) ? this.def.each.join('\n') : this.def.each,
+      autoescape: true
     })
     if (this.def.pre) {
       this.templatePre = this.twig.twig({
-        data: Array.isArray(this.def.pre) ? this.def.pre.join('\n') : this.def.pre
+        data: Array.isArray(this.def.pre) ? this.def.pre.join('\n') : this.def.pre,
+        autoescape: true
       })
     }
     if (this.def.post) {
       this.templatePost = this.twig.twig({
-        data: Array.isArray(this.def.post) ? this.def.post.join('\n') : this.def.post
+        data: Array.isArray(this.def.post) ? this.def.post.join('\n') : this.def.post,
+        autoescape: true
       })
     }
 
