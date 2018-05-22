@@ -52,7 +52,7 @@ $db->addTable(array(
 * table: (string) database name of the table (defaults to the value of 'id')
 * order: (array) default order (see Action 'Select' for details)
 * delete: (boolean) whether entries may be delete (default: false)
-* create_value: (any) a value which will be set on create when no value is specified.
+* create_value: (any) a value which will be set on create when no value is specified - especially when write=false for this field.
 
 ==== Field parameters ====
 * (string) The ID of the field is the key of the hash.

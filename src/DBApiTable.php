@@ -167,7 +167,7 @@ class DBApiTable {
         $limit_offset;
   }
 
-  function _build_set ($data) {
+  function _build_set ($data, $ignore_permissions=false) {
     $set = array();
 
     foreach ($data as $key => $d) {
@@ -178,7 +178,7 @@ class DBApiTable {
         continue;
       }
 
-      if (!array_key_exists('write', $field) || $field['write'] === false) {
+      if (!$ignore_permissions && (!array_key_exists('write', $field) || $field['write'] === false)) {
         throw new Exception("permission denied, writing {$this->id} field {$key}");
       }
 
@@ -492,15 +492,26 @@ class DBApiTable {
         $res->closeCursor();
       }
 
+      $set = $this->_build_set($elem);
+
       if ($insert) {
+        $elem_insert = array();
         foreach ($this->schema['fields'] as $key => $field) {
           if (array_key_exists('create_value', $field) && !array_key_exists($key, $elem)) {
-            $elem[$key] = $field['create_value'];
+            $elem_insert[$key] = $field['create_value'];
           }
+        }
+
+        $set_insert = $this->_build_set($elem_insert, true);
+
+        if ($set !== '' && $set_insert !== '') {
+          $set = "{$set}, {$set_insert}";
+        }
+        else {
+          $set = "{$set}{$set_insert}";
         }
       }
 
-      $set = $this->_build_set($elem);
 
       if ($insert) {
         if ($set !== '') {

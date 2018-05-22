@@ -366,6 +366,21 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1b_create_b_perm_denied() {
+    global $table1b;
+
+    $expected = "permission denied, writing test1b field b";
+    try {
+      $result = $table1b->insert_update(array(
+        array('b' => 'foobar', 'd' => 'bla'),
+      ));
+    } catch (Exception $e) {
+      $actual = $e->getMessage();
+    }
+
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad1b_create_b_create_value() {
     global $table1b;
 

@@ -119,6 +119,7 @@ $spec1a['fields']['a']['write'] = false;
 $spec1b = $spec1;
 $spec1b['id'] = 'test1b';
 $spec1b['table'] = 'test1';
+$spec1b['fields']['b']['write'] = false;
 $spec1b['fields']['b']['create_value'] = 'empty value';
 
 $api = new DBApi($db);
