@@ -338,6 +338,34 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals($expected, $actual);
   }
 
+  public function testBuildLoad1_create_id_null () {
+    global $table1;
+
+    $ids = $table1->insert_update(array(
+      array('a' => null, 'b' => 'bla', 'd' => 'bla'),
+    ));
+    $this->assertEquals(array(4), $ids);
+
+    $actual = $table1->select(array('id' => $ids[0]));
+    $actual = iterator_to_array($actual);
+    $expected = array(array('a' => 4, 'b' => 'bla', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad1_create_old_id_null () {
+    global $table1;
+
+    $ids = $table1->insert_update(array(
+      array('__id' => null, 'b' => 'bla', 'd' => 'bla'),
+    ));
+    $this->assertEquals(array(5), $ids);
+
+    $actual = $table1->select(array('id' => $ids[0]));
+    $actual = iterator_to_array($actual);
+    $expected = array(array('a' => 5, 'b' => 'bla', 'd' => 'b'));
+    $this->assertEquals($expected, $actual);
+  }
+
   public function testBuildLoad1_delete () {
     global $table1;
 
@@ -362,6 +390,20 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $this->assertEquals(array('count' => 1), $result);
 
     $actual = $table1a->select(array('id' => 1));
+    $actual = iterator_to_array($actual);
+    $expected = array();
+    $this->assertEquals($expected, $actual);
+  }
+
+  public function testBuildLoad1a_delete_45 () {
+    global $table1a;
+
+    $result = $table1a->delete(array(
+      'id' => array(4, 5),
+    ));
+    $this->assertEquals(array('count' => 2), $result);
+
+    $actual = $table1a->select(array('id' => array(4, 5)));
     $actual = iterator_to_array($actual);
     $expected = array();
     $this->assertEquals($expected, $actual);

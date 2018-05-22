@@ -465,7 +465,12 @@ class DBApiTable {
       $idchange = false;
 
       if (array_key_exists($this->old_id_field, $elem)) {
-        $id = $elem[$this->old_id_field];
+        if ($elem[$this->old_id_field] === null) {
+          $insert = true;
+        }
+        else {
+          $id = $elem[$this->old_id_field];
+        }
         unset($elem[$this->old_id_field]);
       }
       elseif (!array_key_exists($this->id_field, $elem)) {
