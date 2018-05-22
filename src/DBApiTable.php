@@ -394,7 +394,7 @@ class DBApiTable {
           $pos_in_current_sub_ids = array_search($d1[$sub_id_field], $current_sub_ids);
 
           // not yet member of parent object -> add parent_field
-          if ($pos_in_current_sub_ids === false) {
+          if ($pos_in_current_sub_ids === false || $d1[$sub_id_field] === null) {
             $data[$i1][$field['parent_field']] = $id;
           } else {
             unset($current_sub_ids[$pos_in_current_sub_ids]);
@@ -405,7 +405,9 @@ class DBApiTable {
           $pos_in_current_sub_ids = array_search($d1[$sub_old_id_field], $current_sub_ids);
 
           // not yet member of parent object -> add parent_field
-          if ($pos_in_current_sub_ids !== false) {
+          if ($pos_in_current_sub_ids === false) {
+            $data[$i1][$field['parent_field']] = $id;
+          } else {
             unset($current_sub_ids[$pos_in_current_sub_ids]);
           }
         }

@@ -559,7 +559,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     global $table2;
 
     $ids = $table2->update(array(
-      'update' => array('comments' => array(array('__id' => 1), array('__id' => 2, 'text' => 'barfoo'), array('__id' => 4))),
+      'update' => array('comments' => array(array('__id' => 1), array('__id' => 2, 'text' => 'barfoo'), array('__id' => 4), array('text' => 'blubb0'), array('id' => null, 'text' => 'blubb1'), array('__id' => null, 'text' => 'blubb2'))),
       'id' => 1,
     ));
     $this->assertEquals(array(1), $ids);
@@ -569,7 +569,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $expected = array (
       array (
 	'id' => 1,
-        'commentsCount' => 3,
+        'commentsCount' => 6,
 	'comments' => array (
 	  array (
 	    'test2_id' => 1,
@@ -585,6 +585,21 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	    'test2_id' => 1,
 	    'id' => 4,
 	    'text' => 'foobar2',
+          ),
+          array(
+	    'test2_id' => 1,
+	    'id' => 5,
+	    'text' => 'blubb0',
+          ),
+          array(
+	    'test2_id' => 1,
+	    'id' => 6,
+	    'text' => 'blubb1',
+          ),
+          array(
+	    'test2_id' => 1,
+	    'id' => 7,
+	    'text' => 'blubb2',
           ),
 	),
       ),
@@ -644,12 +659,12 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	'comments' => array (
 	  array (
 	    'test2_id' => 3,
-	    'id' => 5,
+	    'id' => 8,
 	    'text' => 'foobar',
 	  ),
 	  array (
 	    'test2_id' => 3,
-	    'id' => 6,
+	    'id' => 9,
 	    'text' => 'foobar2',
 	  ),
 	),
@@ -676,12 +691,12 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	'comments' => array (
 	  array (
 	    'test2_id' => 4,
-	    'id' => 7,
+	    'id' => 10,
 	    'text' => 'foobar',
 	  ),
 	  array (
 	    'test2_id' => 4,
-	    'id' => 8,
+	    'id' => 11,
 	    'text' => 'foobar2',
 	  ),
 	),
@@ -772,14 +787,14 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	'comments' => array (
 	  0 => array (
 	    'test2_id' => 3,
-	    'id' => 5,
-            '__id' => 5,
+	    'id' => 8,
+            '__id' => 8,
 	    'text' => 'foobar',
 	  ),
 	  1 => array (
 	    'test2_id' => 3,
-	    'id' => 6,
-            '__id' => 6,
+	    'id' => 9,
+            '__id' => 9,
 	    'text' => 'foobar2',
 	  ),
 	),
@@ -790,14 +805,14 @@ class db_api_test extends PHPUnit_Framework_TestCase {
 	'comments' => array (
 	  0 => array (
 	    'test2_id' => 4,
-	    'id' => 7,
-            '__id' => 7,
+	    'id' => 10,
+            '__id' => 10,
 	    'text' => 'foobar',
 	  ),
 	  1 => array (
 	    'test2_id' => 4,
-	    'id' => 8,
-            '__id' => 8,
+	    'id' => 11,
+            '__id' => 11,
 	    'text' => 'foobar2',
 	  ),
 	),
