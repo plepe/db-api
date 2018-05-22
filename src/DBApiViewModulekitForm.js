@@ -27,24 +27,29 @@ class DBApiViewModulekitForm extends DBApiView {
       dom.appendChild(domForm)
 
       function updateSubTables (def, schema) {
-        def.def[schema.old_id_field || '__id'] = {
+        def.def.def[schema.old_id_field || '__id'] = {
           type: 'hidden'
         }
 
+        def.removeable = !!schema.delete
+        def.createable = !!schema.fields[schema.id_field || 'id'].write
+        def.order = false
+
         for (var k in schema.fields) {
-          if (schema.fields[k].type === 'sub_table' && k in def.def) {
-            updateSubTables(def.def[k].def, schema.fields[k])
-            def.def[k].removeable = !!schema.fields[k].delete
+          if (schema.fields[k].type === 'sub_table' && k in def.def.def) {
+            updateSubTables(def.def.def[k], schema.fields[k])
           }
         }
       }
-      updateSubTables(this.def, table.schema)
+      let x = { def: this.def }
+      updateSubTables(x, table.schema)
 
       let options = {
         type: 'array',
         default: 1,
-        order: false,
-        removeable: !!table.schema.delete
+        order: x.order,
+        removeable: x.removeable,
+        createable: x.createable
       }
       let formDef = { def: this.def.def, type: 'form' }
 
