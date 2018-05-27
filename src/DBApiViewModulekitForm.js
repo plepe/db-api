@@ -53,6 +53,10 @@ class DBApiViewModulekitForm extends DBApiView {
       }
       let formDef = { def: this.def.def, type: 'form' }
 
+      // remember (old) ids of result so we know which entries to delete
+      let oldIdField = table.schema.old_id_field || '__id'
+      let toDelete = result.map(entry => entry[oldIdField])
+
       this.form = new form(null, formDef, options)
       this.form.show(domForm)
       this.form.set_data(result)
@@ -70,11 +74,30 @@ class DBApiViewModulekitForm extends DBApiView {
           form: this.form
         })
 
-        changeset.push({
-          action: 'insert-update',
-          table: this.query.table,
-          data: data
-        })
+        if (data !== null) {
+          changeset.push({
+            action: 'insert-update',
+            table: this.query.table,
+            data: data
+          })
+
+          for (var k in data) {
+            let p = toDelete.indexOf(data[k][oldIdField])
+            if (p !== -1) {
+              delete(toDelete[p])
+            }
+          }
+          // remove empty entries
+          toDelete = toDelete.filter(id => id !== undefined)
+        }
+
+        if (toDelete.length) {
+          changeset.push({
+            action: 'delete',
+            table: this.query.table,
+            id: toDelete
+          })
+        }
 
         let query = JSON.parse(JSON.stringify(this.query))
         query.cache = false
@@ -82,8 +105,11 @@ class DBApiViewModulekitForm extends DBApiView {
 
         this.api.exec(changeset, (err, result) => {
           if (!err) {
-            this.form.set_orig_data(result[1])
-            this.form.set_data(result[1])
+            let last = result.length - 1
+            this.form.set_orig_data(result[last])
+            this.form.set_data(result[last])
+
+            let toDelete = result.map(entry => entry[oldIdField])
           }
 
           this.emit('save', {
