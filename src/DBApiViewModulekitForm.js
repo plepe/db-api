@@ -66,7 +66,25 @@ class DBApiViewModulekitForm extends DBApiView {
       input.value = lang('save')
       domForm.appendChild(input)
 
+      input = document.createElement('input')
+      input.type = 'button'
+      input.value = lang('delete')
+      domForm.appendChild(input)
+
+      input.onclick = () => {
+        this.form.set_data([])
+        submit.call(this)
+
+        return false
+      }
+
       domForm.onsubmit = () => {
+        submit.call(this)
+
+        return false
+      }
+
+      function submit () {
         let data = this.form.get_data()
         let changeset = []
 
@@ -118,8 +136,6 @@ class DBApiViewModulekitForm extends DBApiView {
             result: result
           })
         })
-
-        return false
       }
 
       if (callback) {
