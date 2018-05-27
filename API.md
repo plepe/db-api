@@ -210,7 +210,7 @@ The following parameters are available:
 * offset: (int) start with the nth element.
 * order: (array) Order by the specified fields.
 
-Returns count of deleted elements.
+Returns ids of deleted elements.
 
 === Action 'nop' ===
 Do nothing, return null.

@@ -449,7 +449,7 @@ class DBApiTable {
 
     $res = $this->db->query("delete from {$this->table_quoted} {$query}");
 
-    return array('count' => $res->rowCount());
+    return $ids;
   }
 
   /*

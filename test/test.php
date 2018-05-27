@@ -416,7 +416,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $result = $table1a->delete(array(
       'id' => 1
     ));
-    $this->assertEquals(array('count' => 1), $result);
+    $this->assertEquals(array(1), $result);
 
     $actual = $table1a->select(array('id' => 1));
     $actual = iterator_to_array($actual);
@@ -430,7 +430,7 @@ class db_api_test extends PHPUnit_Framework_TestCase {
     $result = $table1a->delete(array(
       'id' => array(4, 5, 6),
     ));
-    $this->assertEquals(array('count' => 3), $result);
+    $this->assertEquals(array('4', '5', '6'), $result);
 
     $actual = $table1a->select(array('id' => array(4, 5, 6)));
     $actual = iterator_to_array($actual);
