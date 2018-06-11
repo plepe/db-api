@@ -64,7 +64,16 @@ class DBApiViewTwig extends DBApiView {
     }
   }
 
-  show (dom, options={}, callback=null, start=0, next=null, divMore=null) {
+  show (dom, options={}, callback=null, start=0, next=null, divMore=null, groupLast=null) {
+    let groupTemplate
+
+    if (options.group) {
+      groupTemplate = this.twig.twig({
+        data: options.group,
+        autoescape: true
+      })
+    }
+
     if (typeof this.template === 'undefined') {
       return this.init((err) => {
         if (err) {
@@ -176,17 +185,43 @@ class DBApiViewTwig extends DBApiView {
                 global: options.global
               }
 
-              this.render(data, this.template, (err, r) => {
-                div.innerHTML = r
-                renderedResult[index] = r
+              async.parallel([
+                (done) => {
+                  if (!groupTemplate) {
+                    return done()
+                  }
 
-                this.emit('showEntry', {
-                  dom: div,
-                  entry,
-                  table: this.query.table,
-                  error: null
-                })
+                  this.render(data, groupTemplate, (err, r) => {
+                    r = r.toString()
 
+                    if (groupLast !== r) {
+                      let groupDiv = document.createElement('div')
+                      dom.insertBefore(groupDiv, div)
+                      groupDiv.innerHTML = r
+                      groupLast = r
+                    }
+
+                    done(err)
+                  })
+                },
+
+                (done) => {
+                  this.render(data, this.template, (err, r) => {
+                    div.innerHTML = r
+                    renderedResult[index] = r
+
+                    this.emit('showEntry', {
+                      dom: div,
+                      entry,
+                      table: this.query.table,
+                      error: null
+                    })
+
+                    done(err)
+                  })
+                }
+              ],
+              (err) => {
                 callback(err)
               })
             },
@@ -203,7 +238,7 @@ class DBApiViewTwig extends DBApiView {
           if (next) {
             divMore = document.createElement('div')
             divMore.className = 'loadMore'
-            showMoreFunction = this.show.bind(this, dom, options, callback, start + options.step, next, divMore)
+            showMoreFunction = this.show.bind(this, dom, options, callback, start + options.step, next, divMore, groupLast)
             if (dom.lastChild && dom.lastChild.className === 'post') {
               dom.insertBefore(divMore, dom.lastChild)
             } else {
