@@ -30,6 +30,12 @@ class DBApiTable extends Evenement\EventEmitter {
     $this->id_field_quoted = $this->db->quoteIdent($this->id_field);
     $this->old_id_field_quoted = $this->db->quoteIdent($this->old_id_field);
     $this->table_quoted = $this->db->quoteIdent($this->schema['table']);
+
+    if (isset($this->schema['on'])) {
+      foreach ($this->schema['on'] as $event => $fun) {
+        $this->on($event, $fun);
+      }
+    }
   }
 
   function schema ($action) {

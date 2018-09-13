@@ -87,6 +87,10 @@ $result = $api->do(array(
   array(
     'action' => 'insert-update',
     'table' => 'posts',
+    'on' => array(
+      // for possible events, see below
+      'insert' => function ($id, $table) { ... },
+    ),
     'data' => array(
       array(
         'author' => 'Alice',
@@ -131,3 +135,5 @@ DBTable emits events, when an action happens. The following events are defined:
 The following parameters will be passed to the event:
 * ids (string array of affected ids)
 * table (pointer to the DBTable instance)
+
+Event handlers can also be set in the schema definition (parameter 'on')
