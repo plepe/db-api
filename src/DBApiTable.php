@@ -1,5 +1,5 @@
 <?php
-class DBApiTable {
+class DBApiTable extends Evenement\EventEmitter {
   function __construct ($api, $schema) {
     $this->api = $api;
     $this->db = $api->db;
@@ -368,6 +368,8 @@ class DBApiTable {
       }
     }
 
+    $this->emit('update', array($ids, $this));
+
     return isset($ids) ? $ids : true;
   }
 
@@ -448,6 +450,8 @@ class DBApiTable {
     }
 
     $res = $this->db->query("delete from {$this->table_quoted} {$query}");
+
+    $this->emit('delete', array($ids, $this));
 
     return $ids;
   }
@@ -544,6 +548,8 @@ class DBApiTable {
           $this->_update_sub_table(array($id), $d, $key, $field, $changeset);
         }
       }
+
+      $this->emit($insert ? 'insert' : 'update', array(array($id), $this));
 
       $ret[] = $id;
     }

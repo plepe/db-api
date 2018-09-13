@@ -121,3 +121,13 @@ statements, then the select.
 result:
 ```json
 ```
+
+=== Events ===
+DBTable emits events, when an action happens. The following events are defined:
+* 'insert'
+* 'update'
+* 'delete'
+
+The following parameters will be passed to the event:
+* ids (string array of affected ids)
+* table (pointer to the DBTable instance)
