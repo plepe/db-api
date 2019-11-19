@@ -7,6 +7,7 @@ const async = {
 let viewTypes = {
   'Base': require('./DBApiView'),
   'JSON': require('./DBApiViewJSON'),
+  'CSV': require('./DBApiViewCSV'),
   'Twig': require('./DBApiViewTwig'),
   'ModulekitForm': require('./DBApiViewModulekitForm')
 }
