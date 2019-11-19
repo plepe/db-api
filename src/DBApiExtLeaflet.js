@@ -39,7 +39,7 @@ class DBApiExtLeaflet extends DBApiExt {
           let dimensions = map.getSize()
           img.width = dimensions.x
           img.height = dimensions.y
-          img.src = canvas.toDataURL()
+          img.src = canvas.toDataURL(div.getAttribute('data-image-type') || 'image/png', div.getAttribute('data-image-quality') || null)
 
           let attrs = div.attributes
           Array.prototype.forEach.call(attrs, (attr) => {
