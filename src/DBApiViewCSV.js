@@ -1,11 +1,11 @@
 const DBApiView = require('./DBApiView')
 const emptyElement = require('@f/empty-element')
 
-class DBApiViewJSON extends DBApiView {
+class DBApiViewCSV extends DBApiView {
   constructor (dbapi, def, options) {
     super(dbapi, def, options)
-    this.exportContentType = 'application/json'
-    this.exportExtension = 'json'
+    this.exportContentType = 'text/csv'
+    this.exportExtension = 'csv'
   }
 
   show (dom, options={}, callback=null) {
@@ -20,14 +20,21 @@ class DBApiViewJSON extends DBApiView {
         })
       }
 
-      let renderedResult = JSON.stringify(result, null, '    ')
+      let columns = this.def.columns
+      let renderedResult = '\ufeff' // BOM
+      renderedResult += columns.join(',') + '\n'
+
+      result.forEach(entry => {
+        renderedResult += columns.map(col => entry[col]) . join(',') + '\n'
+      })
+
       if (dom) {
         emptyElement(dom)
         dom.appendChild(document.createTextNode(renderedResult))
       }
 
       if (callback) {
-        callback(null)
+        callback(null, renderedResult)
         callback = null
       }
       this.emit('show', {
@@ -38,4 +45,4 @@ class DBApiViewJSON extends DBApiView {
   }
 }
 
-module.exports = DBApiViewJSON
+module.exports = DBApiViewCSV

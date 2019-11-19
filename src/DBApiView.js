@@ -17,6 +17,8 @@ class DBApiView {
     this.def = def
     this.options = options
     this.extensions = []
+    this.exportContentType = 'text/html'
+    this.exportExtension = 'html'
 
     if (this.def.extensions) {
       for (var i in this.def.extensions) {
@@ -104,7 +106,7 @@ class DBApiView {
           }
         },
         (err) => {
-          callback(null, div.innerHTML, 'text/html', 'html')
+          callback(null, div.innerHTML, this.exportContentType, this.exportExtension)
           document.body.removeChild(div)
         }
       )
