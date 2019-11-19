@@ -14,8 +14,8 @@ class DBApiViewCSV extends DBApiView {
     }
 
     if (('' + value).match(/[\t\n,;\"]/)) {
-      value = value.replace(/\\/g, /\\\\/g)
-      value = value.replace(/"/g, /\\"/g)
+      value = value.replace(/\\/g, '\\\\')
+      value = value.replace(/"/g, '\\"')
       return '"' + value + '"'
     }
 
