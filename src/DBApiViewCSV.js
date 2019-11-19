@@ -8,6 +8,20 @@ class DBApiViewCSV extends DBApiView {
     this.exportExtension = 'csv'
   }
 
+  encode (value) {
+    if (value === null) {
+      return ''
+    }
+
+    if (('' + value).match(/[\t\n,;\"]/)) {
+      value = value.replace(/\\/g, /\\\\/g)
+      value = value.replace(/"/g, /\\"/g)
+      return '"' + value + '"'
+    }
+
+    return value
+  }
+
   show (dom, options={}, callback=null) {
     this.get((err, result) => {
       if (err) {
@@ -25,7 +39,7 @@ class DBApiViewCSV extends DBApiView {
       renderedResult += columns.join(',') + '\n'
 
       result.forEach(entry => {
-        renderedResult += columns.map(col => entry[col]) . join(',') + '\n'
+        renderedResult += columns.map(col => this.encode(entry[col])) . join(',') + '\n'
       })
 
       if (dom) {
