@@ -2,6 +2,12 @@ const DBApiView = require('./DBApiView')
 const emptyElement = require('@f/empty-element')
 
 class DBApiViewJSON extends DBApiView {
+  constructor (dbapi, def, options) {
+    super(dbapi, def, options)
+    this.exportContentType = 'application/json'
+    this.exportExtension = 'json'
+  }
+
   show (dom, options={}, callback=null) {
     this.get((err, result) => {
       if (err) {
