@@ -22,6 +22,21 @@ class DBApiViewCSV extends DBApiView {
     return value
   }
 
+  getPath (entry, path) {
+    path = path.split(/\//g)
+    let result = entry
+
+    path.forEach(p => {
+      if ((result instanceof Object || Array.isArray(result)) && typeof result[p] !== 'undefined') {
+        result = result[p]
+      } else {
+        result = null
+      }
+    })
+
+    return result
+  }
+
   show (dom, options={}, callback=null) {
     this.get((err, result) => {
       if (err) {
@@ -39,7 +54,7 @@ class DBApiViewCSV extends DBApiView {
       renderedResult += columns.join(',') + '\n'
 
       result.forEach(entry => {
-        renderedResult += columns.map(col => this.encode(entry[col])) . join(',') + '\n'
+        renderedResult += columns.map(col => this.encode(this.getPath(entry, col))) . join(',') + '\n'
       })
 
       if (dom) {
