@@ -60,6 +60,11 @@ class DBApiTable extends Evenement\EventEmitter {
       $query = array('key' => $query[0], 'op' => $query[1], 'value' => sizeof($query) > 2 ? $query[2] : null);
     }
 
+    if (array_key_exists($query['key'], $this->schema['additional_filters'])) {
+      $filter = $this->schema['additional_filters'][$query['key']];
+      return $filter['compile']($query['value'], $this->db);
+    }
+
     if (is_array($query['key'])) {
       $key = array_shift($query['key']);
       $field = $this->schema['fields'][$key];
@@ -155,6 +160,8 @@ class DBApiTable extends Evenement\EventEmitter {
     if (array_key_exists('query-visible', $this->schema)) {
       $where[] = $this->schema['query-visible'];
     }
+
+    $where = array_filter($where, function ($w) { return $w; });
 
     return sizeof($where) ? 'where ' . implode(' and ', $where) : '';
   }

@@ -41,6 +41,13 @@ $postsSpec = array(
       ),
     ),
   ),
+  'additional_filters' => array(
+    'foo' => array(
+      'compile' => function ($value, $db) {
+        return 'message=' . $db->quote($value);
+      }
+    ),
+  ),
 );
 ```
 
